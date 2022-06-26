@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Browser incompatible</title>
+		
+		
+
+			
+		
+		
+	<script type="text/javascript" src="j/bson.bundle.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:500,900&amp;subset=cyrillic" rel="stylesheet"> 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<link rel="stylesheet" href="s/dbr.css" />
+	
+	<style>
+		@media screen and (min-width: 1100px)
+		{
+			body { width:50%; margin-left:25% }
+			
+		}
+
+		.upr { text-transform: uppercase; font-size: 1.5em; letter-spacing: 0.3em; }
+		body { line-height:2em; }
+		
+	</style>
+
+	</head>
+	
+	<body style="">
+		<h1 class="upr">Firefox support</h1>
+		<p>Firefox has experimental support for MIDI included since version 97 (I think). The process of enabling it is awkward, so the usage of Chrome or similar is still recommended.</p>
+		<p>However, if you are a die hard Firefox fan as I am, you can do this:</p>
+		<ol>
+			<li>Enter <code>about:config</code> in the address bar, accept all prompts</li>
+			<li>search for &laquo;midi&raquo; and enable <code>dom.webmidi.enabled</code></li>
+			<li>Download <a href="dobrynyaconfig1.0.xpi">this addon</a>, accept all and install *</li>
+		</lo>
+		<p>* The addon does nothing but allows the configurator to actually even request MIDI handling.
+		This is stupid, but this is per <a href="https://extensionworkshop.com/documentation/publish/site-permission-add-on/">Firefox requirements</a>. Sigh. I really hope they push
+		this all to the stable release soon...</p>
+		<p>Done? <a href=".">Try loading the configurator again</a>. A relaunch of Firefox with Dobrynya connected may be required, as some versions have been reported to not
+		support hot plugging.</p>
+	</body>
+</html>

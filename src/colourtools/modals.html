@@ -1,0 +1,387 @@
+<div class="factory" id="modals">
+	
+	<div id="ct-preview">
+		<div id="ct-preview-before" class="patternpreview">
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+		</div>
+	
+		<div id="ct-preview-arrow">→</div>
+	
+		<div id="ct-preview-after" class="patternpreview">
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+			<span></span><span></span><span></span><span></span>
+		</div>
+	</div>
+	
+
+	
+	
+	<dialog class="dw-colour-toolmodal modal" id="modal-fill" data-name="modal-fill">
+		<h2>Fill</h2>
+		<div class="dw-colour-toolmodal-preview"></div>
+		<fieldset>
+			<legend>Colours</legend>
+			<div class="colourwell colourwell-modal modal-currentcolourhere" id="modal-fill-well1"></div>
+			<div class="colourwell colourwell-modal modal-currentcolourhere" id="modal-fill-well2"></div>
+		</fieldset>
+		
+
+		
+		<fieldset>
+			<legend>Method</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-fill-mode" checked value="solid">
+					<label>Solid one-colour</label>
+				<br /> 
+					<input type="radio" name="modal-fill-mode" value="gradient-td">
+					<label>Gradient top-down</label>
+				<br /> 
+					<input type="radio" name="modal-fill-mode" value="gradient-lr">
+					<label>Gradient left-right</label>
+				<br /> 
+					<input type="radio" name="modal-fill-mode" value="gradient-tlbr">
+					<label>Gradient top left to bottom right</label>
+				<br /> 
+					<input type="radio" name="modal-fill-mode" value="gradient-trbl">
+					<label>Gradient top right to bottom left</label>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Hue gradient<span class="explain">
+				<p>If you’re playing with gradients, and because the spectrum is sort of a ring,
+					there are two ways to deal with hues:</p>
+				<p><i>Take the shortest path on the spectrum</i> will always try to make
+				the fewest hops between the colours. With this, if one colour is violet and another is orange,
+				it will go through purples and reds.</p>
+				<p><i>Take the longest part on the spectrum</i> is the opposite. In the example above,
+				it will NOT include purples and reds, but will include everything else.</p>
+				<p><i>Rainbow order</i> will kinda mimic the hue slider in the colour selection
+					window, as it will never allow to jump across red. Red to purple will include the whole spectrum.
+					This is especially useful if you go for a rainbow effect, hence the name.</p>
+			</span></legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-fill-huemode" checked value="short">
+					<label>Take the shortest path on the spectrum</label>
+				<br /> 
+					<input type="radio" name="modal-fill-huemode" value="long">
+					<label>Take the longest path on the spectrum</label>
+				<br /> 
+					<input type="radio" name="modal-fill-huemode" value="rainbow">
+					<label>Rainbow order</label>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Affect</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-fill-affect" checked value="all">
+					<label>All</label>
+				<br /> 
+					<input type="radio" name="modal-fill-affect" value="explicit">
+					<label>Only with explicit colour</label>
+				<br /> 
+					<input type="radio" name="modal-fill-affect" value="bank">
+					<label>Only without explicit colour</label>
+			</div>
+		</fieldset>
+		<div id="modal-fill-warning-erase" class="modal-warning modal-fill-warning hh">
+			Because you have no colour selected,
+			this will only erase all explicitly set colours (if any were set) and leave the bank colours.</div>
+		<div id="modal-fill-warning-nothing" class="modal-warning modal-fill-warning hh">Because you have no colour selected, this will have no effect.</div>
+	</dialog> 
+	
+	<dialog class="dw-colour-toolmodal modal" id="modal-fade" data-name="modal-fade">
+		<h2>Fade and brighten</h2>
+		<p>Scale the colours up or down.</p>
+		<div class="dw-colour-toolmodal-preview"></div>
+		<fieldset>
+			<legend>Brightness</legend>
+			<p>
+				<input value="0" min="-3" max="3" name="modal-fade-brightness" data-default="0" type="range">
+			</p>
+			<input type="checkbox" name="modal-fade-nonzerobrightness" checked value="yes">
+			<label>Never go to zero</label>
+		</fieldset>
+		<fieldset>
+			<legend>Saturation</legend>
+			<p>
+				<input value="0" min="-3" max="3" name="modal-fade-saturation" data-default="0" type="range">
+			</p>
+			<input type="checkbox" name="modal-fade-nonzerosaturation" checked value="yes">
+			<label>Never go to zero</label>
+		</fieldset>		
+		
+		<fieldset>
+			<legend>Options</legend>
+			<div class="checkboxblock">
+					<input type="checkbox" name="modal-fade-includeExplicit" checked value="yes">
+					<label>Apply to explicitly set colours</label>
+				<br />
+					<input type="checkbox" name="modal-fade-includeBank" value="yes">
+					<label>Apply to the bank colour</label>
+			</div>
+		</fieldset>
+	</dialog>
+
+	<dialog class="dw-colour-toolmodal modal" id="modal-copylayers" data-name="modal-copylayers">
+		<h2>Copy layers & complementary colours</h2>
+		<p>You can copy one layer to another, while making some changes to the colours.</p>
+		
+		<div class="dw-colour-toolmodal-preview"></div>
+		
+		<fieldset>
+			<legend>Copy from</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-copylayers-from" checked value="0">
+					<label>Normal colour</label>
+				<br /> 
+					<input type="radio" name="modal-copylayers-from" value="1">
+					<label>Active colour</label>
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Copy to</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-copylayers-to" value="0">
+					<label>Normal colour</label>
+				<br /> 
+					<input type="radio" name="modal-copylayers-to" checked value="1">
+					<label>Active colour</label>
+				<br />
+					<input type="radio" name="modal-copylayers-to" value="-1">
+					<label>Patch pattern</label>
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Options</legend>
+			<div class="checkboxblock">
+					<input type="checkbox" name="modal-copylayers-includeExplicit" checked value="yes">
+					<label>Include explicitly set colours</label>
+				<br />
+					<input type="checkbox" name="modal-copylayers-includeBank" value="yes">
+					<label>Include bank colour</label>
+				<br /> 
+					<input type="checkbox" name="modal-copylayers-keepexisting" value="yes">
+					<label>Keep target colours that have already been set</label>
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Change colours</legend>
+				<fieldset>
+					<legend>Hue</legend>
+					<input type="checkbox" name="modal-copylayers-inverthue" value="yes" />
+					<label>Invert hue</label><br />
+				</fieldset>
+				
+				<fieldset>
+					<legend>Saturation</legend>
+					<div class="checkboxblock">
+						<input type="radio" name="modal-copylayers-saturation" checked value="keep">
+						<label>Do not change</label>
+						<br />
+						<input type="radio" name="modal-copylayers-saturation" value="dim">
+						<label>Dim</label>
+						<br />
+						<input type="radio" name="modal-copylayers-saturation" value="max">
+						<label>Max out</label>
+					</div>
+				</fieldset>
+				
+				<fieldset>
+					<legend>Brightness</legend>
+					<div class="checkboxblock">
+						<input type="radio" name="modal-copylayers-brightness" checked value="keep">
+						<label>Do not change</label>
+						<br />
+						<input type="radio" name="modal-copylayers-brightness" value="dim">
+						<label>Dim</label>
+						<br />
+						<input type="radio" name="modal-copylayers-brightness" value="max">
+						<label>Max out</label>
+					</div>
+				</fieldset>
+		</fieldset>
+	</dialog>
+	
+	<dialog class="dw-colour-toolmodal modal" id="modal-tobank" data-name="modal-tobank">
+		<h2>Colour to bank</h2>
+		<p>Bank colour is like a base colour, and pads will take it unless set otherwise. You can
+			apply bank colour explicitly to experiment with colours later, for instance.</p>
+		
+		<fieldset>
+			<legend>Apply the colour</legend>
+			<div class="colourwell colourwell-modal modal-currentcolourhere" id="modal-tobank-well1"></div>
+		</fieldset>
+		
+		<fieldset>
+			<legend>to bank’s</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-tobank-affect" checked value="0">
+					<label>Normal colour</label>
+				<br /> 
+					<input type="radio" name="modal-tobank-affect" value="1">
+					<label>Active colour</label>
+				<br /> 
+					<input type="radio" name="modal-tobank-affect" value="2">
+					<label>Normal colour for music key</label>
+				<br /> 
+					<input type="radio" name="modal-tobank-affect" value="3">
+					<label>Active colour for music key</label>
+			</div>
+		</fieldset>
+		<div id="modal-tobank-warning" class="modal-warning modal-tobank-warning hh">
+			Because you have no colour selected,
+			this will remove the bank colour altogether.
+		</div>
+	</dialog>
+
+	<dialog class="dw-colour-toolmodal modal" id="modal-explicit" data-name="modal-explicit">
+		<h2>Explicit colour</h2>
+		<p>Bank colour is like a base colour, and pads will take it unless set otherwise. You can
+			apply bank colour explicitly to experiment with colours later, for instance.</p>
+		
+		<fieldset>
+			<legend>Take these bank colours</legend>
+			<div class="checkboxblock">
+					<input type="checkbox" name="modal-explicit-layersNormal" checked value="yes">
+					<label for="modal-explicit-colours-normal">Normal</label>
+				<br />
+					<input type="checkbox" name="modal-explicit-layersActive" checked value="yes">
+					<label for="modal-explicit-colours-active">Active</label>
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Apply to pads</legend>
+			<div class="checkboxblock">
+					<input type="radio" name="modal-explicit-affect" checked value="all">
+					<label>All</label>
+				<br /> 
+					<input type="radio" name="modal-explicit-affect" value="noexp">
+					<label>Without any explicit colours</label>
+				<br /> 
+					<input type="radio" name="modal-explicit-affect" value="noexpn">
+					<label>With no explicit normal colour</label>
+				<br /> 
+					<input type="radio" name="modal-explicit-affect" value="noexpa">
+					<label>With no explicit active colour</label>
+			</div>
+		</fieldset>
+	</dialog>
+	
+	<dialog class="dw-colour-toolmodal modal" id="modal-random">
+		<h3>Randomise colours</h3>
+		<p>Fill pads with random colours</p>
+		
+		<fieldset>
+			<legend>Fill layers</legend>
+			<div class="checkboxblock">
+				<input type="checkbox" name="modal-random-layersNormal" checked value="normal">
+				<label>Normal</label>
+			<br />
+				<input type="checkbox" name="modal-random-layersActive" value="active">
+				<label>Active</label>
+			<br />
+				<input type="checkbox" name="modal-random-layersPattern" value="patch-pattern">
+				<label>Patch pattern</label>
+			</div>
+			<br /><br />
+			<input type="checkbox" checked name="modal-random-keepColours" value="yes">
+			<label>Keep colours that have already been set</label>
+		</fieldset>
+		<fieldset>
+			<legend>Range</legend>
+			<p>
+				Hue
+				<section class="range-doublepole range-doublepole-hue">
+					<input value="0"   min="0" max="255" name="modal-random-hueMin" type="range">
+					<input value="255" class="colour-slider-h" min="0" max="255" name="modal-random-hueMax" type="range">
+				</section>
+			
+			</p>
+			<p>
+				Saturation
+				<section class="range-doublepole range-doublepole-sat">
+					<input value="10" min="0" max="15" name="modal-random-satMin" type="range">
+					<input value="15" class="colour-slider-s" min="0" max="15" name="modal-random-satMax" type="range">
+				</section>
+			</p>
+			<p>
+				Brightness
+				<section class="range-doublepole range-doublepole-val">
+					<input value="4"  min="0" max="15" name="modal-random-valMin" type="range">
+					<input value="15" class="colour-slider-v" min="0" max="15" name="modal-random-valMax" type="range">
+				</section>
+			</p>
+		</fieldset>
+		<fieldset>
+			<legend>Hue</legend>
+			<input type="checkbox" checked name="modal-random-matchHue" value="yes" />
+			<label>Match hue across layers
+				<span class="explain">If selected, each pad will have the same hue across all layers
+					selected in the “fill” group. This is useful if for instance you want “normal”
+					and “active” layers to have the same hues, but different brightness, so that
+					pads just light up brighter when hit.
+				</span>
+			</label>
+		</fieldset>
+		<fieldset>
+			<legend>Saturation
+				<span class="explain">
+					<p>Oftentimes you want to randomise hues, but keep saturation (and probably brightness) consistent.
+						This setting will help you do exactly this.
+					</p>
+					<p><i>Just use maximum</i> will ignore the lower margin of the range altogether.
+						All hues will go as saturated as you allow them to be.</p>
+					<p><i>Use max for active, min for normal</i> will set minimum range value as the one
+						for “normal” layer, and the maximum for “active”. This is useful if you want
+						your randomised hues to “pop” more on hitting the pad.</p>
+					<p><i>Random</i> will pick random saturation values within the range.</p>
+				</span>
+			</legend>
+			<div class="checkboxblock">
+				<input type="radio" name="modal-random-satMode" checked value="max">
+				<label for="modal-random-sat-all">Just use maximum</label>
+			<br />
+				<input type="radio" name="modal-random-satMode" value="reasonable">
+				<label for="modal-random-sat-reasonable">Max for active, min for normal</label>
+			<br />
+				<input type="radio" name="modal-random-satMode" value="random">
+				<label for="modal-random-sat-noexp">Random</label>
+			</div> 
+		</fieldset>
+		
+		<fieldset>
+			<legend>Brightness
+				<span class="explain">
+					<p>Oftentimes you want to randomise hues, but keep brightness (and probably saturation) consistent.
+						This setting will help you do exactly this.</p>
+					<p><i>Just use maximum</i> will ignore the lower margin of the range altogether.
+						All hues will go as bright as you allow them to be.</p>
+					<p><i>Use max for active, min for normal</i> will set minimum range value as the one
+						for “normal” layer, and the maximum for “active”. This is useful if you want
+						your randomised hues to “pop” more on hitting the pad.</p>
+					<p><i>Random</i> will pick random brightness values within the range.</p>
+				</span>
+				
+			</legend>
+			<div class="checkboxblock">
+				<input type="radio" name="modal-random-valMode" checked value="max">
+				<label for="modal-random-val-all">Just use maximum</label>
+			<br />
+				<input type="radio" name="modal-random-valMode" value="reasonable">
+				<label for="modal-random-val-reasonable">Max for active, min for normal</label>
+			<br />
+				<input type="radio" name="modal-random-valMode" value="random">
+				<label for="modal-random-val-noexp">Random</label>
+			</div>
+		</fieldset>
+	</dialog>
+</div>

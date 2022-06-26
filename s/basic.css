@@ -1,0 +1,105 @@
+body, html, input, select, button { font-family: "Montserrat"; font-size:12pt }
+body, html {
+	color:white;
+	background-color:rgba(45, 55, 67);
+	margin:0; padding:0;
+	--blue-strike:#00d2e5;
+	--white-gradient: linear-gradient(145deg, #ffffff, #e6e6e6);
+	--accent-gradient:linear-gradient(145deg, #00c4d5, #00a5b3);
+	--striped-gradient:   repeating-linear-gradient( 135deg, transparent, transparent 5px, #00c4d5 5px, #00a5b3 10px );
+	--accent-colour:#00b7c7;
+	--accent-colour-gray:#c7c7c7;
+	--modal-background:rgb(25 34 44 / 65%);
+	--somewhat-yellow: #e6dcce;
+	--ok-green: #00c151;
+	--colourpaint-cursor: auto;
+	--link-colour: #00eaff;
+	--link-border-colour: rgba(0, 234, 255, 0.704);
+}
+
+p, div.likep {
+	margin-block-start: 1em;
+	margin-block-end: 1em;
+	margin-inline-start: 0px;
+	margin-inline-end: 0px;
+}
+
+#blocker, .blocker {
+	/* position:absolute;
+	width:100%;
+	height:100%;
+	top:0;
+	left:0; */
+	/* display:flex;
+	justify-content: center;
+	align-items: center; */
+	border: 0;
+	/* background-color:rgba(45, 55, 67, 0.8);
+	z-index:9999;
+	backdrop-filter: blur(5px); */
+}
+
+dialog::backdrop
+{
+	background-color:rgba(45, 55, 67, 0.8);
+	backdrop-filter: blur(5px);
+}
+
+#blocker-active > svg { width:10em; height:10em; }
+
+@keyframes bubble-pulse
+{
+  from {
+	 stroke-width:20;
+	 opacity:1;
+	 stroke:#E7FF00;
+	  transform:scale(1)
+	}
+	to {
+	 stroke-width:60;
+	 opacity:0.3;
+	 stroke:#30ff00;
+	 transform:scale(2.6)
+	}
+}
+
+#bubble-dobrynya path, #bubble-frame path { fill:white; }
+#bubble-clip { clip-path:url("#bubble-mask-path2"); }
+#bubble
+	{fill:none;
+	stroke:#E7FF00;
+	stroke-width:28.9023;
+	stroke-miterlimit:10; 
+	animation: bubble-pulse 1s cubic-bezier(0.500, 0.005, 0.175, 1.000) infinite;
+	transform-origin:256px 256px
+}
+
+#blocker.hh #bubble { animation-name:none!important }
+
+.close img, .close svg { width:1em; vertical-align: middle; }
+.close svg path { fill:white; }
+
+* { box-sizing: border-box; text-align: center; }
+
+body > #app > main	{ padding:2em;  }
+
+.b { font-weight: bold }
+
+.hh { display:none!important; }
+.vh { visibility:hidden }
+.unreal, a, .inline-editable > span, .unrealhover:hover { color: var(--link-colour); border-bottom:1px solid var(--link-border-colour); text-decoration: none; }
+.unreal, .inline-editable > span, .pointer, .bankswitcher li, .editablecontrol, .unrealhover:hover { cursor:pointer; }
+.unreal, .unrealhover:hover { border-bottom-style:dashed; }
+.inline-editable > span { border-bottom-style:dotted; }
+
+h1,h2 { color:var(--somewhat-yellow);  }
+
+h4, .checkboxholder { margin-top:1.3em; margin-bottom:0.8em; font-weight: normal }
+
+h4.disabled, .pianoroll.disabled, input.disabled, label.disabled { opacity:0.3; filter:saturation(-100%) }
+
+label { white-space: nowrap }
+
+.sel:not(button) { border-radius:0.2em }
+
+.warn, dialog .modal-warning { padding:1em; color:#fffbcf }

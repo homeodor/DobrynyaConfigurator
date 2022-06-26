@@ -1,0 +1,44 @@
+.colourselector { }
+/* 
+.colourwellholder { display:inline-block; padding: 0 1em 1em 1em }
+
+.colourwell { display:inline-block; width:5em; height:5em; box-shadow: inset 0.2em 0.2em 0.4em rgba(0,0,0,0.3), inset -0.2em -0.2em 0.4em rgba(255,255,255,0.1); border-radius:0.5em } */
+
+.nocolour { background: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 32 32' xml:space='preserve'%3E%3Cpolygon style='fill:%23aaa' points='10,23 6,23 21,8 25,8'/%3E%3C/svg%3E%0A") center center no-repeat; background-size:80% }
+.dobrynya-pad.nocolour { background-size: 50%; }
+
+.complementarycolours > div { display:inline-flex; justify-content: center;  flex-wrap: wrap }
+.colourwell-comp { border-radius:0.5em; width:3em; height:3em; margin:0.5em; border:1px solid rgba(255,255,255,0.3) }
+.colourwell-comp.thecolour { border:1px solid rgba(255,255,255,1) }
+
+.colourgenholder { display:flex; justify-content: center; width:100%; }
+.colourgen { max-width: 65.6vh; display:flex; flex-wrap: wrap; margin-top:2em; }
+.colourgen > div { width:2.05vh; height:2.05vh; /* display:inline-block */ }
+.colourgen > div.thecolour { border:2px solid white }
+
+#dw-colour-toolbar { display: flex;
+	justify-content: center;
+	width: 90%;
+	margin-left: 5%; }
+	
+#dw-colour-toolbar > * { padding:1em 2em 0 2em!important }
+	
+#dw-colour-toolbar :nth-child(2) {  }
+#dw-colour-toolbar .colourwell { width:7em; height:7em; }
+#dw-colour-toolbar .colourwellholder h4 { margin-top: -0.5em; }
+
+.dw-colour-stuff .unreal { margin:0.5em; }
+.dw-colour-stuff p { margin-bottom:1.5em; }
+.dw-colour-stuff .unreal.sel { padding:0.5em; margin:0; box-shadow: none; }
+
+.dw-colour-stuff .notselect { width:20em }
+
+#dw-colour-stuff-panel button.sel { box-shadow: 2px 2px 4px rgba(0,0,0,0.6) inset; border-radius:auto; }
+
+#dw-colour-makebank { margin-top:1rem; display:block; }
+
+.dw-colour-tools img { width:1.5em; height:1.5em; }
+
+.dw-colour-toolmodal { width: 80vw }
+
+.palettecheckbox { text-align: left; height:1.9em; background-size:calc(100%); background-position:0.25em 1.6em; background-repeat:no-repeat; margin-bottom:0.3em; }

@@ -1,0 +1,46 @@
+<!-- <?php
+	
+	$the_modes =
+	[
+	  "Off",
+	  "Control Change",
+	  "Control Change (Relative)",
+	  "Velocity",
+	  "Pitch",
+	  "Channel"
+	];
+	
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+
+?> --><!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		
+		<title>MIDI Dobrynya Editor</title>
+	
+		<script>let isLocal = false;</script>
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:500,900&amp;subset=cyrillic" rel="stylesheet"> 
+		
+		<script src="./src/main.js" type="module"></script>
+		<script src="./src/waitingblock.js" type="module"></script>
+	
+		<link rel="stylesheet" href="/s/dbr.css" />
+		
+		<link rel="shortcut icon" href="./i/favicon.png" />
+		
+		<style></style>
+	</head>
+	
+	<body>
+		<testtag></testtag>
+		
+		
+		<div id="waitingblockholder"></div>
+		
+		<div id="app"></div>
+	</body>
+</html>

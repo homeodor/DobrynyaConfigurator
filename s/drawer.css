@@ -1,0 +1,88 @@
+	#drawerholder { --size-value: 100vh; width: calc(0.8 * var(--size-value)); /*transition: max-height 1s;*/ display:inline-block;  }
+	div#drawerclick { flex-flow:row; justify-content: center; margin-top:1em; }
+	#drawerclick > * { margin: 0.5em }
+	#drawerclick > .sel { 
+		margin: 0;
+		padding: 0.5em;
+		box-shadow: none;
+	}
+	/* #drawerholder .drawer { display:none; } */
+	
+	.drawer, .drawerlike { padding-bottom:1em; width:100%; }
+	.drawer *, .drawerlike * { pointer-events: inherit }
+	
+	#dw-wrapper-newpatch { justify-content: center }
+	
+	.drawerwrapper { display: flex; overflow: hidden; margin-top:1em; transition: margin-top .3s cubic-bezier(0, 0, 0, 1) }
+	
+	.drawerwrapper:after
+	{
+		content: '';
+		height: 50px;
+		transition: height 0.3s linear, max-height 0s 0.3s linear;
+		max-height: 0px;
+		
+	}
+	
+	#drawerholder:not(.banksettings)  #dw-wrapper-banksettings,
+	#drawerholder:not(.banktemplates) #dw-wrapper-banktemplates, 
+	#drawerholder:not(.patchsettings) #dw-wrapper-patchsettings,
+	#drawerholder:not(.patchpattern)  #dw-wrapper-patchpattern,
+	#drawerholder:not(.colourpaint)   #dw-wrapper-colourpaint,
+	#drawerholder:not(.coloureditor)  #dw-wrapper-coloureditor
+	{
+		margin-top:0;
+		transition:
+			margin-top .5s 0.8s cubic-bezier(.3, 0, .0, 1),
+	}
+
+	
+	#drawerholder:not(.banksettings)  #dw-wrapper-banksettings:after,
+	#drawerholder:not(.banktemplates) #dw-wrapper-banktemplates:after, 
+	#drawerholder:not(.patchsettings) #dw-wrapper-patchsettings:after,
+	#drawerholder:not(.patchpattern)  #dw-wrapper-patchpattern:after,
+	#drawerholder:not(.colourpaint)   #dw-wrapper-colourpaint:after,
+	#drawerholder:not(.coloureditor)  #dw-wrapper-coloureditor:after
+	{
+		height: 0;
+		transition: height 0.3s linear;
+		max-height: 50px;
+	}
+	
+	.drawerlike.drawerlike-zeroheight,
+	#drawerholder:not(.banksettings)  #dw-banksettings,
+	#drawerholder:not(.banktemplates) #dw-banktemplates, 
+	#drawerholder:not(.patchsettings) #dw-patchsettings,
+	#drawerholder:not(.patchpattern)  #dw-patchpattern, #drawerholder:not(.patchpattern) #dw-patchpattern #patternpreview, 
+	#drawerholder:not(.colourpaint)   #dw-colourpaint,
+	#drawerholder:not(.coloureditor)  #dw-coloureditor
+	{
+		
+		margin-bottom: -200vh;
+		transition:
+			opacity .20s,
+			margin-bottom .5s 0.8s cubic-bezier(.3, 0, .0, 1),
+			visibility    .5s 0.3s,
+			max-height    .5s 0.3s ;
+		
+		visibility: hidden;
+		max-height: 0;
+		
+		opacity: 0;
+	}
+	
+	.drawerlike,
+	#drawerholder.banksettings  #dw-banksettings,
+	#drawerholder.banktemplates #dw-banktemplates,
+	#drawerholder.patchsettings #dw-patchsettings,
+	#drawerholder.patchpattern  #dw-patchpattern, #drawerholder.patchpattern #dw-patchpattern #patternpreview, 
+	#drawerholder.colourpaint      #dw-colourpaint,
+	#drawerholder.coloureditor  #dw-coloureditor
+	{
+		transition: margin-bottom .3s cubic-bezier(0, 0, 0, 1), opacity .5s .35s;
+		  margin-bottom: 0;
+		  max-height: 200vh;
+	}
+	
+	#dw-coloureditor { position:relative }
+	#dw-coloureditor .cancelerholder { position:absolute; right:2em; top:1em }
