@@ -232,40 +232,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 
 			break;
 		}
-		
-		// case SysExCommand.LOCKPATCHSWITCHING:
-		// {
-		// 	if (status == SysExStatus.REQUEST)
-		// 	{
-		// 		alert("You have unsaved changes in your patch. The device won’t allow you to change patches. If you want to discard the changes, select another patch from the configurator, or save your current patch.");
-		// 		
-		// 	}
-		// 	break;
-		// }
-		
-// 		case SysExCommand.INVOKECONTROL:
-// 		{
-// 			if (status == SysExStatus.OK)
-// 			{
-// 				if (lastControlInvoked.type == d[12] && lastControlInvoked.which == d[13]) break;
-// 				
-// 				const theType = d[12];
-// 				const theWhich = d[13];
-// 
-// 				let theElement = $(".dobrynya-" + controlTypesToNames[theType]);
-// 				
-// 				if (theElement.length < theWhich) break;
-// 				
-// 				lastControlInvoked.type = theType;
-// 				lastControlInvoked.which = theWhich;
-// 				
-// 				showEditor(theElement[theWhich]);
-// 			}
-// 			
-// 			break;
-// 			
-// 		}
-		
+
 		case SysExCommand.GETCHIPID:
 		{
 			if (!midiResult.success) break;

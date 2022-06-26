@@ -9,7 +9,7 @@ let dialog = new WaitingBlockDialog(
 export class WaitingBlock
 {
 	static #timeout;
-	static #isBlocked: number = false;
+	static #isBlocked: number = 0;
 	static #unlockWith = null;
 	
 	static init()
@@ -58,13 +58,8 @@ export class WaitingBlock
 	static block(unblockWith = null)
 	{
 		WaitingBlock.unblockWith = unblockWith;
-		// $("#blocker-error-text").text("").parent().hide();
-		// $("#blocker-active").show();
-		// $("#blocker").show();
-//			WaitingBlock.timeout = setTimeout(WaitingBlock.timeout, to);
 		WaitingBlock.isBlocked = true;
 		dialog.block();
-//			disableDobrynyaSearchInterval(); // the process might take some time, so no use to poll Dobrynya, it’s busy anyway
 	}
 	
 	static unblockOrError(cmd,status)
@@ -90,11 +85,7 @@ export class WaitingBlock
 			) return;
 		
 		dialog.unblock();
-// 		clearTimeout(WaitingBlock.timeout);
-// //			$("#blocker-active").hide();
-// 		$("#blocker").hide();
 		WaitingBlock.unblockWith = null;
 		WaitingBlock.isBlocked = false;
-//			enableDobrynyaSearchInterval();
 	}
 }

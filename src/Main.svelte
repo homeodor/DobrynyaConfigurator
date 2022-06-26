@@ -87,10 +87,24 @@
 		patchesInfoHasBeenLoaded = true;
 	}
 	
+	import type { VersionData } from './device'
+	import { getLatestVersion, versionCompare } from './device'
+	
+	let versionInfo: VersionData;
+	let hasNewFirmware = null;
+	
+	async function updateVersionInfo()
+	{
+		versionInfo = await getLatestVersion(device.model);
+		hasNewFirmware = versionCompare(device.version, versionInfo);
+	}
+	
 	async function dobrynyaIsHere(ev: Event)
 	{
 		isOnline = true;
 		if ((ev as CustomEvent).detail) device = (ev as CustomEvent).detail;
+		
+		updateVersionInfo();
 		
 		await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=>settingsRawData=d);
 		await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
@@ -165,7 +179,7 @@
 	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} {device} {settingsRawData} />
 	{/if}
 	{#if openSection=="device"}
-	<SectionDevice on:section={section} {device} />
+	<SectionDevice on:section={section} {device} {hasNewFirmware} />
 	{/if}	
 </main>
 

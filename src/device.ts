@@ -204,15 +204,58 @@ export const ChipIDs =
 	}
 };
 
-async function getLatestVersion()
+export interface VersionData
 {
-	if (isLocal) return;
+	isBootloader:	boolean,
+	model:	string,
+	chip:	string,
+	version:	string,
+	date:	string,
+	filename:	string,
+	bootloader:	{
+		version:	string,
+		filename:	string
+	}
+}
+
+export function versionCompare(currentVersion: string, newVersion: VersionData)
+{
+	// 2.0/26.06.2022-13:51
 	
+	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
+	
+	let currVersionSplit = [...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()];
+	let newVersionSplit  = [...newVersion.version.split("."), ...newVersion.date.split(".").reverse()];
+	
+	// console.log(currVersionSplit, newVersionSplit);
+	
+	if (currVersionSplit.length != newVersionSplit.length) throw "Version lengths are not the same";
+	
+	while (currVersionSplit.length)
+	{
+		let pCurrent = parseInt(currVersionSplit.shift());
+		let pNew = parseInt(newVersionSplit.shift());
+		
+		if (isNaN(pCurrent) || isNaN(pNew)) throw "One of the version components is NaN";
+		
+		if (pNew > pCurrent) return true;
+	}
+	
+	return false;
+}
+
+export function getFullModelCode(model: Model)
+{
+	return model.chipVaries ? `${model.code}-${model.chipCode}` : model.code;
+}
+
+export async function getLatestVersion(model: Model)
+{
 	let result = null;
 	
 	try 
 	{
-		let fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${currentModel.code}/latest/?json=json`, 
+		let fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${getFullModelCode(model)}/latest/?json=json`, 
 			{
 				mode:'cors',
 			}
@@ -222,20 +265,23 @@ async function getLatestVersion()
 	} catch(e)
 	{
 		console.error(e);
+		return;
 	}
 	
 	if (!result) return;
 	
-	let vCompare = versionCompare(getVersionPure(),result.version);
+	return result;
 	
-	if ($("#fw-oldfw").hasClass("hh"))
-	{
-		if ((vCompare < 0 || (vCompare == 0 && isAvailableVersionNewer(getVersionDate(),result.date))))
-		{
-			$("#show-firmware").addClass("fw-updateavailable");
-			$("#fw-updateavailable").show();
-		}        
-		else
-			$("#fw-noupdates").show();
-	}
+	// let vCompare = versionCompare(getVersionPure(),result.version);
+	// 
+	// if ($("#fw-oldfw").hasClass("hh"))
+	// {
+	// 	if ((vCompare < 0 || (vCompare == 0 && isAvailableVersionNewer(getVersionDate(),result.date))))
+	// 	{
+	// 		$("#show-firmware").addClass("fw-updateavailable");
+	// 		$("#fw-updateavailable").show();
+	// 	}        
+	// 	else
+	// 		$("#fw-noupdates").show();
+	// }
 }

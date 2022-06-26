@@ -9,11 +9,13 @@
 		'prov2': { name: "ATSAME53J20", mhz: 72 }
 	};
 
+	import { getFullModelCode } from './device';
 	import miniV2 from '../i/miniv2.webp'
 	import type { StatusResult } from './types'
 	import Opensource from "./Opensource.svelte";
 	
 	export let device: StatusResult;
+	export let hasNewFirmware: boolean;
 	// export let isOnline: boolean;
 	
 	let chipName = "ATSAMD";
@@ -26,6 +28,7 @@
 			let chipObj = realChips[device.model.code][device.model.chipCode] ?? realChips[device.model.code];
 			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
 		}
+		console.log(device);
 	}
 </script>
 <style>
@@ -42,8 +45,11 @@
 <section id="tab-info">
 	<div id="fw-oldfw" class="plashka plashkabad hh">Your MIDI Dobrynya has an old version of firmware and cannot be used with this configurator.
 		Fear not: it is easy to update! Just <a href="firmware.html">go to the update utility</a>.</div>
-	<div id="fw-updateavailable" class="plashka plashkagood hh">Good news! A new version of firmware is available for your device! <a href="firmware.html">Update now</a>?</div>
-	<div id="fw-noupdates" class="plashka plashkagood hh">Your firmware is up to date!</div>
+	{#if hasNewFirmware}
+	<div id="fw-updateavailable" class="plashka plashkagood">Good news! A new version of firmware is available for your device!<br /><a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">Download now</a>?</div>
+	{:else if hasNewFirmware === false}
+	<div id="fw-noupdates" class="plashka plashkagood">Your firmware is up to date!</div>
+	{/if}
 
 	<h1 id="info-modelname">Midi Dobrynya</h1>
 	<img src="{miniV2}" id="modelimage" alt="Dobrynya" />

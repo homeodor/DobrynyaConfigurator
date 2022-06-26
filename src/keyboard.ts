@@ -311,7 +311,6 @@ export const keyboardMedia =
 	"Rewind"				 : 0x00B4,
 	"Next Track"             : 0x00B5,
 	"Prev Track"             : 0x00B6,
-	"Stop"                   : 0x00B7,
 //	"Volume"                 : 0x00E0,
 	"Mute"                   : 0x00E2,
 /*

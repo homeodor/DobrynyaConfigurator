@@ -57,6 +57,13 @@ export interface BranchSettings
 	desc: string,
 }
 
+export interface BranchJoystickBank
+{
+	colour?: ColourArray,
+	midi?: BranchMidi,
+	directions: BranchControl[],
+}
+
 export interface Patch
 {
 	info: BranchInfo,
@@ -65,7 +72,8 @@ export interface Patch
 	padbanks: BranchBank[][],
 	faders: BranchControl[],
 	pots: BranchControl[],
-	proximity: BranchControl
+	proximity: BranchControl,
+	joystick: BranchJoystickBank[],
 };
 
 export interface PatchInfoItem
