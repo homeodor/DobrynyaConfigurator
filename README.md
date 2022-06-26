@@ -2,15 +2,15 @@
 
 # Dobrynya Configurator
 
-This is a repo containing the code of MIDI Dobrynya configurator. It has been written by [Alexander Golovanov](https://shurik.uk) and is provided under MIT licence (see note at the end).
+This is a repo containing the code of MIDI Dobrynya configurator. It has been written by [Alexander Golovanov](https://shurik.uk) and is provided under MIT license (see a note at the end).
 
-It has been first written in a rather, erm, legacy version of JS, and then completely rewritten over a course of month in [Svelte](https://svelte.dev/)/[TypeScript](https://www.typescriptlang.org/). Eventually I’ve decided to make this repo public.
+It has been first written in a rather, erm, legacy flavour of JS, and then completely rewritten over a course of month in [Svelte](https://svelte.dev/)/[TypeScript](https://www.typescriptlang.org/). Eventually I’ve decided to make this repo public.
 
 For MIDI Dobrynya users, the configurator is available at [config.mididobrynya.com](https://config.mididobrynya.com/).
 
 ## MIDI Dobrynya
 
-MIDI Dobrynya is a series of highly configurable USB-MIDI controllers. This configurator is designed to work with Mini V2 and Micro V2 models (some upcoming models may eventually be supported as well). You can learn more about the project and buy yourself a great MIDI controller at [mididobrynya.com](https://www.mididobrynya.com/).
+MIDI Dobrynya is a series of hand-built, highly configurable USB-MIDI controllers. This configurator is designed to work with Mini V2 and Micro V2 models (some upcoming models may eventually be supported as well). You can learn more about the project and buy yourself a great MIDI controller at [mididobrynya.com](https://www.mididobrynya.com/).
 
 ## Disclaimer
 
@@ -64,7 +64,6 @@ C1 C2 C3 C4 L1 L2 L3 L4 - optional, 28 bit checksum/length (if status’ bit 7 i
 ... optional, some data
 F7 - SysEx ends, as is per the standard
 ```
-
 
 ### Raw data
 
@@ -182,8 +181,11 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x65```|```ERASE_FLASH```        | Erases flash memory altogether. Needs to be sent three times to work. You don’t want to do this, trust me. |
 |```0x66```|```REBOOT_ESP32```       | Reserved |
 
+### Use MIDI Monitor
 
-### Settings map
+Now, with this knowledge, you may open a [MIDI Monitor](https://www.snoize.com/midimonitor/) and be able to see through the bits and bytes, just as if it were the Matrix code.
+
+## Settings map
 
 System settings map can be deducted from a ```settings_utils.ts``` file. Maybe I will provide a proper list one day, but today I feel lazy.
 
