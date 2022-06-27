@@ -28,7 +28,7 @@ This repo is available for people who want to
 
  - **Develop a WEB MIDI project.** This configurator uses an elaborate system of System Exclusive (SysEx) MIDI messages to communicate with the device, and the request-respond is designed to be an asynchronous routine, kinda similar to how AJAX is handled this days, *async/await* and all. It’s not like there are tons of good code on the web!
 - **Learn how Dobrynya communication works.** All of the configurable MIDI controllers/instruments I know of use SysEx to talk to their host. Ever wanted to build your own MIDI device with complex SysEx? Maybe this code could be of help!
-- **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Ever wanted to automatically change your banks/patches on a certain event? It is totally possible.
+- **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
 
 ## Device class, model and serial
 
@@ -40,16 +40,16 @@ It goes like this:
 CMVVRR-xxxx
 ```
 
-```C``` is the class (think of it as the size of the device), ```M``` is the model number; together they make up the model ID. ```VV``` is the variant and ```RR``` is the revision of that model. ```xxxx``` is the actual serial number which is increments separately for each model ID, but not for revisions or variants. 
+```C``` is the class (think of it as the size of the device), ```M``` is the model number; together they make up the model ID. ```VV``` is the variant and ```RR``` is the revision of that model. ```xxxx``` is the actual serial number which increments separately for each model ID, but not for revisions or variants. 
 
-Currently there are these devices:
+The Configurator supports these devices:
 
 |Model ID|Class|Name|
 |-|-|-|
 |21|XS|Micro V2|
 |31|S|Mini V2|
 
-This is important information for the Configurator that it uses to distinguish both models and individual devices.
+The serial number is important information for the Configurator: it is used to distinguish models as well as individual devices.
 
 ## Patches
 
