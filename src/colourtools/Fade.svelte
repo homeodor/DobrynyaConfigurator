@@ -146,11 +146,11 @@
 	<fieldset>
 		<legend>Options</legend>
 		<div class="checkboxblock">
-				<input type="checkbox" bind:checked={params.includeExplicit}>
-				<label>Apply to explicitly set colours</label>
+				<label><input type="checkbox" bind:checked={params.includeExplicit}>
+				Apply to explicitly set colours</label>
 			<br />
-				<input type="checkbox" bind:checked={params.includeBank}>
-				<label>Apply to the bank colour</label>
+				<label><input type="checkbox" bind:checked={params.includeBank}>
+				Apply to the bank colour</label>
 		</div>
 	</fieldset>
 	

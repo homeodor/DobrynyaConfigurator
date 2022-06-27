@@ -1,4 +1,4 @@
-import { isConnected } from './midi'
+import { isConnected, sysExableStringToUTF8 } from './midi'
 import { sortPatchList } from './data_utils'
 import { SysExCommand, SysExStatus } from './midi_utils'
 import type { MidiResult } from './midi_utils'
@@ -10,16 +10,22 @@ import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank 
 
 const headerLength: number = 12;
 
-function sevenToEight (d: Uint8Array, ignoreFilename: boolean = false): any
+interface SevenToEightData
+{
+	filename: number[],
+	data: number[]
+};
+
+function sevenToEight (d: Uint8Array, hasFilename: boolean = false): SevenToEightData
 {
 	let shifter: number = 1;
 	let outArray: number[] = [];
+	let filename: number[] = [];
 	let zeroi: number = headerLength;
-	let filename: string = "";
 	
-	if (ignoreFilename)
+	if (hasFilename)
 	{
-		while (d[zeroi]) filename += String.fromCharCode(d[zeroi++]);		
+		while (d[zeroi]) filename.push(d[zeroi++]);		
 		zeroi++; // skip null character
 	}
 	
@@ -39,7 +45,8 @@ function sevenToEight (d: Uint8Array, ignoreFilename: boolean = false): any
 		shifter++;
 	}
 	
-	return ignoreFilename ? [ filename, outArray ] : outArray;
+	return { filename: hasFilename ? filename : null, data: outArray };
+	//ignoreFilename ? [ filename, outArray ] : outArray;
 }
 
 export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boolean
@@ -67,7 +74,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			
 			if (d.length < 13) break; // old fw
 			
-			let pureData = sevenToEight(d);
+			let pureData = sevenToEight(d).data;
 			
 //			console.log(pureData);
 			
@@ -116,27 +123,24 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{
 			if (!midiResult.success) break;
 			
-			let patchName = "";
-			let isThePatch = false;
-			
 			midiResult.data = [];
-		
-			for (var i = headerLength; i < d.length - 1; i++)
+			
+			let patchData = d.slice(headerLength);
+			
+			let findIndex = 0;
+			
+			while (patchData.length && (findIndex = patchData.indexOf(0)) !== -1)
 			{
-				if (d[i]) 
+				let patchItemResult = sysExableStringToUTF8(patchData.slice(0, findIndex + 1));
+				patchData = patchData.slice(findIndex + 1);
+				
+				while (patchData.length && patchData[0] == 0) 
 				{
-					if (d[i] == 0x10)
-					{
-//						if (!openPatchName)// && isSameDevice)
-						isThePatch = true;
-					}
-					else 
-						patchName += String.fromCharCode(d[i]);
-				} else {
-					midiResult.data.push({ name: patchName, isThePatch: isThePatch });
-					isThePatch = false;
-					patchName = "";
+					patchData = patchData.slice(1);
+					console.error("Patch list data has double zeroes", findIndex);
 				}
+				
+				midiResult.data.push({ name: patchItemResult.string, isThePatch: patchItemResult.isThePatch });
 			}
 			
 			console.log("Patchlist", midiResult.data);
@@ -150,7 +154,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{
 			if (!midiResult.success) break; // nothing to do then
 			
-			let arr = sevenToEight(d);
+			let arr = sevenToEight(d).data;
 			
 			let arr2 = [];
 
@@ -171,7 +175,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		// {
 		// 	if (!midiResult.success) break; // nothing to do then
 		// 	
-		// 	let devicesPresent = sevenToEight(d);
+		// 	let devicesPresent = sevenToEight(d).data;
 		// 	
 		// 	if (!devicesPresent) break;
 		// 	
@@ -188,15 +192,15 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{				
 			if (!midiResult.success) break;
  
-			let s2e = sevenToEight(d, true);
-			midiResult.filename = s2e[0];
+			let s2eResult = sevenToEight(d, true);
+			midiResult.filename = sysExableStringToUTF8(s2eResult.filename).string;
 			
 			try
 			{
-				midiResult.data = BSON.deserialize(new Uint8Array(s2e[1]));
+				midiResult.data = BSON.deserialize(new Uint8Array(s2eResult.data));
 			} catch(e)
 			{
-				console.error(midiResult,s2e[1],d);
+				console.error(midiResult,s2eResult.data,d);
 			}
 
 			break;
@@ -207,10 +211,10 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{				
 			if (!midiResult.success) break;
 		
-			let temporaryArray = sevenToEight(d, true);
+			let s2eResult = sevenToEight(d, true);
 
-			midiResult.data = new Uint8Array(temporaryArray[1]);
-			midiResult.filename = temporaryArray[0];
+			midiResult.data     = new Uint8Array(s2eResult.data);
+			midiResult.filename = sysExableStringToUTF8(s2eResult.filename).string;
 		
 			break;
 		}
@@ -219,12 +223,12 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{
 			if (!midiResult.success) break;
 
-			let temporaryArray = sevenToEight(d, true);
+			let s2eResult = sevenToEight(d, true);
 			
 			try
 			{
-				midiResult.data = BSON.deserialize(new Uint8Array(temporaryArray[1]));
-				midiResult.filename = temporaryArray[0];
+				midiResult.data = BSON.deserialize(new Uint8Array(s2eResult.data));
+				midiResult.filename = sysExableStringToUTF8(s2eResult.filename).string;
 			} catch(e)
 			{
 				console.log(e);
@@ -237,7 +241,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{
 			if (!midiResult.success) break;
 			
-			midiResult.data = sevenToEight(d);
+			midiResult.data = sevenToEight(d).data;
 			
 			for (let i in midiResult.data)
 				midiResult.data[i] = midiResult.data[i].toString(16);
@@ -257,7 +261,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		{
 			if (!midiResult.success) break;
 			
-			let arr = sevenToEight(d);
+			let arr = sevenToEight(d).data;
 			let arr2 = [];
 
 			console.log("Serial read was ", arr);
@@ -276,7 +280,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		case SysExCommand.GETSETTINGS:
 		{
 			if (!midiResult.success) break;
-			midiResult.data = sevenToEight(d); // just pass (almost) raw data
+			midiResult.data = sevenToEight(d).data; // just pass (almost) raw data
 			break;
 		}
 	}
@@ -313,8 +317,8 @@ export function onMIDIMessage (event: MIDIMessageEvent)
 			
 			try
 			{
-				midiResult.data = BSON.deserialize(new Uint8Array(temporaryArray[1]));
-				midiResult.filename = temporaryArray[0];
+				midiResult.data = BSON.deserialize(new Uint8Array(temporaryArray.data));
+				midiResult.filename = sysExableStringToUTF8(temporaryArray.filename).string;
 				pushFromSysEx(midiResult);
 			} catch(e)
 			{

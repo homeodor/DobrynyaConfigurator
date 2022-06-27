@@ -7,6 +7,7 @@
 	import { defaultStatusResult } from './device'
 	import { sysExAndDo, sysExFilenameAndDo, flipConnected } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
+	import type { MidiResult } from './midi_utils';
 	
 	import GotIt from './widgets/GotIt.svelte';
 		
@@ -99,15 +100,21 @@
 		hasNewFirmware = versionCompare(device.version, versionInfo);
 	}
 	
-	async function dobrynyaIsHere(ev: Event)
+	async function dobrynyaIsHere(ev: CustomEvent)
 	{
 		isOnline = true;
+		
+		if ((ev.detail as StatusResult).serial === device.serial)
+			return; // same device, no need to reload everything, assume no changes happened
+		
 		if ((ev as CustomEvent).detail) device = (ev as CustomEvent).detail;
 		
 		updateVersionInfo();
 		
 		await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=>settingsRawData=d);
 		await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
+		
+		console.log("So what???");
 		
 		if (openSection == "") openSection = "editor";
 				
@@ -183,5 +190,5 @@
 	{/if}	
 </main>
 
-<div class="copyright" style="color:rgba(65, 75, 87);">MIDI Dobrynya configurator {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br />
+<div class="copyright" style="color:rgba(65, 75, 87);"><a style="color:inherit; border-color:rgba(65,75,87)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br />
 </div>

@@ -1,6 +1,3 @@
-
-<svelte:options tag="dc-inline" />
-
 <style>
 	.inline-editable-new:not(:focus) { line-height: 1.4em; cursor:pointer; color: #00eaff; border: 2px transparent; border-bottom-style:dotted; border-bottom-width:1px; border-bottom-color: rgba(0, 234, 255, 0.7); text-decoration: none; background-color:transparent;  }
 	.inline-editable-new:focus { background:white; border:1px solid silver; color:black; padding:0em 0.2em }

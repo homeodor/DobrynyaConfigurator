@@ -229,14 +229,14 @@
 		<div id="ct-preview" class="preview-with-layers">
 			<div>
 				<label><input type="checkbox" bind:checked={params.layersIdle}> Idle</label><br />
-				<PreviewSingle hexArray={preview.idle} inline={true} />
+				<PreviewSingle hexArray={preview.idle} inline={true} targetPreview={enableTargetPreview && params.layersIdle} />
 			</div>
 			<div>
 				<label><input type="checkbox" bind:checked={params.layersActive}> Active</label><br />
-				<PreviewSingle hexArray={preview.active} inline={true} />
+				<PreviewSingle hexArray={preview.active} inline={true} targetPreview={enableTargetPreview && !params.layersIdle && params.layersActive } />
 			</div>
 			<div><label><input type="checkbox" bind:checked={params.layersPattern}> Pattern</label><br />
-				<PreviewSingle hexArray={preview.pattern} inline={true} targetPreview={enableTargetPreview} />
+				<PreviewSingle hexArray={preview.pattern} inline={true} targetPreview={enableTargetPreview && !params.layersIdle && !params.layersActive && params.layersPattern} />
 			</div>
 		</div>
 		<legend>Fill layers</legend>

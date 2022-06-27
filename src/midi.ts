@@ -65,6 +65,7 @@ async function checkDobrynyaIsHere()
 		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
 		{
 			portIn = entry;
+			console.log("Port in", entry);
 			portIn.addEventListener("midimessage", onMIDIMessage);				
 			break;
 		}
@@ -75,6 +76,7 @@ async function checkDobrynyaIsHere()
 		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
 		{
 			portOut = entry;
+			console.log("Port in", entry);
 			
 			try 
 			{
@@ -131,37 +133,152 @@ export async function init()
 function midiSend(v: number[] | Uint8Array): void
 {
 	if (!isConnected) return;
-	portOut.send(v);
+	if (!portOut)
+		console.warn("portIn is likely found, but not portOut", portIn, portOut);
+	else
+		portOut.send(v);
 }
 
 function midiSendTerminated(v: number[]) { v.push(0xf7); midiSend(v); }
 
-function sysExFilenameSanize(filename: string, message: number[]): number[]
+export interface SysExableStringData
 {
-	const forbiddencharacters: string[] = [ "/","?","^","<",">","\\",":","*","|","\"" ];
+	message: number[],
+	hasForbiddenCharacters: boolean,
+	hasUnicode: boolean
+};
+
+const charDC2 = 0x12;
+const charDC4 = 0x14;
+const charDLE = 0x10;
+
+export function sysExableString(filename: string): SysExableStringData
+{
+	let message = [];
 	
-	let charIndex: number = 0;
+	const charUnderscore = 0x5f;
+	const charDot = 0x2e;
 	
-	for (let char of filename)
+	let encoder = new TextEncoder();
+	
+	let hasForbidden = false;
+	let hasUnicode = false;
+	
+	const forbiddencharacters: Uint8Array = encoder.encode("/?^<>\\:*|\"");
+	
+	let encodedString = encoder.encode(filename);
+	
+	let utfSequence = false;
+	
+	if (encodedString[0] === charDot) encodedString[0] = charUnderscore;
+	
+	for (let charCode of encodedString)
 	{
-		let charCode: number = char.charCodeAt(0);
+		if (charCode > 0x7f) // it is some kind of UTF-8 code
+		{
+			hasUnicode = true;
+			
+			if (!utfSequence)
+			{
+				message.push(charDC2); // insert a marker
+				utfSequence = true;  // begin UTF8 sequence
+			}
+			
+			charCode &= 0x7f; // shave off the 8th bit
+		} else {
+			if (utfSequence)
+			{
+				message.push(charDC4); // insert a marker
+				utfSequence = false; // end UTF8 sequence
+			}
 		
-		if (
-			(charIndex == 0 && char == ".") ||
-			(charCode < 0x20 || charCode > 0x7e) ||
-			forbiddencharacters.includes(char)
-		) charCode = 0x5f; 
-		
-			// меняем любые запрещённые в FAT и просто странные символы на подчёркивание (_)
-			// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО! 
-			// Хотя нет, позвольте, ведь My_Cool_Patch.dbrpatch НАМНОГО КРУЧЕ И ПРОФЕССИОНАЛЬНЕЙ ВЫГЛЯДИТ, ДА????
-			// Фух.
+			if (
+				(charCode < 0x20 || charCode > 0x7e) ||
+				forbiddencharacters.includes(charCode)
+			)
+			{
+				hasForbidden = true;
+				charCode = charUnderscore; 
+			}
+			
+				// меняем любые запрещённые в FAT и просто странные символы на подчёркивание (_)
+				// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО! 
+				// Хотя нет, позвольте, ведь My_Cool_Patch.dbrpatch НАМНОГО КРУЧЕ И ПРОФЕССИОНАЛЬНЕЙ ВЫГЛЯДИТ, ДА????
+				// Фух.
+		}
 		
 		message.push(charCode); // filename;
-		charIndex++;
 	}
 	
+	// because file extenstions are always added by the configurator, the UTF8 sequence is guaranteed to end already, so this is a sanity check if anything
+	if (utfSequence)
+	{
+		message.push(charDC4); // insert a marker
+		utfSequence = false; // end UTF8 sequence
+	}	
+	
 	message.push(0); // zero-terminated string!
+	
+	console.log("YHK", {
+			message: message,
+			hasForbiddenCharacters: hasForbidden,
+			hasUnicode: hasUnicode
+		})
+	
+	return {
+		message: message,
+		hasForbiddenCharacters: hasForbidden,
+		hasUnicode: hasUnicode
+	}
+}
+
+export interface SysExableStringDecodedData
+{
+	string: string,
+	isThePatch: boolean,
+	hasUnicode: boolean
+};
+
+export function sysExableStringToUTF8(msg: number[] | Uint8Array): SysExableStringDecodedData
+{
+	let decoder = new TextDecoder();
+	let result: number[] = [];
+	
+	let utfFixer = 0x0;
+	
+	let hasUnicode = false;
+	
+	let isThePatch = msg[0] === charDLE;
+	
+	for (let char of msg)
+	{
+		if (char == charDC2)
+		{
+			hasUnicode = true;
+			utfFixer = 0x80;
+			continue;
+		}
+		if (char == charDC4)
+		{
+			utfFixer = 0x0;
+			continue;
+		}
+		
+		if ((char < 0x20 || char > 0x7e) && utfFixer == 0x0) continue; // out of range
+		
+		result.push(char | utfFixer);
+	}
+	
+	return {
+		hasUnicode: hasUnicode,
+		isThePatch: isThePatch,
+		string: decoder.decode(new Uint8Array(result)).trim()
+	};
+}
+
+function sysExFilenameSanize(filename: string, message: number[]): number[]
+{
+	message = [...message, ...sysExableString(filename).message];
 	
 	while (message.length % 3 != 0) message.push(0); // добиваем до кратного трём значения — так ровно разбивается по пакетам...
 	
@@ -325,6 +442,8 @@ function sysExFilename(cmd: SysExCommand, load: string)
 
 async function waitForMidi(theCommand = null, timeout = 500): Promise<MidiResult>
 {
+	if (!portIn) throw "No midi port found";
+	
 	return new Promise((resolve,reject) =>
 	{
 		let failTimeout = setTimeout(()=>reject({reason: "timeout"}), timeout);
@@ -445,7 +564,8 @@ async function sysExAndWait(theCommand: SysExCommand, timeout: number = 500): Pr
 
 export function sysExTestFill(hex: HexColour)
 {
-	sysEx(SysExCommand.LIGHTUP, colourToSysExArray(hex));
+	const futureExpansionBytes = [0,0,0]; // hand and other data
+	sysEx(SysExCommand.LIGHTUP, [...futureExpansionBytes, ...colourToSysExArray(hex)]);
 }
 
 export function sysExColourReset()
@@ -480,7 +600,11 @@ export function sysExTestPattern(arr: ColourArray)
 	for (let hex of arr)
 		patternSysExArray.push(colourToSysExArray(hex));
 		
-	sysEx(SysExCommand.LIGHTUP, patternSysExArray.reduce(function(a,b) { return [...a,...b] }));
+	const futureExpansionBytes = [0,0,0]; // hand and other data
+	sysEx(SysExCommand.LIGHTUP, [
+		...futureExpansionBytes,
+		...patternSysExArray.reduce(function(a,b) { return [...a,...b] })
+	]);
 }
 
 export function sysExDiskMode()

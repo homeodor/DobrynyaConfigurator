@@ -7,14 +7,12 @@
 	
 	function set()
 	{
-		Cookies.set(cookieName, true);
+		Cookies.set(cookieName, true, { expires: 3650 });
 		value = Cookies.get(cookieName);
-		console.log(Cookies.get(), value);
 	}
 	
 	$:{
 		value = Cookies.get(cookieName);
-		console.log("COOKIE", Cookies.get());
 	}
 </script>
 <style>

@@ -43,6 +43,10 @@ export class WaitingBlock
 				text = "File integrity check failed. Please try again."; break;
 			case SysExStatus.WRONG_LENGTH:
 				text = "The file has wrong length."; break;
+			case SysExStatus.WRONG_FILENAME:
+				text = "The requested filename is wrong."; break;
+			case SysExStatus.FILENAME_TOO_LONG:
+				text = "The requested file has a filename that is too long."; break;
 			default:
 				text = "An unknown error has occured. Please try again."; break;
 		}

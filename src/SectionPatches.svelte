@@ -2,6 +2,8 @@
 	import { tick } from 'svelte';
 	import * as BSON from 'bson'
 	
+	import { isMacLike } from './stores';
+	
 	import { models } from './device';
 		
 	import type { Patch } from './types_patch';
@@ -217,13 +219,17 @@
 </script>
 
 <section id="tab-patches">
-	<div style="margin-bottom:2rem" id="patchlist-diskmode">You may also manipulate your patches from the <span class="system-mac">Finder</span><span class="system-win">Explorer</span>
+	<div style="margin-bottom:2rem" id="patchlist-diskmode">You may also manipulate your patches from the {#if $isMacLike }<span class="system-mac">Finder</span>{:else}<span class="system-win">Explorer</span>{/if}
 	by switching Dobrynya to <span class="unreal" on:click={rebootToDisk}>disk mode</span>. It is especially useful for backing up your stuff! Don’t forget
 	to safely disconnect the disk after you’re done (it is actually important).</div>
-
+	
+	{#if !patchesInfoHasBeenLoaded}
+	<p>Patches are still loading...</p>
+	{/if}
 
 	<div id="patchlist-patchlist" bind:this={patchList}>
 	{#each patchesInfo as patch}
+	{#if patch}
 		<div class="patchlist-item" class:current-patch={patch.isThePatch} class:uploaded-patch={justUploadedName==patch.name}>
   		<div>
 			<div class="patchlist-pattern patternpreview" on:click="{()=>tune(patch.name, patch.isThePatch)}">
@@ -247,6 +253,7 @@
 			<button disabled={!isOnline} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
   		</div>
 		</div>
+	{/if}
 	{/each}
 	</div>
 </section>

@@ -85,9 +85,11 @@ Integers, such as checksums and lengths, are stored as a 28-bit value (4×7 bits
 
 ### Filename encoding
 
-Currently the filename is assumed to contain only the characters from the basic ASCII table. This means that no special encoding is required, as it is already [a 7-bit table](https://www.asciitable.com/).
+Currently the filename is assumed to contain only the characters from the basic ASCII table. This means that no special encoding is required, as it is already [a 7-bit table](https://www.asciitable.com/). Dobrynya cannot handle UTF-encoded filenames at the moment anyway.
 
 The filenames are zero-terminated.
+
+The maximum length of a filename, the extension (```.dbrpatch```) and the last null character included, is 84 bytes. This leaves 74 bytes for characters. This is 74 basic ASCII characters and less for UTF.
 
 In the future UTF-8 encoding will be implemented in a rather peculiar way. A DC2 (0x12) symbol marks the beginning of bytes that have 8th bit (Unicode bytes), and DC4 (0x14) marks the end of such section, and the 8th bit is then truncated on all bytes.
 
@@ -139,6 +141,8 @@ Status byte either shows the intent of the message, or contains an error code.
 |```0x15```|```CANT_RENAME```    | Rename failed
 |```0x16```|```WRONG_CHECKSUM``` | Checksum failed
 |```0x17```|```WRONG_LENGTH```   | The length of data is not what was expected
+|```0x18```|```WRONG_FILENAME``` | The filename turned out to be bad in some way (probably forbidden characters such as * and ?)
+|```0x19```|```FILENAME_TOO_LONG```   | The filename length exceeded 84 bytes
 
 Also, if bit 7 is set, this means that the message will contain the checksum.
 
@@ -171,7 +175,7 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x21```|```LOCKPATCHSWITCHING``` | Locks patch switching on Dobrynya if patch is unsaved in the configurator | 
 |```0x22```|```WAKE```               | Does nothing |
 |```0x23```|```LOADBANK```           | Switches banks on the device. | SH BB, where S is if it is a sub-bank, H is hand (commonly 0), BB is bunk number
-|```0x40```|```LIGHTUP```            | Makes the device light up with colours | One / 16 / 32 encoded 16-bit HSV values (see before)
+|```0x40```|```LIGHTUP```            | Makes the device light up with colours | Three reserved bytes (now all set to 0x0), then 1 or 16 encoded 16-bit HSV values (see before)
 |```0x41```|```BURST```              | Reserved |
 |```0x60```|```REBOOT```             | Just reboots the device |
 |```0x61```|```REBOOT_MSC```         | Reboots the device into disk moe |
