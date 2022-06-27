@@ -10,8 +10,6 @@ let portIn: MIDIInput = null;
 
 let pingInterval = null;
 
-let allowPing = false;
-
 let dobrynyaIsHere: boolean = false;
 let dobrynyaWasHere: boolean = false;
 
@@ -65,7 +63,6 @@ async function checkDobrynyaIsHere()
 		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
 		{
 			portIn = entry;
-			console.log("Port in", entry);
 			portIn.addEventListener("midimessage", onMIDIMessage);				
 			break;
 		}
@@ -76,7 +73,6 @@ async function checkDobrynyaIsHere()
 		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
 		{
 			portOut = entry;
-			console.log("Port in", entry);
 			
 			try 
 			{
