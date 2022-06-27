@@ -100,7 +100,7 @@
 		)
 		plusMinus = -1;
 		
-		return plusMinus * Math.round(Math.sqrt(Math.pow(w,2) + Math.pow(h,2)));
+		return plusMinus * Math.round(Math.sqrt(w ** 2 + h ** 2));
 	}
 	
 	function mouseDown(ev)

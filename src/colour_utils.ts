@@ -51,7 +51,7 @@ export function invH(colour: HexColour): HexColour
 // function applyGammaVideo(brightness, gamma)
 // {
 // 	let orig = brightness / 255.0;
-// 	let	adj =  Math.pow(orig, gamma) * 255.0;
+// 	let	adj =  (orig ** gamma) * 255.0;
 // 	let result = Math.trunc(adj);
 // 	return result;
 // }
