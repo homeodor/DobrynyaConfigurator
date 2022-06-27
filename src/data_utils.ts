@@ -92,45 +92,6 @@ export function flagToArray(arr: boolean[], flag: number)
 	for (let i: number = 0; i < arr.length; i++) arr[i] = ((flag & (1 << i)) != 0);
 }
 
-export function mergeByteArrays(a: TypedArray, b: TypedArray)
-{
-	if (Array.isArray(a))
-	{
-		if (a.find(v=>{return (v<0 || v>255 || v!==Math.trunc(v))})) throw "Array a could not be converted to Uint8Array";
-		a = new Uint8Array(a);
-	}
-
-	if (Array.isArray(b))
-	{
-		if (b.find(v=>{return (v<0 || v>255 || v!==Math.trunc(v))})) throw "Array a could not be converted to Uint8Array";
-		a = new Uint8Array(a);
-	}
-
-	
-	if (
-		Object.prototype.toString.call(a) !== "[object Uint8Array]" ||
-		Object.prototype.toString.call(b) !== "[object Uint8Array]"
-	)
-		throw "A value that wasn’t a Uint8Array was used for ";
-
-
-	// Checks for truthy values or empty arrays on each argument
-	// to avoid the unnecessary construction of a new array and
-	// the type comparison
-	if(!b || b.length === 0) return a;
-	if(!a || a.length === 0) return b;
-
-	// Make sure that both typed arrays are of the same type
-	if(Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
-		throw 'The types of the two arguments passed for parameters a and b do not match.';
-
-	var c = new a.constructor(a.length + b.length);
-	c.set(a);
-	c.set(b, a.length);
-
-	return c;
-}
-
 export function getKeyByValue(object: any, value: any)
 {
 	return Object.keys(object).find(key => object[key] === value);

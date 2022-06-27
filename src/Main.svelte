@@ -7,7 +7,6 @@
 	import { defaultStatusResult } from './device'
 	import { sysExAndDo, sysExFilenameAndDo, flipConnected } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
-	import type { MidiResult } from './midi_utils';
 	
 	import GotIt from './widgets/GotIt.svelte';
 		
