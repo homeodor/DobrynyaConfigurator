@@ -280,22 +280,20 @@
 		
 		const outlineRect = theOutline.getBoundingClientRect();
 		const targetRect = element.getBoundingClientRect();
-//		const editorRect = document.getElementById("controleditor").getBoundingClientRect();
 		
 		const relY: number = targetRect.top - outlineRect.top;
 		const relX: number = targetRect.left - outlineRect.left;
 		const relR: number = Math.round(targetRect.width / 2);
-//		let bigR: number = Math.sqrt(Math.pow(editorRect.width/2,2) + Math.pow(editorRect.height/2,2));
 		
 		const circleX: number = Math.round(relX + relR);
 		const circleY: number = Math.round(relY + relR);
 		
 		let bigR = Math.max.apply(null, 
 		[
-			Math.round(Math.sqrt(Math.pow(circleX, 2) + Math.pow(circleY, 2))),
-			Math.round(Math.sqrt(Math.pow(outlineRect.width - circleX, 2) + Math.pow(circleY, 2))),
-			Math.round(Math.sqrt(Math.pow(circleX, 2) + Math.pow(outlineRect.height - circleY, 2))),
-			Math.round(Math.sqrt(Math.pow(outlineRect.width - circleX, 2) + Math.pow(outlineRect.height - circleY, 2))),
+			Math.round(Math.sqrt(circleX ** 2 + circleY ** 2)),
+			Math.round(Math.sqrt((outlineRect.width - circleX) ** 2 + circleY ** 2)),
+			Math.round(Math.sqrt(circleX ** 2 + (outlineRect.height - circleY) ** 2)),
+			Math.round(Math.sqrt((outlineRect.width - circleX) ** 2 + (outlineRect.height - circleY) ** 2)),
 		]) + 500; // finding the longest distance from the center of the circle to the edge of the outline...
 		
 //		if (bigR + relX > bigR + relY) bigR += relX; else bigR += relY;
