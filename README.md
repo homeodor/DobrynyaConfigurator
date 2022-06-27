@@ -28,7 +28,34 @@ This repo is available for people who want to
 
  - **Develop a WEB MIDI project.** This configurator uses an elaborate system of System Exclusive (SysEx) MIDI messages to communicate with the device, and the request-respond is designed to be an asynchronous routine, kinda similar to how AJAX is handled this days, *async/await* and all. It’s not like there are tons of good code on the web!
 - **Learn how Dobrynya communication works.** All of the configurable MIDI controllers/instruments I know of use SysEx to talk to their host. Ever wanted to build your own MIDI device with complex SysEx? Maybe this code could be of help!
-- **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Ever wanted to automatically change your banks/patches on a certain event? It is totally possible.
+- **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
+
+## Device class, model and serial
+
+Each device’s serial number consists of model string and, well, an actual serial number.
+
+It goes like this:
+
+```
+CMVVRR-xxxx
+```
+
+```C``` is the class (think of it as the size of the device), ```M``` is the model number; together they make up the model ID. ```VV``` is the variant and ```RR``` is the revision of that model. ```xxxx``` is the actual serial number which increments separately for each model ID, but not for revisions or variants. 
+
+The Configurator supports these devices:
+
+|Model ID|Class|Name|
+|-|-|-|
+|21|XS|Micro V2|
+|31|S|Mini V2|
+
+The serial number is important information for the Configurator: it is used to distinguish models as well as individual devices.
+
+## Patches
+
+All Dobrynya patches are actually encoded as BSON. Not only BSON can be easily converted to JSON, the Configurator actually allows for direct JSON download. One day I will fully document the JSON structure, but for definitely not now.
+
+Basically, the paradigm of the patch files is simple: if a value is set to default, the parameter is omitted altogether; if a branch contains nothing useful, it is removed. This is true for most of the branches except for some root ones. This makes patches more concise and saves space and memory.
 
 ## Colour
 
@@ -41,28 +68,34 @@ S - 4 bits, or 16 values of saturation
 V - 4 bits, or 16 values of, erm, value (brighness, that is)
 ```
 
-Which gives 65k colours, a plenty for a MIDI controller. Internally all LEDs are fully 24 bit RGB though.
+Which gives 65k colours, a plenty for a MIDI controller and saves tons of memory. Internally all LEDs are fully 24 bit RGB though.
+
+### Colour off
+
+Actually, all colours that have a value of 0 will be black, no matter the hue.
+
+There is a magic value ```0xff00``` that means “colour off”.
 
 ## SysEx
 
 Here’s a brief overview of how Dobrynya’s SysExes work.
 
-Each one consists of the following bytes (all in hexadecimal):
+Each one consists of the following bytes:
 
 ```
-F0 - start of SysEx, as is per MIDI standard
-00 39 40 - normally here comes a Manufacturer SysEx ID. Dobrynya doesn’t have one assigned (yet), so this header is as good as any
+0xF0 - start of SysEx, as is per MIDI standard
+0x00 0x39 0x40 - normally here comes a Manufacturer SysEx ID. Dobrynya doesn’t have one assigned (yet), so this header is as good as any
 CC - device class number (the Configurator sends 0x77 here)
 MM - device model number (the Configurator sends 0x76 here)
-RR - device revision (the Configurator sends 00)
-Vm - firmware/configurator version minor (the Configurator currently sends 00)
-VM - firmware/configurator version major (the Configurator currently sends 00)
-00 - reserved
+RR - device revision (the Configurator sends 0x00)
+Vm - firmware/configurator version minor (the Configurator currently sends 0x00)
+VM - firmware/configurator version major (the Configurator currently sends 0x00)
+0x00 - reserved
 CM - the command
 ST - the status
 C1 C2 C3 C4 L1 L2 L3 L4 - optional, 28 bit checksum/length (if status’ bit 7 is set, see below)
 ... optional, some data
-F7 - SysEx ends, as is per the standard
+0xF7 - SysEx ends, as is per the standard
 ```
 
 ### Raw data
