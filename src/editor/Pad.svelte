@@ -2,7 +2,9 @@
 	import { hexToCSS, gracefulGetColour, ColourPaintLayer, colourOff } from '../colour_utils';
 	import type { BranchControl } from '../types_patch'
 	import { Control } from '../types';
-	import type { InvokeControlEvent, InvokeControlEventData, HexColour } from '../types'
+	import type { HexColour } from '../types'
+	import { filterInvoke } from '../events';
+	import type { InvokeControlEvent, InvokeControlEventData } from '../events'
 	import InnerControl from './InnerControl.svelte';
 	
 	import { createEventDispatcher } from 'svelte';
@@ -70,11 +72,7 @@
 		dispatch(eventToDispatch, dispatchData);
 	}
 	
-	function invokeControl(ev: InvokeControlEvent)
-	{
-		if (ev.detail.controlKind != Control.Pad || ev.detail.controlNo != controlNo) return;
-		sendEvent('click');
-	}
+	function invokeControl(ev: InvokeControlEvent) { filterInvoke(ev, Control.Pad, controlNo, ()=>sendEvent('click')); }
 	
 	$:{
 		isColourPaint = colourPaintMode != ColourPaintLayer.Off;

@@ -405,10 +405,7 @@
 		drawer = (d == drawer) ? "" : d;
 	}
 	
-	function ondrawer(ev)
-	{
-		setDrawer(ev.detail.drawer);
-	}
+	function ondrawer(ev) { setDrawer(ev.detail.drawer); }
 	
 	//@ts-ignore
 //	window.ms = markSaved;
@@ -545,10 +542,10 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 
 	<div class="dobrynya-outline" class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" id={0} dataAll={currentPatch.encoders} />
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" id={1} dataAll={currentPatch.encoders} />
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" id={2} dataAll={currentPatch.encoders} />
-			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" id={3} dataAll={currentPatch.encoders}  />{/if}
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.encoders} />
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.encoders} />
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" controlNo={2} dataAll={currentPatch.encoders} />
+			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.encoders}  />{/if}
 		</div>
 	
 		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch.padbanks[currentHand][currentBank]} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
@@ -569,5 +566,5 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
-	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
+	<p>You have unsaved changes. Patch switching is locked on the device.</p>
 </Alert>

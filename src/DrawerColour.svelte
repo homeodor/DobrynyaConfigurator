@@ -10,7 +10,7 @@
 	import { expandSetSanize } from './data_expandsanize'
 	
 	import { Control } from './types';
-	import type { InvokeControlEventData } from './types'
+	import type { InvokeControlEventData } from './events'
 	import type { BranchBank } from "./types_patch";
 	import { getCurrentHexes, assembleLayerFromHexes } from './colourtools/common'
 	import type { CTData } from './colourtools/common';

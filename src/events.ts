@@ -1,5 +1,22 @@
 import type { MidiResult } from './midi_utils'
-import type { Hand } from './data_utils'
+import type { Hand, Control, HexColour } from './types'
+
+export interface InvokeControlEventData
+{
+	target: HTMLElement,
+	controlKind: Control,
+	controlNo: number,
+	buttons?: number,
+	altKey?: boolean,
+	shiftKey?: boolean,
+	hex?: HexColour,
+	ultimateHex?: HexColour,
+}
+
+export interface InvokeControlEvent extends CustomEvent
+{
+	detail: InvokeControlEventData
+}
 
 export function quickCustom(n: string, d: object = {}) { document.body.dispatchEvent(new CustomEvent(n,{detail:d})); }
 function quickNormal(n: string)				  { document.body.dispatchEvent(new       Event(n)); }
@@ -13,3 +30,5 @@ export function invokeBank(hand:Hand, bankNo: number, isShift: boolean) { quickC
 export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { data: data }) }
 export function selectPatch(name: string) { quickCustom('selectpatch',{name:name})};
 export function section(name: string) { quickCustom('section',{section:name})};
+
+export function filterInvoke(ev: InvokeControlEvent, controlKind: Control, controlNo: number, action: Function) { if (ev.detail.controlKind == controlKind && ev.detail.controlNo == controlNo) action(); }

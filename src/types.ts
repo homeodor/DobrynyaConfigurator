@@ -70,23 +70,6 @@ export enum EncoderBehaviour
 
 export interface DeviceOrBankValue { value: number, isDeviceLevel: boolean};
 
-export interface InvokeControlEventData
-{
-	target: HTMLElement,
-	controlKind: Control,
-	controlNo: number,
-	buttons?: number,
-	altKey?: boolean,
-	shiftKey?: boolean,
-	hex?: HexColour,
-	ultimateHex?: HexColour,
-}
-
-export interface InvokeControlEvent extends CustomEvent
-{
-	detail: InvokeControlEventData
-}
-
 export interface StatusResult
 {
 	isCorrect: boolean,
