@@ -211,6 +211,7 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x23```|```LOADBANK```           | Switches banks on the device. | SH BB, where S is if it is a sub-bank, H is hand (commonly 0), BB is bunk number
 |```0x40```|```LIGHTUP```            | Makes the device light up with colours | Three reserved bytes (now all set to 0x0), then 1 or 16 encoded 16-bit HSV values (see before)
 |```0x41```|```BURST```              | Reserved |
+|```0x42```|```PALETTE```            | Reserved |
 |```0x60```|```REBOOT```             | Just reboots the device |
 |```0x61```|```REBOOT_MSC```         | Reboots the device into disk moe |
 |```0x62```|```REBOOT_BOOT```        | Reboots the device into bootloader |
