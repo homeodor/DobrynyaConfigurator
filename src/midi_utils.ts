@@ -50,7 +50,8 @@ export enum SysExCommand
 	LOADBANK, // 0x23
 	
 	LIGHTUP =	   0x40,
-	BURST, // 0x41
+	BURST,
+	PALETTE, // 0x42
 	
 	REBOOT = 0x60,
 	REBOOT_MSC,
