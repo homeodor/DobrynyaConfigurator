@@ -45,17 +45,19 @@
 	
 	function sendEvent (evType: string, evButtons: number = 0, evAltKey: boolean = false, evShiftKey: boolean = false)
 	{
-		let eventToDispatch: string;
+		let eventToDispatch: string = "";
 		
 		if (colourPaintMode != ColourPaintLayer.Off) // colour paint
 		{
 			if (
-				(evType == "click" || evButtons & 0x1)
+				(evType != "click" && (evButtons & 0x1))
 			) eventToDispatch = "paint";
 		} else {
 			if (evType != "click") return; // mouseover?
 			eventToDispatch = "click";
 		}
+		
+		if (!eventToDispatch) return;
 		
 		let dispatchData: InvokeControlEventData =
 		{
@@ -67,7 +69,6 @@
 			altKey: evAltKey, 
 			shiftKey: evShiftKey
 		}
-
 		
 		dispatch(eventToDispatch, dispatchData);
 	}
@@ -94,7 +95,7 @@
 			
 			if (colourPaintMode != ColourPaintLayer.Pattern)
 			{
-				backgroundHex = ultimateHex = gracefulGetColour(colourPaintMode, padColours, (colourPaintShowBank ? globalColours : []), isKeyOfScale, true, moreData);
+				backgroundHex = ultimateHex = gracefulGetColour(colourPaintMode, padColours, (colourPaintShowBank ? globalColours : []), isKeyOfScale, false, moreData);
 				hex = padColours[colourPaintMode] ?? colourOff;				
 			} else {
 				backgroundHex = hex = ultimateHex = pattern;
@@ -102,7 +103,7 @@
 			
 			if ((ultimateHex & 0xf) == 0) ultimateHex = 0;
 			
-			backgroundColour = "background-color: " + hexToCSS(backgroundHex);
+			backgroundColour = "background-color: " + hexToCSS(backgroundHex == colourOff ? 0 : backgroundHex);
 		} else {
 			hex = colourOff; // not needed in non-colourpaint
 			ultimateHex = 0; // same

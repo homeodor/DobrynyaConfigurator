@@ -98,7 +98,6 @@
 	function keydownHandle(ev: KeyboardEvent)
 	{
 		if (ev.repeat) return false;
-		console.log(ev.key);
 		
 		if (ev.key == "b" && !temporaryEraser)
 			setTool(Tool.Paintbrush, true);
@@ -220,8 +219,11 @@
 							pattern[i] = hexFixed;
 						else
 						{
+							console.log(colourPaintMode);
 							createObjectIfAbsent(bank,"pads",deepClone(emptyPadDataArray));
-							expandSetSanize(colourDataModel, bank.pads[i], ()=>bank.pads[i].colour[colourPaintMode] = hexFixed);
+							expandSetSanize(colourDataModel, bank.pads[i], ()=>{
+								bank.pads[i].colour[colourPaintMode] = hexFixed
+							});
 						}
 					}
 					
@@ -290,7 +292,9 @@
 			Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined // or any of the advanced tools are open
 		)) return false;
 		
-		let pattrn = assembleLayerFromHexes(getCurrentHexes(bank,pattern), colourPaintMode);
+		console.log(bank, pattern, getCurrentHexes(bank,pattern));
+		
+		let pattrn = assembleLayerFromHexes(getCurrentHexes(bank, pattern), colourPaintMode);
 		
 		if (isSame(previousPattern, pattrn) && !force) return;
 		

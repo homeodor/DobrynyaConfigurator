@@ -119,8 +119,8 @@ export function getCurrentHexes(theBank: any, pattern: number[]): HexArrays
 	for (let j=0; j<coloursPerPad; j++)
 	{
 		for (let i=0; i<numberOfPads; i++) hex.pads[j].push(
-			(theBank?.bank?.colour !== undefined) ?
-				(theBank.pads[i]?.colour?.[j] ?? colourOff) :
+			(theBank?.pads?.[i]?.colour !== undefined) ?
+				(theBank?.pads?.[i]?.colour?.[j] ?? colourOff) :
 				colourOff
 		);
 	}

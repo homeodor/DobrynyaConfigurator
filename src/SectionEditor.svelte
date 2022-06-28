@@ -90,7 +90,8 @@
 		patchesInfo = patchesInfo; // svelte
 	};
 	
-	let confirmDiscard: any;
+	let confirmDiscard: Confirm;
+	let confirmEmptyPatch: Confirm;
 	
 	let patchSelector: HTMLSelectElement;
 	
@@ -166,7 +167,13 @@
 		patchData: Patch | null = currentPatch,				// the patch data. Defaults to currentPatch
 	)
 	{
-		if (patchData === null) patchData = currentPatch;
+		if (patchData === null)
+		{
+			patchData = currentPatch;
+		}
+		
+		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
+			return;
 		
 		if (cleanSlate) patchData = deepClone(patchTemplates[device.model.code]);
 		
@@ -564,6 +571,10 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 {/if} <!-- if openSection == editor -->
 <Confirm bind:this={confirmDiscard} okText="Discard">
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
+</Confirm>
+<Confirm bind:this={confirmEmptyPatch} okText="Upload">
+	<p>Your patch has no filled banks. Do you still want to upload it?</p>
+	<p>The device doesn’t open empty banks, as empty banks are considered to be “off”.</p>
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
 	<p>You have unsaved changes. Patch switching is locked on the device.</p>
