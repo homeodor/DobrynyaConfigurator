@@ -79,7 +79,8 @@ export enum SysExStatus
 	FILENAME_TOO_LONG,
 	
 	USECHECKSUM = 0x40,
-	TIMEOUT = -1
+	TIMEOUT = -1,
+	OLD_FIRMWARE = -2,
 };
 
 export interface KeyInfo

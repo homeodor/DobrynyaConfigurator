@@ -1,25 +1,41 @@
+interface HIDEventShim extends Event
+{
+	data: DataView
+}
+
+interface HIDDeviceShim extends EventTarget
+{
+	sendReport: Function,
+	opened: Boolean,
+	open: Function,
+}
+
 interface BootloaderData
 {
-	device: any,
-	flashPageSize: any,
-	flashNumPages: any,
-	maxMessageSize: any,
+	device: HIDDeviceShim,
+	deviceID: string,
+	flashPageSize: number,
+	flashNumPages: number,
+	maxMessageSize: number,
 	familyID: any,
 	dbrID: any,
-	blVersion: any,
-	fwVersion: any
+	blVersion: string,
+	fwVersion: string,
+	fwVersionIsReal: boolean
 }
 
 const bootloader: BootloaderData = 
 {
 	device: null,
+	deviceID: "",
 	flashPageSize: null,
 	flashNumPages: null,
 	maxMessageSize: null,
 	familyID: null,
 	dbrID: null,
 	blVersion: null,
-	fwVersion: null
+	fwVersion: null,
+	fwVersionIsReal: null,
 };
 
 // @ts-ignore
@@ -49,15 +65,17 @@ const hidFilters =
 	}
 ];
 
-async function exitBootloader() { await requestAndWait(bootloader.device, 0x0003); }
+export async function exitBootloader() { await requestAndWait(bootloader.device, 0x0003); }
 
-async function requestDevice()
+export async function writeUF2Data(requestArray: Uint8Array) { await requestAndWait(bootloader.device, 0x0006, requestArray); } // oh god.
+
+export async function requestDevice()
 {
 	let hids = await hid.requestDevice({filters: hidFilters});
 	if (!hids.length || !hids[0]) return false;	
 }
 
-async function connectToDevice(entry)
+async function connectToDevice(entry: HIDDeviceShim)
 {
 	
 	bootloader.device = entry;//hids[0];
@@ -65,7 +83,7 @@ async function connectToDevice(entry)
 	return true;
 }
 
-async function hidFillData(entry)
+export async function hidFillData(entry: HIDDeviceShim)
 {
 	if (!await connectToDevice(entry)) return false;
 	
@@ -73,7 +91,7 @@ async function hidFillData(entry)
 	await getBootloaderData();
 	await getVersionData();
 	
-	return true;
+	return bootloader;
 }
 
 async function getBasicData()
@@ -121,7 +139,7 @@ async function getVersionData()
 	}
 }
 
-async function getBootloaderData()
+export async function getBootloaderData()
 {
 	let bootloaderDataArr =
 		(new TextDecoder)
@@ -142,8 +160,6 @@ async function getBootloaderData()
 		bootloaderData[k.trim()] = v.trim();
 	}
 	
-	let deviceID = "";
-	
 	if ("Dbr-version" in bootloaderData) // new bootloader
 	{
 		bootloader.deviceID = bootloaderData["Board-ID"].split("-").slice(2).join("-")
@@ -160,13 +176,15 @@ async function getBootloaderData()
 			bootloader.deviceID = "32r1";
 		
 		bootloader.blVersion = "1.0";
-		
 	}
-	
 }
 
-async function requestAndWait(dev, cmd, data: Uint8Array | number[])
+
+
+async function requestAndWait(dev: HIDDeviceShim, cmd: number, data: Uint8Array | number[] = null): Promise<Uint8Array>
 {
+	if (data === null) data = [];
+	
 	let theArray = new Uint8Array(((data as Uint8Array).byteLength ?? data.length) + 8);
 	let tag = Math.floor(Math.random() * 0xffff);
 	
@@ -203,21 +221,21 @@ async function requestAndWait(dev, cmd, data: Uint8Array | number[])
 	
 	// console.log(sendArrays);
 		
-	let resultTotal = await new Promise((resolve, reject) => {
+	let resultTotal: Uint8Array = await new Promise((resolve, reject) => {
 		
 		let result = new Uint8Array(0);
 		
-		let dataHandler = (ev) =>
+		let dataHandler = (ev: HIDEventShim) =>
 		{
 			// console.log(ev);
 			
 			let byteLength = result.byteLength;
 			
-			let data = ev.data;
-			let length = ev.data.getUint8(0) & 0x3f;
+			let data    = ev.data;
+			let length  = ev.data.getUint8(0) & 0x3f;
 			let isFinal = ev.data.getUint8(0) & 0x40;
 			let isFirst = byteLength == 0;
-			let offset = isFirst ? 5 : 1;
+			let offset  = isFirst ? 5 : 1;
 			
 			if (isFirst)
 			{

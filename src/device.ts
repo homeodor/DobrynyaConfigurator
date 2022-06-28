@@ -1,3 +1,37 @@
+export interface VersionDataShort
+{
+	version:	string,
+	date:	string,
+}
+
+export enum FirmwareState
+{
+	Unknown,
+	Checking,
+	Obsolete,
+	Outdated,
+	UpToDate,	
+};
+
+const minimumFirmware: VersionDataShort =
+{
+	version: "2.0",
+	date: "26.06.2022"
+};
+
+export interface VersionData extends VersionDataShort
+{
+	isBootloader:	boolean,
+	model:	string,
+	chip:	string,
+
+	filename:	string,
+	bootloader:	{
+		version:	string,
+		filename:	string
+	}
+}
+
 export interface Model
 {
 	name?: string,
@@ -23,7 +57,6 @@ export interface Capabilities
 	pianoroll: boolean,
 	decolight: boolean
 }
-
 
 
 export const capabilityFlags: string[] = [ 'imu','battery','ble','proximity','haptic','pianoroll','decolight' ];
@@ -204,37 +237,14 @@ export const ChipIDs =
 	}
 };
 
-export interface VersionData
+export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: string[])
 {
-	isBootloader:	boolean,
-	model:	string,
-	chip:	string,
-	version:	string,
-	date:	string,
-	filename:	string,
-	bootloader:	{
-		version:	string,
-		filename:	string
-	}
-}
-
-export function versionCompare(currentVersion: string, newVersion: VersionData)
-{
-	// 2.0/26.06.2022-13:51
-	
-	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
-	
-	let currVersionSplit = [...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()];
-	let newVersionSplit  = [...newVersion.version.split("."), ...newVersion.date.split(".").reverse()];
-	
-	// console.log(currVersionSplit, newVersionSplit);
-	
 	if (currVersionSplit.length != newVersionSplit.length) throw "Version lengths are not the same";
 	
 	while (currVersionSplit.length)
 	{
 		let pCurrent = parseInt(currVersionSplit.shift());
-		let pNew = parseInt(newVersionSplit.shift());
+		let pNew     = parseInt( newVersionSplit.shift());
 		
 		if (isNaN(pCurrent) || isNaN(pNew)) throw "One of the version components is NaN";
 		
@@ -244,27 +254,67 @@ export function versionCompare(currentVersion: string, newVersion: VersionData)
 	return false;
 }
 
+export function versionCompare(currentVersion: string, newVersion: VersionDataShort)
+{
+	// 2.0/26.06.2022-13:51
+	
+	
+	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
+	console.log(currVersionWithoutTime, currentVersion, newVersion);
+	
+	return versionCompareRaw(
+		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
+		[...newVersion.version.split("."), ...newVersion.date.split(".").reverse()]
+	);
+}
+
+export function isMinimumVersion(currentVersion: string)
+{
+	return !versionCompare(currentVersion, minimumFirmware);
+}
+
 export function getFullModelCode(model: Model)
 {
 	return model.chipVaries ? `${model.code}-${model.chipCode}` : model.code;
 }
 
-export async function getLatestVersion(model: Model)
+let waitBeforeRetry = false;
+
+export async function getLatestVersion(model: Model | string)
 {
+	if (waitBeforeRetry) return null;
+	
 	let result = null;
+	
+	if (typeof model !== "string") model = getFullModelCode(model);
+	
+	let fetchJSON;
 	
 	try 
 	{
-		let fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${getFullModelCode(model)}/latest/?json=json`, 
+		fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${model}/latest/?json=json`, 
 			{
 				mode:'cors',
 			}
 		);
-	
-		result = await fetchJSON.json();
+		
+		if (fetchJSON.status === 200)
+			result = await fetchJSON.json();
+		else if (fetchJSON.status === 503)
+		{
+			if (fetchJSON.headers.get("retry-after"))
+			{
+				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
+				console.warn("We should retry after ", retryAfter );
+				setTimeout(
+					()=>waitBeforeRetry = false, retryAfter * 1000);
+			}
+		}
 	} catch(e)
 	{
-		console.error(e);
+		console.log(e);
+		waitBeforeRetry = true;
+		setTimeout(()=>waitBeforeRetry = false, 30000);
 		return;
 	}
 	

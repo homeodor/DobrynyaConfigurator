@@ -76,8 +76,13 @@ async function checkDobrynyaIsHere()
 			
 			try 
 			{
-				// console.trace("Hooow");
 				let result: MidiResult = await sysExAndWait(SysExCommand.STATUS, 300);
+				
+				if (result.status == SysExStatus.OLD_FIRMWARE) // we do not load anything really, we just want the version info and the serial
+				{
+					result = await sysExAndWait(SysExCommand.GETSERIAL, 300);
+					result.data.version = (await sysExAndWait(SysExCommand.GETVERSION, 300)).data;
+				}
 				
 				if (!result.success)
 				{
@@ -131,8 +136,9 @@ function midiSend(v: number[] | Uint8Array): void
 	if (!isConnected) return;
 	if (!portOut)
 		console.warn("portIn is likely found, but not portOut", portIn, portOut);
-	else
+	else {
 		portOut.send(v);
+	}
 }
 
 function midiSendTerminated(v: number[]) { v.push(0xf7); midiSend(v); }
@@ -378,7 +384,6 @@ export function sysExBank(hand: Hand, shift: boolean, bank: number)
 function sysEx(cmd: SysExCommand, load: any = null, usechecksum: boolean = false)
 {
 //	if (lockMidi) return;
-//		console.log(typeof load);
 	let message: number[] = 
 		usechecksum ?
 			sysExArray(cmd, SysExStatus.USECHECKSUM | SysExStatus.REQUEST) :

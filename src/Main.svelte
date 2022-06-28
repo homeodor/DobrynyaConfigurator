@@ -4,8 +4,8 @@
 	import { build, version } from './version';
 	
 	import type { StatusResult } from './types'
-	import { defaultStatusResult } from './device'
-	import { sysExAndDo, sysExFilenameAndDo, flipConnected } from './midi'
+	import { defaultStatusResult, getFullModelCode, isMinimumVersion, FirmwareState } from './device'
+	import { sysExAndDo, sysExFilenameAndDo, flipConnected, sysExBootloader } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
 	
 	import GotIt from './widgets/GotIt.svelte';
@@ -14,14 +14,16 @@
 	import SectionPatches from './SectionPatches.svelte'
 	import SectionSettings from './SectionSettings.svelte'
 	import SectionDevice from './SectionDevice.svelte'
+	import SectionFirmware from './SectionFirmware.svelte'
 	
-	const sections: string[] = ['editor','patches','settings','device'];
+	const sections: string[] = ['editor','patches','settings','firmware','device'];
 	
 	let device: StatusResult = defaultStatusResult(true);
 	let isOnline: boolean = false;
 	let isConnected: boolean = true;
 		
 	let openSection = "";
+	let sectionSwitchingAllowed = false;
 	
 	let settingsRawData: Uint8Array;
 	let patchesInfoHasBeenLoaded = false;
@@ -29,6 +31,9 @@
 	let editor: SectionEditor;
 	
 	let patchesInfo: PatchInfoItem[];
+	
+	// @ts-ignore
+	let hasHid = navigator !== undefined;
 	
 	function romanize (num: number)
 	{
@@ -91,31 +96,58 @@
 	import { getLatestVersion, versionCompare } from './device'
 	
 	let versionInfo: VersionData;
-	let hasNewFirmware = null;
+	let hasNewFirmware = FirmwareState.Unknown;
 	
 	async function updateVersionInfo()
 	{
-		versionInfo = await getLatestVersion(device.model);
-		hasNewFirmware = versionCompare(device.version, versionInfo);
+		if (hasNewFirmware == FirmwareState.Obsolete) return; // do not set anything, it’s already clear it’s old as balls
+		hasNewFirmware = FirmwareState.Checking;
+		try {
+			versionInfo = await getLatestVersion(device.model);
+			hasNewFirmware = versionCompare(device.version, versionInfo) ? FirmwareState.Outdated : FirmwareState.UpToDate;
+		} catch(e) {
+			hasNewFirmware = FirmwareState.Unknown;
+		}
 	}
+	
+	let stuffHasBeenLoaded = false;
 	
 	async function dobrynyaIsHere(ev: CustomEvent)
 	{
 		isOnline = true;
 		
-		if ((ev.detail as StatusResult).serial === device.serial)
-			return; // same device, no need to reload everything, assume no changes happened
-		
+		let previousSerial = device.serial;
+			
 		if ((ev as CustomEvent).detail) device = (ev as CustomEvent).detail;
+			// there’s nothing bad in updating the details each time, becase there might’ve been a firmware update or something
+		
+		console.log("DVERS", device.version);
+		
+		if (!isMinimumVersion(device.version))
+		{
+			hasNewFirmware = FirmwareState.Obsolete;
+			console.warn("Version is outdated!");
+			openSection = "firmware";
+			return;
+		}
+		
+		if (previousSerial === device.serial && stuffHasBeenLoaded)
+			return; // same device, no need to reload everything, assume no changes happened
 		
 		updateVersionInfo();
 		
 		await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=>settingsRawData=d);
 		await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
 		
+		stuffHasBeenLoaded = true;
+		
 		console.log("So what???");
 		
-		if (openSection == "") openSection = "editor";
+		if (!sectionSwitchingAllowed)
+		{
+			sectionSwitchingAllowed = true;
+			openSection = "editor";
+		}
 				
 		editor.loadCurrentPatch();
 		
@@ -135,24 +167,31 @@
 	
 	function section(ev: CustomEvent | string)
 	{
-		if (!openSection) return;
+		if (!sectionSwitchingAllowed && !(typeof ev === "string" && ev === "firmware")) return;
 		openSection = (typeof ev === "string") ? ev : ev.detail.section;
 	}
 
+	function goToFirmware()
+	{
+//		if (isOnline && isConnected) sysExBootloader();
+		openSection = "firmware";
+	}
+	
+	console.log({data: openSection});
 	
 </script>
 
 <style>
-
+	.newfirmware:not(.sel) { border-bottom:2px solid green }
 </style>
 
 <svelte:body on:dobrynyahere={dobrynyaIsHere} on:dobrynyagone={dobrynyaGone} on:section={section}></svelte:body>
 
 <div id="is-online" class:online={isOnline} class:disconnect={!isConnected} on:click={flipDisconnectNow}>{device.model.name}</div>
 
-<div id="maintabs" style="">
+<div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
-	<div on:click="{()=>section(sect)}" class:sel={openSection==sect} id="show-config">{sect[0].toUpperCase() + sect.substring(1)}</div>
+	<div on:click="{()=>section(sect)}" class:sel={openSection==sect} class:newfirmware={hasNewFirmware==FirmwareState.Outdated && sect=='firmware'} class:disabled={!sectionSwitchingAllowed && sect != 'firmware'} id="show-{sect}">{sect[0].toUpperCase() + sect.substring(1)}</div>
 	{/each}
 </div>
 
@@ -185,9 +224,17 @@
 	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} {device} {settingsRawData} />
 	{/if}
 	{#if openSection=="device"}
-	<SectionDevice on:section={section} {device} {hasNewFirmware} />
-	{/if}	
+	<SectionDevice on:section={section} {device} {hasNewFirmware} {goToFirmware} />
+	{/if}
+	{#if openSection=="firmware"}
+	<SectionFirmware {device} {isOnline} {isConnected} {flipDisconnectNow} {hasNewFirmware} {updateVersionInfo} />
+	{/if}
 </main>
 
+	<p>
+{#if device.model.code}
+<p><a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">Get the latest firmware</a>
+</p>
+{/if}
 <div class="copyright" style="color:rgba(65, 75, 87);"><a style="color:inherit; border-color:rgba(65,75,87)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br />
 </div>

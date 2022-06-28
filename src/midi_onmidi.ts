@@ -49,6 +49,32 @@ function sevenToEight (d: Uint8Array, hasFilename: boolean = false): SevenToEigh
 	//ignoreFilename ? [ filename, outArray ] : outArray;
 }
 
+function serialDataToOutput(pureData: number[], output: StatusResult)
+{
+	output.class = pureData[2] >> 4;
+	output.modelNumber = pureData[2] & 0xf;
+	output.modelID = pureData[2];
+	output.variant = pureData[3];
+	output.revision = pureData[4];
+	output.serialID = ((pureData[5] << 24) | (pureData[6] << 16) | (pureData[7] << 8) | pureData[8]);
+	output.deviceID = 
+		output.modelID.toString(16) +
+		output.variant.toString(16).padStart(2,"0") +
+		output.revision.toString(16).padStart(2,"0");
+	output.serial = output.deviceID + "-" + output.serialID.toString().padStart(4,"0");
+	
+	output.model = models[output.class][output.modelNumber];
+	
+	output.model['chipName'] = ChipIDs[output.variant].name;
+	output.model['chipCode'] = ChipIDs[output.variant].code;
+}
+
+function versionDataToString(versionArray: number[])
+{
+	while (!versionArray[versionArray.length - 1]) versionArray.pop();
+	return new TextDecoder().decode(new Uint8Array(versionArray));
+}
+
 export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boolean
 {
 	let d: Uint8Array = event.data;
@@ -71,8 +97,12 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 		case SysExCommand.STATUS:
 		{
 			if (!midiResult.success) break;
-			
-			if (d.length < 13) break; // old fw
+				
+			if (d.length <= 14) // old fw
+			{
+				midiResult.status = SysExStatus.OLD_FIRMWARE;
+				break;
+			}
 			
 			let pureData = sevenToEight(d).data;
 			
@@ -81,22 +111,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			let output: StatusResult = defaultStatusResult();
 			
 			output.isCorrect = (pureData[0] == 0x1) ? true : false;
-			output.class = pureData[2] >> 4;
-			output.modelNumber = pureData[2] & 0xf;
-			output.modelID = pureData[2];
-			output.variant = pureData[3];
-			output.revision = pureData[4];
-			output.serialID = ((pureData[5] << 24) | (pureData[6] << 16) | (pureData[7] << 8) | pureData[8]);
-			output.deviceID = 
-				output.modelID.toString(16) +
-				output.variant.toString(16).padStart(2,"0") +
-				output.revision.toString(16).padStart(2,"0");
-			output.serial = output.deviceID + "-" + output.serialID.toString().padStart(4,"0");
-			
-			output.model = models[output.class][output.modelNumber];
-			
-			output.model['chipName'] = ChipIDs[output.variant].name;
-			output.model['chipCode'] = ChipIDs[output.variant].code;
+			serialDataToOutput(pureData, output);
 			
 			let capabilityFlagsData = ((pureData[12] << 24) | (pureData[11] << 16) | (pureData[10] << 8) | pureData[9]);
 			
@@ -108,11 +123,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 				}
 			}
 			
-			let versionArray = pureData.slice(9 + 4); // 9 bytes of serial number
-			
-			while (!versionArray[versionArray.length - 1]) versionArray.pop();
-			
-			output.version = String.fromCharCode(...versionArray);
+			output.version = versionDataToString(pureData.slice(9 + 4)); // 9 bytes of serial number, 4 bytes of flags
 			
 			midiResult.data = output;
 			
@@ -149,44 +160,6 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			
 			break;
 		}
-		
-		case SysExCommand.GETVERSION:
-		{
-			if (!midiResult.success) break; // nothing to do then
-			
-			let arr = sevenToEight(d).data;
-			
-			let arr2 = [];
-
-			for (let arx of arr)
-				arr2.push(String.fromCharCode(arx));
-				
-			let vrs = arr2.join("");
-			
-			if (!vrs) 
-				alert("No firmware version is reported. Consider updating your Dobrynya's firmware.")
-			else
-			{
-				midiResult.data = vrs;
-			}
-		}
-		
-		// case SysExCommand.GETPRESENTDEVICES:
-		// {
-		// 	if (!midiResult.success) break; // nothing to do then
-		// 	
-		// 	let devicesPresent = sevenToEight(d).data;
-		// 	
-		// 	if (!devicesPresent) break;
-		// 	
-		// 	for (let i in devicesPresentFlags)
-		// 	{
-		// 		if (!(devicesPresent & (1 << i))) continue;
-		// 		midiResult.data.has[devicesPresentFlags[i]] = true;
-		// 	}
-		// 	
-		// 	break;
-		// }
 
 		case SysExCommand.GETPATCHINFO:
 		{				
@@ -236,47 +209,41 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 
 			break;
 		}
-
-		case SysExCommand.GETCHIPID:
+		
+		case SysExCommand.GETSERIAL: // this is relevant for old firmwares that do not send the serial in status response
 		{
 			if (!midiResult.success) break;
 			
-			midiResult.data = sevenToEight(d).data;
+			let pureData = sevenToEight(d).data;
+			pureData.unshift(1); // add a byte, which normally is a factory marker, but isn’t sent with GETSERIAL
 			
-			for (let i in midiResult.data)
-				midiResult.data[i] = midiResult.data[i].toString(16);
-				
-			if (midiResult.data.length < 16)
+			let output: StatusResult = defaultStatusResult();
+			
+			output.isCorrect = true; // again, normally it’s decided based on the factory marker === 1
+			
+			serialDataToOutput(pureData, output);
+			
+			midiResult.data = output;
+			
+			break;
+		}
+		
+		case SysExCommand.GETVERSION: // this is relevant for old firmwares that do not send the serial in status response
+		{
+			if (!midiResult.success) break; // nothing to do then
+			
+			let vrs = versionDataToString(sevenToEight(d).data);
+			
+			if (!vrs) 
+				alert("No firmware version is reported. Consider updating your Dobrynya's firmware.")
+			else
 			{
-				console.log("Wrong chip ID length...");
-				midiResult.data = null;
+				midiResult.data = vrs;
 			}
-			
-			while (midiResult.data.length > 16) midiResult.data.pop();
-			
 			break;
 		}
 		
-		case SysExCommand.GETSERIAL:
-		{
-			if (!midiResult.success) break;
-			
-			let arr = sevenToEight(d).data;
-			let arr2 = [];
-
-			console.log("Serial read was ", arr);
-			
-			for (let i = 0; i < 4; i++)
-				arr2[i] = arr[i].toString(16);
-				
-			let sn = (arr[4] << 24) | (arr[5] << 16) | (arr[6] << 8) | (arr[7] << 0);
-				
-			midiResult.data = `${arr2.join("")}-${sn.toString().padStart(4,"0")}`;
-			
-			break;
-		}
-		
-		case SysExCommand.GETFACTORYSETTINGS:
+		case SysExCommand.GETFACTORYSETTINGS: // not used in the Configurator
 		case SysExCommand.GETSETTINGS:
 		{
 			if (!midiResult.success) break;
