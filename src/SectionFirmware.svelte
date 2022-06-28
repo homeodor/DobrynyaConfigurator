@@ -282,9 +282,8 @@
 			<p class="offline-offline"><img alt="Offline" src="{dbroffline}" class="dbrstate" /></p>
 			<p class="offline-offline">Your Dobrynya is offline (or switching modes).</p>
 			{/if}
-			<p>If the device is showing green light (and your OS has installed all the drivers), it is ready to connect.
-				This utility is using HID (Human Interface Device) protocol to access Dobrynya.
-				Your paranoid browser may need a permission to use this. Click the button to request the permission:</p>
+			<p>If the device is showing green light (and your OS has installed all the drivers), it is ready to connect.</p>
+			<p>If you are connecting for the first time, you need to grant access for your browser:</p>
 			<p><button on:click={requestDevice}>Get HID access</button></p>
 			<p>This is needed once only. The browser will remember this next time.</p>
 			<p>If Dobrynya is showing red light for more than 10 seconds or is otherwise unresponsive, or your OS is displaying an error,
@@ -414,6 +413,9 @@
 	<div class="fw-updateavailablecl plashka plashkafw plashkagood hh">A new version of firmware is available for your device!</div>
 	<div class="fw-noupdates plashka plashkafw plashkagood hh">Your firmware is up to date!</div>
 	<p><button id="restart-bootloader" on:click="{()=>{probablySwitching = true; sysExBootloader();}}">Restart in bootloader mode</button></p>
+	{#if device.model.code}
+	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">download the firmware file</a> manually.</p>
+	{/if}
 </fieldset>
 {/if}
 
