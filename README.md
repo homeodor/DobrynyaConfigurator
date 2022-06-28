@@ -29,6 +29,7 @@ This repo is available for people who want to
  - **Develop a WEB MIDI project.** This configurator uses an elaborate system of System Exclusive (SysEx) MIDI messages to communicate with the device, and the request-respond is designed to be an asynchronous routine, kinda similar to how AJAX is handled this days, *async/await* and all. It’s not like there are tons of good code on the web!
 - **Learn how Dobrynya communication works.** All of the configurable MIDI controllers/instruments I know of use SysEx to talk to their host. Ever wanted to build your own MIDI device with complex SysEx? Maybe this code could be of help!
 - **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
+- **Check out Web HID, specifically a HF2 protocol.** There are barely ANY examples of the Microsoft’s [HF2](https://github.com/microsoft/uf2/blob/master/hf2.md) firmware upload protocol. Now there are.
 
 ## Device class, model and serial
 
@@ -225,6 +226,12 @@ Now, with this knowledge, you may open a [MIDI Monitor](https://www.snoize.com/m
 ## Settings map
 
 System settings map can be deducted from a ```settings_utils.ts``` file. Maybe I will provide a proper list one day, but today I feel lazy.
+
+## HID, UF2 bootloaders and HF2 protocol
+
+The firmware update process is generally designed around the [UF2 standard](https://github.com/microsoft/uf2) by Microsoft. The bootloader (which is a close fork of Microsoft’s bootloader) implements Mass storage and HID protocols to upload the firmware.
+
+There is a whole part of this Configurator that communicates with the bootloader via the [HF2 protocol](https://github.com/microsoft/uf2/blob/master/hf2.md). This requires a Web HID implementation (which works only in Blink-based browsers). Most of the magic happens in hid.ts and flasher.ts, and you can read it along with the specs of the HF2 protocol. It’s not quite rocket science, but there were no examples of such code on the web at the moment of me writing it, so it might be helpful.
 
 ## License
 
