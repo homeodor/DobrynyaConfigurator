@@ -232,9 +232,9 @@
 </main>
 
 	<p>
-{#if device.model.code}
+<!-- {#if device.model.code}
 <p><a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">Get the latest firmware</a>
 </p>
-{/if}
+{/if} -->
 <div class="copyright" style="color:rgba(65, 75, 87);"><a style="color:inherit; border-color:rgba(65,75,87)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br />
 </div>
