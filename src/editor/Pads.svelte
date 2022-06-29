@@ -37,8 +37,6 @@
 		
 		for (let i = 0; i < numberOfPads; i++)
 		{
-			// let isKeyOfScaleNow = false;
-			// let scaleNoteNow = null;
 			let noteInfo = getNoteInCurrentScale(i, bank);
 			
 			pads.push({
