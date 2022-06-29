@@ -229,14 +229,28 @@ export function getCurrentScaleName(currentBank: BranchBank): string
 		return '';
 }
 
-export function getNoteInCurrentScale(padNo: number, bank: BranchBank)
+interface NoteInScaleData 
+{
+	isKeyOfScale: boolean,
+	note: number,
+	noteName: string,
+	key: number
+} 
+
+export function getNoteInCurrentScale(padNo: number, bank: BranchBank) : NoteInScaleData
 {
 	return getNoteInScale(padNo, currentKeyInfoToKey(bank));
 }
 
-export function getNoteInScale(pad: number, key: false | number | KeyInfo): { isKeyOfScale: boolean, note: number, noteName: string, key: number } | false
+function getNoteInScale(pad: number, key: false | number | KeyInfo): NoteInScaleData
 {
-	if (key === false) return false;
+	if (key === false) return {
+		isKeyOfScale: false,
+		key: -1,
+		note: fakeNoteOff,
+		noteName: ""
+	};
+	
 	if (typeof key === "number") key = keyInfoToKeyObject(key);
 	
 	let theScale = scales[(key as KeyInfo).scale];
