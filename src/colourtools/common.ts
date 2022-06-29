@@ -1,8 +1,9 @@
 import type { BranchBank } from "../types_patch";
 import { numberOfPads, createObjectIfAbsent, emptyPadDataArray, deepClone } from '../data_utils'
 import { patchChanged } from "../events";
-import { copyPattern, colourOff, ColourPaintLayer } from '../colour_utils'
+import { copyPattern, colourOff, ColourPaintLayer, gracefulGetColour } from '../colour_utils'
 import type { ColourArray  } from "../types";
+import { getNoteInCurrentScale } from '../midi_utils'
 
 /*
 
@@ -25,7 +26,8 @@ export interface HexArrays
 	bank: number[],
 	pads: [number[],number[]],
 	before?: number[],
-	after?: number[]
+	after?: number[],
+	keys: boolean[],
 };
 
 export interface CTData
@@ -94,13 +96,13 @@ export function getEmptyHexArray()
 	}
 }
 
-export function getCurrentHexes(theBank: any, pattern: number[]): HexArrays
+export function getCurrentHexes(theBank: BranchBank, pattern: number[]): HexArrays
 {
 	let hex: HexArrays = {
 		pattern: [],
 		bank: [],
 		pads: [[],[]],
-		
+		keys: [],
 	};
 	
 //	console.log("PATTERN", pattern);
@@ -116,13 +118,18 @@ export function getCurrentHexes(theBank: any, pattern: number[]): HexArrays
 			colourOff
 	);
 	
-	for (let j=0; j<coloursPerPad; j++)
+	for (let i=0; i<numberOfPads; i++)
 	{
-		for (let i=0; i<numberOfPads; i++) hex.pads[j].push(
+		hex.keys.push(getNoteInCurrentScale(i, theBank).isKeyOfScale);
+		
+		for (let j=0; j<coloursPerPad; j++)
+		{
+			hex.pads[j].push(
 			(theBank?.pads?.[i]?.colour !== undefined) ?
 				(theBank?.pads?.[i]?.colour?.[j] ?? colourOff) :
 				colourOff
-		);
+			);
+		}
 	}
 	
 	return hex;
@@ -141,14 +148,19 @@ export function assembleLayerFromHexes(hex: HexArrays, layerNo: ColourPaintLayer
 	
 	let result = [];
 	
-	for (let lhex of layer)
-	{
-		result.push(
-			lhex != colourOff ?
-				lhex :
-				hex.bank[layerNo] // не уверен что всё так просто. не уверен, что всё надо усложнять в то же время
-		);
-	}
+	layer.forEach(
+		(lhex, i) => {
+			result.push(gracefulGetColour(layerNo, [lhex,lhex], hex.bank, hex.keys[i], false))
+	});
+	
+	// for (let lhex of layer)
+	// {
+		// result.push(
+		// 	lhex != colourOff ?
+		// 		lhex :
+		// 		hex.bank[layerNo] // не уверен что всё так просто. не уверен, что всё надо усложнять в то же время
+		// );
+	// }
 	
 	return [...result];
 }
@@ -158,7 +170,7 @@ export function getLayerFromHexes(hex: HexArrays, layer: ColourPaintLayer): numb
 	return [...((layer == ColourPaintLayer.Pattern) ? hex.pattern : hex.pads[layer])];
 }
 
-function getNumberOfValidColours(a)
+function getNumberOfValidColours(a: number[])
 {
 	let result = 0;
 	let totalCounter = 0;

@@ -544,7 +544,11 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 	</div>
 	
 	<div id="bankdescriptor">
+		{#if drawer == "colourpaint"}
+		<i>Device is in colour preview mode</i>
+		{:else}
 		{#if !(currentPatch?.padbanks[currentHand][currentBank]?.pads?.length)}Bank is off.{/if}
+		{/if}
 	</div>
 
 	<div class="dobrynya-outline" class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>

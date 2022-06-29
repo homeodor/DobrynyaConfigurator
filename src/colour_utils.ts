@@ -122,17 +122,18 @@ export function hsvToHex(h: number, s: number, v: number): HexColour
 
 export function gracefulGetColour(
 	colourIndex: number,					// colour index, which is 0 for idle and 1 for active
-	padArrayIn: ColourArray | null = null,	// the pad array, which is 2 items
+	padArrayIn: ColourArray | HexColour | null = null,	// the pad array, which is 2 items, or a single colour (then transformed into array)
 	bankArrayIn: ColourArray | null = null,	// the bank array, can be 4 items
 	isKeyOfScale: boolean = false,					// is music key of the scale
 	fallbackFromActive: boolean = true,		// if no active colour is found, should we fall back to idle one?
 	moreData: any = {noColour: false})		// just a way to return some data for further use
 	: number
 {
+	if (typeof padArrayIn === "number") padArrayIn = [ padArrayIn, padArrayIn ]; // if a signle colour was given, make an array out of it
 	
 	if (colourIndex >= 2)
 	{
-		console.warn(`gracefulGetColour received colour index ${colourIndex}, which is >= than 2`);
+		console.error(`gracefulGetColour received colour index ${colourIndex}, which is >= than 2`);
 		return colourOff;
 	}
 	

@@ -283,8 +283,8 @@
 			if (controlKind == Control.Pad)
 			{
 				let noteData = getNoteInCurrentScale(controlNumber, currentPatch.padbanks[currentHand][currentBank]);
-				isKeyOfScale = noteData ? noteData.isKeyOfScale : false;
-				scaleNote = noteData ? noteData.key : -1;
+				isKeyOfScale = noteData.isKeyOfScale; // will return false if no scale set
+				scaleNote = noteData.key; // will return -1 if no scale is set
 			} else {
 				isKeyOfScale = false;
 				scaleNote = -1;

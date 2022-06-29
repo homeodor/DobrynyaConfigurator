@@ -82,8 +82,8 @@
 	<Preview {before} {after} {enableTargetPreview} />
 	<fieldset>
 		<legend>Colours</legend>
-		<ColourWell bind:hex={params.well1} />
-		<ColourWell bind:hex={params.well2} />
+		<ColourWell bind:hex={params.well1} resetColour={false} />
+		<ColourWell bind:hex={params.well2} resetColour={false} />
 	</fieldset>
 	
 	<fieldset>
