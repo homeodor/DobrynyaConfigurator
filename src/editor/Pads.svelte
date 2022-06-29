@@ -5,7 +5,7 @@
 	
 	import type { ColourPaintLayer } from '../colour_utils';
 	import type { Pattern } from '../types';
-	import type { BranchBank } from '../types_patch';
+	import type { BranchBank, BranchControl } from '../types_patch';
 	import { getNoteInCurrentScale } from '../midi_utils';
 	import { numberOfPads } from '../data_utils';
 	
@@ -16,15 +16,19 @@
 	
 	// let dispatch = createEventDispatcher();
 	
-	let pads = [];
-	let isKeyOfScale = [];
-	let scaleNotes = [];
+	interface PadObject
+	{
+		object: BranchControl,
+		scaleNote: number,
+		isKeyOfScale: boolean
+	};
+	
+	let pads: PadObject[];
+	
 	let globalColours = [];
 		
 	$:{
 		pads = [];
-		isKeyOfScale = [];
-		scaleNotes = [];
 		globalColours = [];
 		
 		console.log(bank);
@@ -33,23 +37,15 @@
 		
 		for (let i = 0; i < numberOfPads; i++)
 		{
-			let isKeyOfScaleNow = false;
-			let scaleNoteNow = null;
+			// let isKeyOfScaleNow = false;
+			// let scaleNoteNow = null;
+			let noteInfo = getNoteInCurrentScale(i, bank);
 			
-			if (bank?.bank?.keyinfo != undefined && bank?.bank?.keyinfo >= 0)
-			{
-				let noteInfo = getNoteInCurrentScale(i, bank);
-				
-				if (noteInfo)
-				{
-					isKeyOfScaleNow = noteInfo.isKeyOfScale;
-					scaleNoteNow = noteInfo.note;
-				}
-			}
-			
-			scaleNotes.push(scaleNoteNow);
-			isKeyOfScale.push(isKeyOfScaleNow);
-			pads.push(bank?.pads?.[i] ?? null);
+			pads.push({
+				object: bank?.pads?.[i] ?? null,
+				scaleNote: noteInfo.note,
+				isKeyOfScale: noteInfo.isKeyOfScale, 
+			});
 		}
 	}
 
@@ -77,7 +73,7 @@
 
 <div class="dobrynya-pads" id="pads-left" data-control-name="Pad" data-control-type="pad">
 {#each pads as pad, i}
-	<Pad on:click on:paint data={pad} controlNo={i} {globalColours} isKeyOfScale={isKeyOfScale[i]} pattern={pattern[i]} scaleNote={scaleNotes[i]} {colourPaintMode} {colourPaintShowBank} />
+	<Pad on:click on:paint data={pad.object} controlNo={i} {globalColours} isKeyOfScale={pad.isKeyOfScale} pattern={pattern[i]} scaleNote={pad.scaleNote} {colourPaintMode} {colourPaintShowBank} />
 {/each}
 
 </div>

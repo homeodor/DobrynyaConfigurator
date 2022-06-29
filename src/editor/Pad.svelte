@@ -87,8 +87,6 @@
 		
 		moreData.noColour = false;
 		
-
-		
 		if (isColourPaint)
 		{
 			let backgroundHex: HexColour;
@@ -128,6 +126,6 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div bind:this={theDiv} on:click={customClick} on:mouseover={customClick} on:mousedown={customClick} class:nocolour={moreData.noColour} class="dobrynya-pad editablecontrol colourablecontrol" class:colourpaint={isColourPaint} style="{backgroundColour}; --normal-colour: {normalColour}; --active-colour: {activeColour}" class:ramp={data?.midi?.rampu || data?.midi?.rampd}>
 	{#if data && !isColourPaint}
-	<InnerControl {data} {isKeyOfScale} {scaleNote} />
+	<InnerControl {data} {scaleNote} />
 	{/if}
 </div>
