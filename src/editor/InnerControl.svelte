@@ -10,8 +10,8 @@
 	const encBehaviourHuman: string[] = ['Key','Oct','Ofs','Scl','Tmp'];
 	
 	export let data: BranchControl = {};
-	export let isKeyOfScale = false;
-	export let scaleNote = null;
+	// export let isKeyOfScale = false;
+	export let scaleNote = fakeNoteOff;
 	
 	let noteName: string = "";
 	let noteIsFromScale: boolean = false;
