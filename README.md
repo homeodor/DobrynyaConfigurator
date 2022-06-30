@@ -142,14 +142,14 @@ The data for file operations commonly goes like so:
 ```
 FILENAME - bytes containing the filename
 00 ... - one or more zeroes to terminate the filename
-... 8-bit → 7-bit encoded blob
+... 8-bit → 7-bit encoded blob (if required)
 ```
 
 The filename is padded with zeroes such as the total length of the SysEx message is a multiple of 3. This has to do with the fact that MIDI-USB uses a 3-byte data in its packet.
 
 ### Renaming / duplicating
 
-Currently the Configurator only uses ```RENAME_PATCH``` command. For duplicating patches, it actually downloads the patch from the device and re-uploads it after checking (though direct duplication with ```DUPLICATE_PATCH``` probably works, too).
+Currently the Configurator only uses ```RENAMEPATCH``` command. For duplicating patches, it actually downloads the patch from the device and re-uploads it after checking (though direct duplication with ```COPYPATCH``` probably works, too).
 
 The data very similar to general file operations, except of course there are two filenames and no blob is required:
 
