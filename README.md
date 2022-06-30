@@ -31,6 +31,10 @@ This repo is available for people who want to
 - **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
 - **Check out Web HID, specifically a HF2 protocol.** There are barely ANY examples of the Microsoft’s [HF2](https://github.com/microsoft/uf2/blob/master/hf2.md) firmware upload protocol. Now there are.
 
+# How Dobrynya works
+
+Here are some details that will help you understand the underpinnings of the Configurator and the device.
+
 ## Device class, model and serial
 
 Each device’s serial number consists of model string and, well, an actual serial number.
@@ -66,7 +70,7 @@ RGB isn’t that useful for humans. The colour values of Dobrynya are mostly enc
 HHSV, i.e.
 HH - 8 bits or 256 values of hue
 S - 4 bits, or 16 values of saturation
-V - 4 bits, or 16 values of, erm, value (brighness, that is)
+V - 4 bits, or 16 values of, erm, value (brightness, that is)
 ```
 
 Which gives 65k colours, a plenty for a MIDI controller and saves tons of memory. Internally all LEDs are fully 24 bit RGB though.
