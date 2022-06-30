@@ -292,7 +292,7 @@ export async function getLatestVersion(model: Model | string)
 	
 	try 
 	{
-		fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${model}/latest/?json=json`, 
+		fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${model}/latest.json`, 
 			{
 				mode:'cors',
 			}
