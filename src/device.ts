@@ -1,7 +1,9 @@
 export interface VersionDataShort
 {
-	version:	string,
-	date:	string,
+	fullVersion: string,
+	comparableVersion: number[],
+	version: string,
+	date: string,
 }
 
 export enum FirmwareState
@@ -15,6 +17,8 @@ export enum FirmwareState
 
 const minimumFirmware: VersionDataShort =
 {
+	fullVersion: "2.0-26.06.2022",
+	comparableVersion: [2, 0, 2022, 6, 26],
 	version: "2.0",
 	date: "26.06.2022"
 };
@@ -24,10 +28,11 @@ export interface VersionData extends VersionDataShort
 	isBootloader:	boolean,
 	model:	string,
 	chip:	string,
-
 	filename:	string,
 	bootloader:	{
 		version:	string,
+		fullVersion: string,
+		comparableVersion: number[],
 		filename:	string
 	}
 }
@@ -237,14 +242,16 @@ export const ChipIDs =
 	}
 };
 
-export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: string[])
+export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: string[] | number[])
 {
 	if (currVersionSplit.length != newVersionSplit.length) throw "Version lengths are not the same";
 	
 	while (currVersionSplit.length)
 	{
 		let pCurrent = parseInt(currVersionSplit.shift());
-		let pNew     = parseInt( newVersionSplit.shift());
+		let pNew     = newVersionSplit.shift();
+		
+		if (typeof pNew === "string") pNew = parseInt(pNew);
 		
 		if (isNaN(pCurrent) || isNaN(pNew)) throw "One of the version components is NaN";
 		
@@ -257,14 +264,13 @@ export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: s
 export function versionCompare(currentVersion: string, newVersion: VersionDataShort)
 {
 	// 2.0/26.06.2022-13:51
-	
-	
+
 	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
 	console.log(currVersionWithoutTime, currentVersion, newVersion);
 	
 	return versionCompareRaw(
 		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
-		[...newVersion.version.split("."), ...newVersion.date.split(".").reverse()]
+		newVersion.comparableVersion
 	);
 }
 
@@ -321,17 +327,4 @@ export async function getLatestVersion(model: Model | string)
 	if (!result) return;
 	
 	return result;
-	
-	// let vCompare = versionCompare(getVersionPure(),result.version);
-	// 
-	// if ($("#fw-oldfw").hasClass("hh"))
-	// {
-	// 	if ((vCompare < 0 || (vCompare == 0 && isAvailableVersionNewer(getVersionDate(),result.date))))
-	// 	{
-	// 		$("#show-firmware").addClass("fw-updateavailable");
-	// 		$("#fw-updateavailable").show();
-	// 	}        
-	// 	else
-	// 		$("#fw-noupdates").show();
-	// }
 }

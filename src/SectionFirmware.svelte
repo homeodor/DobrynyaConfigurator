@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { StatusResult } from './types';
 	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompareRaw, versionCompare } from './device'
 	import { onMount, onDestroy } from 'svelte'
 	import { requestDevice, hidFillData, exitBootloader } from './hid'
@@ -10,10 +11,10 @@
 	import dbroffline from '../i/dbroffline.svg'
 	import dbrnormal from '../i/dbrnormal.svg'
 	
-	export let device;
-	export let isOnline;
-	export let isConnected;
-	export let flipDisconnectNow;
+	export let device: StatusResult;
+	export let isOnline: boolean;
+	export let isConnected: boolean;
+	export let flipDisconnectNow: Function;
 	export let hasNewFirmware: FirmwareState;
 	export let updateVersionInfo: Function;
 	
@@ -131,13 +132,7 @@
 <style>
 	.modemanifest { width:45%; display:inline-block; line-height:1.6em }
 	.modemanifest p { margin-bottom: 1.3em; }
-	.upr { text-transform: uppercase; font-size: 1.5em; letter-spacing: 0.3em; }
 	.dbrstate { width:4rem; height:4rem; }
-	
-	#infoholder { display:inline-grid; grid-template-columns: auto auto; font-size:1.2rem; grid-template-columns: 3.8fr 5fr; }
-	#infoholder > * { margin:0.5em; padding:0em }
-	#infoholder > div { text-align: left; }
-	#infoholder > h4 { text-align: right; }
 	
 	.fuckingtable { display:inline-table; text-align:left }
 	.fuckingtable td, .fuckingtable th { padding:0.4em; text-align:left; }
@@ -234,8 +229,9 @@
 					<p>You have added a custom firmware file. If the file is wrong (i.e. designed for another device or variant),
 						it will potentially brick your device, destroy your data, awake a malevolent ancient artificial intelligence
 						and/or do other bad things.</p>
-					<p><button on:click="{()=>{fl.resetUF2data();fl.getAllUF2s(device.model)}}">Reset to stock firmware</button></p>
+					<p><button on:click="{()=>{fl.resetUF2data();fl.getAllUF2s(bootloader.deviceID)}}">Reset to stock firmware</button></p>
 				</div>
+				<br />
 				{:else}
 					{#if remoteResponse}
 						{#if newerFWAvailable}
@@ -247,7 +243,7 @@
 							</tr>
 							<tr>
 								<td>Latest version</td>
-								<td>{remoteResponse.version}-{remoteResponse.date}</td>
+								<td>{remoteResponse.fullVersion}</td>
 							</tr>
 						</table><br />
 						{:else}
