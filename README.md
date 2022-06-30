@@ -184,7 +184,7 @@ Status byte either shows the intent of the message, or contains an error code.
 |```0x2```|```REQUEST```         | A request (mostly from the host to the device)
 |```0x3```|```RESET```           | Reset something set by the previous request
 |```0x4```|```COMPLETE```        | Reserved
-|```0x5```|```PUSH```            | Dobrynya sends this code if it pushes unsolicited data
+|```0x5```|```PUSH```            | Dobrynya sends this code if it pushes non-requested data
 |```0x10```|```GENERICERROR```   | Oops.
 |```0x11```|```NO_FILE```        | File doesn’t exist
 |```0x12```|```NO_FILESYSTEM```  | Filesystem is probably corrupt
