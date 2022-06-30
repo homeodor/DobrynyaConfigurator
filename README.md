@@ -140,12 +140,26 @@ Filenames in patch lists are stored in the same manner, except one of these may 
 The data for file operations commonly goes like so:
 
 ```
-FILENAME - optional, bytes containing the filename
-00 ... - optional, one or more zeroes to terminate the filename, if present
-FILENAME2 - optional, bytes containing the second filename (renaming/duplicating only)
-00 ... - optional, one or more zeroes to terminate the second filename, if present
-... 7-bit ot 8-bit encoded blob
+FILENAME - bytes containing the filename
+00 ... - one or more zeroes to terminate the filename
+... 8-bit → 7-bit encoded blob
 ```
+
+The filename is padded with zeroes such as the total length of the SysEx message is a multiple of 3. This has to do with the fact that MIDI-USB uses a 3-byte data in its packet.
+
+### Renaming / duplicating
+
+Currently the Configurator only uses ```RENAME_PATCH``` command. For duplicating patches, it actually downloads the patch from the device and re-uploads it after checking (though direct duplication with ```DUPLICATE_PATCH``` probably works, too).
+
+The data very similar to general file operations, except of course there are two filenames and no blob is required:
+
+```
+FILENAME - bytes containing the filename
+00 ... - one or more zeroes to terminate the filename
+FILENAME2 - bytes containing the second filename (renaming/duplicating only)
+00 ... - one or more zeroes to terminate the second filename, if present
+```
+
 
 ### Colour encoding
 
