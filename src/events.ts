@@ -1,6 +1,9 @@
 import type { MidiResult } from './midi_utils'
 import type { Hand, Control, HexColour } from './types'
 
+import { lastColourPaintLayer } from './stores';
+import { ColourPaintLayer } from './colour_utils';
+
 export interface InvokeControlEventData
 {
 	target: HTMLElement,
@@ -32,3 +35,9 @@ export function selectPatch(name: string) { quickCustom('selectpatch',{name:name
 export function section(name: string) { quickCustom('section',{section:name})};
 
 export function filterInvoke(ev: InvokeControlEvent, controlKind: Control, controlNo: number, action: Function) { if (ev.detail.controlKind == controlKind && ev.detail.controlNo == controlNo) action(); }
+
+export function openPatternEditor()
+{
+	lastColourPaintLayer.set(ColourPaintLayer.Pattern); // hacking into the store to open the pattern!
+	quickCustom("drawer", {drawer:'colourpaint'});
+}

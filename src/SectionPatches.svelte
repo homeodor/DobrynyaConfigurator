@@ -5,6 +5,7 @@
 	import { isMacLike } from './stores';
 	
 	import { models } from './device';
+	import { quickCustom } from './events'
 		
 	import type { Patch } from './types_patch';
 	import type SectionEditor from './SectionEditor.svelte';
@@ -17,6 +18,7 @@
 	import iconDelete from '../i/patchdelete.svg'
 	import iconDownload from '../i/patchdownload.svg'
 	
+	import Halp from './widgets/Halp.svelte';
 	import RenameInline from './widgets/RenameInline.svelte';
 	import Confirm from './widgets/Confirm.svelte';
 	
@@ -34,9 +36,10 @@
 	
 	console.log(patchesInfo);
 	
-	function tune(name: string, isThePatch: boolean)
+	async function tune(name: string, isThePatch: boolean, openDrawer: boolean = false)
 	{
-		if (isThePatch) changeSection("editor"); else editor.selectPatch(name);		
+		if (isThePatch) changeSection("editor"); else await editor.selectPatch(name);
+		if (openDrawer) quickCustom("drawer", {drawer:"patchsettings"});
 	}
 	
 	
@@ -161,7 +164,10 @@
 			(patchEl as HTMLElement).style.setProperty('--computed-height', `${patchH}px`);
 			patchEl.classList.add("deleted-patch");
 			
-			patchesInfo = patchesInfo.filter((v)=>{return v.name != name});
+			setTimeout(()=>{ 
+				patchesInfo = patchesInfo.filter((v)=>{return v.name != name});
+				patchEl.classList.remove("deleted-patch");
+			}, 600);
 			
 			if (isThePatch)
 			{
@@ -172,9 +178,15 @@
 		fileToBeDeleted = "";
 	}
 	
-	function rebootToDisk(ev: KeyboardEvent)
+	function rebootToDisk(ev: MouseEvent)
 	{
 		if (ev.altKey) sysExBootloader(); else sysExDiskMode();
+	}
+	
+	function openNewUI()
+	{
+		quickCustom("opennewui", {});
+		changeSection("editor");
 	}
 	
 	let patchList: HTMLDivElement;
@@ -219,9 +231,14 @@
 </script>
 
 <section id="tab-patches">
-	<div style="margin-bottom:2rem" id="patchlist-diskmode">You may also manipulate your patches from the {#if $isMacLike }<span class="system-mac">Finder</span>{:else}<span class="system-win">Explorer</span>{/if}
-	by switching Dobrynya to <span class="unreal" on:click={rebootToDisk}>disk mode</span>. It is especially useful for backing up your stuff! Don’t forget
-	to safely disconnect the disk after you’re done (it is actually important).</div>
+	<div style="margin-bottom:2rem" id="patchlist-diskmode"></div>
+	
+	<div>
+		<button style="height:3em; vertical-align: bottom;" on:click={openNewUI}>New patch...</button>
+		<button style="height:3em; vertical-align: bottom" on:click={rebootToDisk}>Disk mode <Halp>You may also manipulate your patches from the {#if $isMacLike }<span class="system-mac">Finder</span>{:else}<span class="system-win">Explorer</span>{/if}
+			by switching Dobrynya to disk mode. It is especially useful for backing up your stuff! Don’t forget
+			to safely disconnect the disk after you’re done (it is actually important).</Halp></button>
+	</div>
 	
 	{#if !patchesInfoHasBeenLoaded}
 	<p>Patches are still loading...</p>
@@ -247,7 +264,7 @@
 			{/if}
   		</div>
   		<div class="patchlist-actions">
-			<button disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}"><img alt="Tune" src="{iconTune}" ></button>
+			<button disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch, true)}"><img alt="Tune" src="{iconTune}" ></button>
 			<button disabled={!isOnline} on:click="{()=>duplicate(patch.name, patch.isThePatch)}"><img alt="Duplicate" src="{iconDuplicate}" /></button>
 			<button disabled={!isOnline} on:click="{(ev)=>download(patch.name, patch.isThePatch, ev.altKey)}"><img alt="Download" src="{iconDownload}" /></button>
 			<button disabled={!isOnline} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>

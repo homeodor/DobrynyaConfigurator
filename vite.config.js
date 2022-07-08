@@ -13,7 +13,7 @@ const production = !process.env.ROLLUP_WATCH;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/beta/",
+  base: "/",
   server: { https: true },
   output: {
   //      sourcemap: true, // <-- remove

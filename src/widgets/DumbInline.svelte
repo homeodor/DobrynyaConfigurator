@@ -180,7 +180,7 @@
 			ev.preventDefault();
 			ev.stopPropagation();
 			// @ts-ignore we actually know it is there!
-			Inline.blur();
+			theInline.blur();
 			return false;
 		}
 		

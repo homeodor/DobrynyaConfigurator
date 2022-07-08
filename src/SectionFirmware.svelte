@@ -17,6 +17,7 @@
 	export let flipDisconnectNow: Function;
 	export let hasNewFirmware: FirmwareState;
 	export let updateVersionInfo: Function;
+	export let isBootloader: boolean;
 	
 	// @ts-ignore
 	const hid = navigator.hid;
@@ -64,6 +65,7 @@
 	{
 		let firstRequest = bootloader == null;
 		bootloader = await hidFillData(hidList[0]);
+
 		if (bootloader && firstRequest)
 		{
 			console.trace(bootloader);
@@ -126,6 +128,8 @@
 		{
 			bootloader = null;
 		}
+		
+		isBootloader = (bootloader !== null);
 	}
 </script>
 

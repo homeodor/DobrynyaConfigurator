@@ -2,8 +2,10 @@
 	import { onMount, createEventDispatcher, tick } from 'svelte';
 	import * as BSON from 'bson'
 	
+	import { openPatternEditor } from './events'
+	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
-	import { SysExCommand } from './midi_utils';
+	import { SysExCommand, currentKeyInfoToKey } from './midi_utils';
 	import type { MidiResult } from './midi_utils';
 	import { patchTemplates } from './patchtemplates';
 	import ControlEditor from './ControlEditor.svelte'
@@ -27,7 +29,7 @@
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
 	import type { Patch, PatchInfoItem } from './types_patch'
-	import { ColourPaintLayer, randomPattern } from './colour_utils'
+	import { ColourPaintLayer, randomPattern, hexToCSS } from './colour_utils'
 	
 	export let deviceLevelVelocity: number;
 	export let deviceLevelChannel: number;
@@ -64,6 +66,13 @@
 	let colourPaintShowBank: boolean = true;
 	let paintData;
 
+	const drawers = 
+	[
+		{ id: 'banktemplates', 	title: "Bank templates" },
+		{ id: 'colourpaint', 	title: "Colour paint" },
+		{ id: 'banksettings', 	title: "Bank settings" },					
+		{ id: 'patchsettings', 	title: "Patch settings" },
+	];
 	
 	onMount(() => {
 	// @ts-ignore
@@ -135,6 +144,12 @@
 	}
 	
 	let uploadButton: ButtonUpload;
+	
+	function openNewUI(force: boolean = false)
+	{
+		newPatchNameIsValid=checkIfPatchNameIsValid(newPatchName,patchesInfo);
+		newInterfaceOpen = force ?? !newInterfaceOpen;
+	}
 	
 	async function uploadThePatchAction(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
 	{
@@ -408,8 +423,9 @@
 	
 	function setDrawer (d: string)
 	{
-		if (drawer == "colourpaint") sysExColourReset();		
+		if (drawer == "colourpaint") sysExColourReset(); // if current drawer is colourpaint, reset colour preview
 		drawer = (d == drawer) ? "" : d;
+		if (drawer == "colourpaint") closeEditor(); // if the selected drawer is colourpaint, close the editor	
 	}
 	
 	function ondrawer(ev) { setDrawer(ev.detail.drawer); }
@@ -438,7 +454,7 @@
 	
 </script>
 
-<svelte:body on:click={bodyClick} on:patchchange={markUnsaved} on:patchlock={alertAboutPatchLock} on:sysexpush={handleSysExPush} on:drawer="{ondrawer}" on:invokebank={selectBankFromEvent} on:selectpatch={selectPatch}></svelte:body>
+<svelte:body on:click={bodyClick} on:patchchange={markUnsaved} on:patchlock={alertAboutPatchLock} on:sysexpush={handleSysExPush} on:drawer="{ondrawer}" on:invokebank={selectBankFromEvent} on:selectpatch={selectPatch} on:opennewui={()=>openNewUI(true)}></svelte:body>
 
 <!-- export function deviceRefusedToChangePatches() { quickNormal("patchlock"); }
 export function invokeControl(kind: number, no: number) { quickCustom("invoke", {controlKind: kind, controlNo: no}); }
@@ -449,17 +465,24 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 	
 	<GotIt cookieName="editorworks">
 		No changes to the patch apply instantly. Press “Upload to the device” to apply the changes and try them in action!
-		A red dot will sugest you’ve got unsaved changes.
+		A red dot <span class="reddot">●</span> will suggest you’ve got unsaved changes.
 	</GotIt>
 				
 	<div id="toolbar-top" class="donotcloseeditor">
-		<select bind:this={patchSelector} disabled={!isOnline} id="patchselector" on:input={selectPatch} value={currentPatchValue}>
+		<div class="patchlist-pattern patternpreview" style="display: inline-flex; width: 2.5rem; height: 2.5rem; vertical-align: middle; position: relative; top: -0.11rem;">
+		{#if currentPatch.info.pattern}
+		{#each currentPatch.info.pattern as colour}
+			<span data-colour="0" style="background-color: {hexToCSS(colour)}" on:click={openPatternEditor}></span>
+		{/each}
+		{/if}
+		</div>
+		<select bind:this={patchSelector} disabled={!isOnline} id="patchselector" on:input={selectPatch} value={currentPatchValue} style="height:2.5rem">
 		{#each patchesInfo as patch}
 			<option value="{patch.name}">{patch.name.replace(".dbrpatch","")}</option>
 		{/each}
 		</select>
-		<ButtonUpload disabled={!isOnline} on:click="{()=>uploadThePatch()}" {isSaved} bind:this={uploadButton}>Upload to the device</ButtonUpload>
-		<button disabled={!isOnline} on:click="{()=>{newPatchNameIsValid=checkIfPatchNameIsValid(newPatchName,patchesInfo);newInterfaceOpen=!newInterfaceOpen}}">New...</button>
+		<ButtonUpload disabled={!isOnline} on:click="{()=>uploadThePatch()}" {isSaved} bind:this={uploadButton}>Upload to device</ButtonUpload>
+		<button disabled={!isOnline} on:click="{()=>openNewUI()}">New...</button>
 
 	</div>
 	{#if newInterfaceOpen}
@@ -517,11 +540,9 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 
 	<div id="drawerholder" class="donotcloseeditor" class:banktemplates={drawer=='banktemplates'} class:colourpaint={drawer=='colourpaint'} class:banksettings={drawer=='banksettings'} class:patchsettings={drawer=='patchsettings'}>
 		<div id="drawerclick">
-			<span class="unreal" on:click="{()=>setDrawer('banktemplates')}">Bank templates</span>
-			<span class="unreal" on:click="{()=>setDrawer('colourpaint')}">Colour paint</span>
-			<span class="unreal" on:click="{()=>setDrawer('banksettings')}">Bank settings</span>					
-			<span class="unreal" on:click="{()=>setDrawer('patchsettings')}">Patch settings</span>
-			<!-- <span class="unreal" id="dw-pull-patchpattern">Patch pattern</span> -->
+		{#each drawers as oneDrawer}
+			<span class="unreal" class:sel={drawer === oneDrawer.id} on:click="{()=>setDrawer(oneDrawer.id)}">{oneDrawer.title}</span>
+		{/each}
 		</div>
 		
 		{#if drawer == "patchsettings"}
@@ -567,7 +588,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			export let controlNumber: number = 0;
 			export let currentHand: Hand = Hand.LEFT;
 			export let currentBank: number = -1; -->
-		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch.padbanks[currentHand][currentBank].bank?.colour} />
+		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch.padbanks[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch.padbanks[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
 	</div>

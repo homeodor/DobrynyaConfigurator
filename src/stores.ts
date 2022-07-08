@@ -8,3 +8,5 @@ export const lastColourPaintLayer = writable(0);
 export const lastColourPaintHex = writable(colourOff);
 
 export let ignoreChanges = false;
+
+export const persistentSettings = writable(null);

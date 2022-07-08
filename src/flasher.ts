@@ -1,7 +1,7 @@
 import type { Model } from './device'
 import { getFullModelCode } from './device'
 import { writeUF2Data, exitBootloader } from './hid'
-import type {  }
+import { markSettingsDirty } from './settings_utils';
 
 export enum UF2State
 {
@@ -39,7 +39,7 @@ export function textState(theState: UF2State)
 		case UF2State.Empty: 		return "";
 		case UF2State.Downloading: 	return "Downloading...";
 		case UF2State.Failed: 		return "Failed";
-		case UF2State.Downloaded: 	return "Ready";
+		case UF2State.Downloaded: 	return "Ready for upload";
 		case UF2State.Custom: 		return `<i>${customUF2Name}</i>`;
 	}
 }
@@ -185,6 +185,8 @@ async function burn(target: UF2StorageItem)
 			
 		await writeUF2Data(requestArray); // oh god.
 	}
+	
+	markSettingsDirty();
 	
 	exitBootloader();
 	resetUF2data();

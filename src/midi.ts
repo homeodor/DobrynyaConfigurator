@@ -52,7 +52,7 @@ async function checkDobrynyaIsHere()
 {
 	dobrynyaIsHere = false;
 	
-	if (midi.outputs.size === 0)
+	if (!midi.outputs || midi.outputs.size === 0)
 	{
 		dobrynyaEvent('gone');
 		return false;
@@ -352,7 +352,7 @@ function sysExArray(cmd: SysExCommand, status = SysExStatus.REQUEST): number[]
 
 export function sysExLockPatchSwitching(lockOrUnlock: boolean)
 {
-	var message = sysExArray(SysExCommand.LOCKPATCHSWITCHING, lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET);
+	let message = sysExArray(SysExCommand.LOCKPATCHSWITCHING, lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET);
 	midiSendTerminated(message);
 }
 
@@ -551,7 +551,6 @@ export async function sysExAndDo(theCommand: SysExCommand, handler: Function, ti
 	sysEx(theCommand, load, useChecksum);
 	try
 	{
-		console.log("???");
 		let result = await waitForMidiResult(theCommand, handler, timeout); 
 		return result;
 	} catch(e) { throw e; }

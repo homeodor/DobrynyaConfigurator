@@ -8,11 +8,15 @@
 	
 	let noChange = true;
 	
+	let possibleTarget: PreviewSingle;
+	
+	export const updatePreview = () => possibleTarget.updatePreview();
+	
 	$: noChange = (isSame(before,after));
 </script>
 
 <div id="ct-preview">
 	<PreviewSingle hexArray={before} />
 	<div style="width:1em">{#if noChange}<span style="color:orange">=</span>{:else}→{/if}</div>
-	<PreviewSingle targetPreview={enableTargetPreview} hexArray={after} />
+	<PreviewSingle bind:this={possibleTarget} targetPreview={enableTargetPreview} hexArray={after} />
 </div>

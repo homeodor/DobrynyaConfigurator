@@ -15,6 +15,7 @@
 	import { getCurrentHexes, assembleLayerFromHexes } from './colourtools/common'
 	import type { CTData } from './colourtools/common';
 	
+	import Halp from './widgets/Halp.svelte';
 	import GotIt from './widgets/GotIt.svelte'
 	import Confirm from './widgets/Confirm.svelte'
 	import ColourWell from './widgets/ColourWell.svelte';
@@ -45,6 +46,10 @@
 	
 	let mainColourWell: ColourWell, buttonFill: HTMLButtonElement, buttonRandom: HTMLButtonElement, buttonMakeBank: HTMLButtonElement; // used to open with keyboard
 	
+	let hex: number;
+	let prevHex: number = colourOff;
+	let hexCSS: string;
+	
 	enum Tool
 	{
 		None,
@@ -53,11 +58,11 @@
 		Eraser
 	};
 	
-	const selectableTools = 
+	let selectableTools = 
 	[
-		{ id: Tool.Paintbrush,	title: "Brush tool: paint your colour", alt: "Brush", svg: "brush" },
-		{ id: Tool.Eyedropper,	title: "Eyedropper tool: pick your colour", alt: "Pick", svg: "eyedropper" },
-		{ id: Tool.Eraser, 		title: "Eraser tool: clear colour and revert to bank colour", alt: "Erase", svg: "eraser" },
+		{ id: Tool.Paintbrush,	src: "", title: "Brush tool: paint your colour", alt: "Brush", svg: "brush" },
+		{ id: Tool.Eyedropper,	src: "", title: "Eyedropper tool: pick your colour", alt: "Pick", svg: "eyedropper" },
+		{ id: Tool.Eraser, 		src: "", title: "Eraser tool: clear colour and revert to bank colour", alt: "Erase", svg: "eraser" },
 	];
 	
 	let tool: Tool; // = Tool.Paintbrush;
@@ -203,6 +208,9 @@
 				hex = data.ultimateHex;
 			else if ("hex" in data)
 				hex = data.hex;
+				
+			updateCursor();
+			console.warn("Cursor should update??");
 		} else {
 			switch (data.controlKind)
 			{
@@ -264,9 +272,7 @@
 	function updateCT() { pattern = pattern; } // this triggers the UI update
 	function updateBucket(ev: CustomEvent) { console.log(ev.detail); bucketCSS = [ hexToCSS(ev.detail.hex), hexToCSS(ev.detail.hex2) ] }
 	
-	let hex: number;
-	let prevHex: number = colourOff;
-	let hexCSS: string;
+
 	
 	let colourPaintModeBankName = "";
 
@@ -328,12 +334,11 @@
 		{
 			prevHex = ctData.hex = hex; // overwrite the ctData.hex only if the colour well changed
 			bucketCSS = [ hexToCSS(hex), hexToCSS(hex) ];
-			console.log(bucketCSS);
 		}
 		
 		ctData.layer = colourPaintMode;
 		
-		isPattern = colourPaintMode == ColourPaintLayer.Pattern;
+		isPattern = colourPaintMode === ColourPaintLayer.Pattern;
 		
 		hexCSS = hexToCSS(hex);
 		
@@ -344,8 +349,12 @@
 		console.log(colourPaintMode, bank, pattern);
 		
 		updateDevicePreview();
-				
-
+		
+		selectableTools.forEach(v=>{
+			v.src = getIconURL(v.svg, hexCSS);
+		});
+		
+		selectableTools = selectableTools; // svelte!
 	}
 </script>
 
@@ -378,7 +387,7 @@
 		<div id="dw-colour-stuff-panel">
 			<div>
 				{#each selectableTools as toolArr }
-				<button on:click="{()=>setTool(toolArr.id)}" class="dw-colour-tools" class:sel={tool==toolArr.id} title={toolArr.title}><img alt="{toolArr.alt}" src="{getIconURL(toolArr.svg, hexCSS)}" /></button>
+				<button on:click="{()=>setTool(toolArr.id)}" class="dw-colour-tools" class:sel={tool==toolArr.id} title={toolArr.title}><img alt="{toolArr.alt}" src={toolArr.src} /></button>
 				{/each}
 				<span>&nbsp;</span>
 				<button bind:this={buttonFill} on:click="{()=>ctDialogs.fill.start()}" class="dw-colour-tools" title="Bucket tool: fill everything with this colour"><img alt="Fill" src="{getIconURL('bucket', bucketCSS[0], bucketCSS[1])}" /></button>
@@ -390,9 +399,9 @@
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Idle }"    class:sel={colourPaintMode == ColourPaintLayer.Idle}    class="unreal">Idle</span>
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Active }"  class:sel={colourPaintMode == ColourPaintLayer.Active}  class="unreal">Active</span>
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Pattern }" class:sel={colourPaintMode == ColourPaintLayer.Pattern} class="unreal">Patch pattern
-						<span class="explain">
+						<Halp dark={colourPaintMode == ColourPaintLayer.Pattern}>
 							Patch pattern is used to distinguish the patch from others. Click “Randomise” to get a unique combo!
-						</span>
+						</Halp>
 					</span>
 				</p>
 				<p class:disabled={isPattern}>Bank colour:

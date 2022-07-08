@@ -18,8 +18,8 @@
 	
 	let listElement = null;
 	
-	export let inlineToRange = function (v: string): number | boolean { return parseInt(v); }
-	export let rangeToInline = function (v: number): string { return String(v); }
+	export let inlineToRange = function (v: string): number | boolean { return parseInt(v.replace("–","-")); }
+	export let rangeToInline = function (v: number): string { return String(v).replace("-","–"); } // oh so pedantic
 	
 	export function reset() { value = defValue; }
 	
@@ -41,27 +41,7 @@
 	}
 	
 	function dispatchChange() { dispatch("input"); dispatch("change");  }
-	
-	let scrubValueBefore = -1;
-	
-	// function scrub(ev)
-	// {
-	// 	let possibleValue = scrubValueBefore + ev.detail.distance * step;
-	// 	if (possibleValue > max) possibleValue = max;
-	// 	if (possibleValue < min) possibleValue = min;
-	// 	value = possibleValue;
-	// }
-	
-	// function scrubBegin(ev)
-	// {
-	// 	scrubValueBefore = value;
-	// }
-	// 
-	// function scrubCancel(ev)
-	// {
-	// 	value = scrubValueBefore;
-	// }
-	// 	
+
 	function maybeReset(ev: MouseEvent)
 	{
 		if (!ev.altKey || range.disabled) return true;

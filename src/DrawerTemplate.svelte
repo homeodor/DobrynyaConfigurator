@@ -49,7 +49,7 @@
 			
 			let noteResult = getNoteInCurrentScale(i, currentBank);
 			
-			if (noteResult === false) continue;
+			if (noteResult.note === fakeNoteOff) continue;
 			
 			thePad.midi.note = noteResult.note;
 			

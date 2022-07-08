@@ -11,6 +11,15 @@
 	let highValue = 0;
 	let prevValue = -1;
 	
+	let ed1: KeyboardEditor;
+	let ed2: KeyboardEditor;
+	
+	export function update()
+	{
+		ed1?.update();
+		ed2.update();
+	}
+	
 	$:
 	{
 		if (prevValue != value)
@@ -46,8 +55,8 @@
 	</legend>
 		<div class="ce-block controlparammode" id="cbm-keyboardedtor">
 			{#if (isDouble)}
-			<KeyboardEditor on:input header="Rotate +" bind:value={highValue} />
+			<KeyboardEditor on:input header="Rotate +" bind:value={highValue} bind:this={ed1} />
 			{/if}
-			<KeyboardEditor on:input header={controlKind == Control.Pad ? "" : "Rotate –"} bind:value={lowValue} />
+			<KeyboardEditor on:input header={controlKind == Control.Pad ? "" : "Rotate –"} bind:value={lowValue} bind:this={ed2} />
 		</div>
 </fieldset>

@@ -5,6 +5,11 @@ let dialog = new WaitingBlockDialog(
 	{ target: document.getElementById("waitingblockholder") }
 );
 
+// There is A LOT of bullshit in this file
+// A LOT of errors and typos!
+// BUT
+// It works.
+// So maybe I’ll look at it later and clean it up. For now be warned
 
 export class WaitingBlock
 {

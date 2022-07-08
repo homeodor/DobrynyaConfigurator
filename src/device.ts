@@ -1,3 +1,5 @@
+import { deepClone } from "./data_utils";
+
 export interface VersionDataShort
 {
 	fullVersion: string,
@@ -45,6 +47,7 @@ export interface Model
 	chipVaries?: boolean,
 	chipName?: string,
 	chipCode?: number,
+	webpage?: string,
 	settingsLength?: number
 	encoders?: number,
 	faders?: number,
@@ -104,6 +107,7 @@ export const models: Model[][] =
 			encoders: 3,
 			chipVaries: true,
 			settingsLength: 64,
+			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1636487672317",
 		},
 		{},
 		{},
@@ -127,6 +131,7 @@ export const models: Model[][] =
 			encoders: 4,
 			chipVaries: true,
 			settingsLength: 64,
+			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1594941660113",
 		},
 		{
 			name: "Mini 25",
@@ -270,7 +275,7 @@ export function versionCompare(currentVersion: string, newVersion: VersionDataSh
 	
 	return versionCompareRaw(
 		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
-		newVersion.comparableVersion
+		deepClone(newVersion.comparableVersion)
 	);
 }
 
@@ -286,6 +291,38 @@ export function getFullModelCode(model: Model)
 
 let waitBeforeRetry = false;
 
+export async function getDefaultPatch(model: Model)
+{
+	let result = null;
+	let fetchJSON: Response;
+	
+	try 
+	{
+		fetchJSON = await fetch(`defaultpatches/${model.code}.json`);
+		
+		if (fetchJSON.status === 200)
+			result = await fetchJSON.json();
+		else if (fetchJSON.status === 503)
+		{
+			if (fetchJSON.headers.get("retry-after"))
+			{
+				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
+				console.warn("We should retry after ", retryAfter );
+				setTimeout(
+					()=>waitBeforeRetry = false, retryAfter * 1000);
+			}
+		}
+	} catch(e)
+	{
+		console.log(e);
+		waitBeforeRetry = true;
+		setTimeout(()=>waitBeforeRetry = false, 30000);
+		return;
+	}
+	
+	return result;
+}
+
 export async function getLatestVersion(model: Model | string)
 {
 	if (waitBeforeRetry) return null;
@@ -294,7 +331,7 @@ export async function getLatestVersion(model: Model | string)
 	
 	if (typeof model !== "string") model = getFullModelCode(model);
 	
-	let fetchJSON;
+	let fetchJSON: Response;
 	
 	try 
 	{

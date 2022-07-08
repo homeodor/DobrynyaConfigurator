@@ -1,8 +1,8 @@
 {
   "identifier" : "4B4B0F9B-4548-4A16-834D-21B147046452",
   "localPath" : "dist",
-  "remotePath" : "\/home\/nocrisisru\/config.mididobrynya.com\/www\/beta",
-  "remoteURL" : "https:\/\/config.mididobrynya.com\/beta\/",
+  "remotePath" : "\/home\/nocrisisru\/config.mididobrynya.com\/www",
+  "remoteURL" : "https:\/\/config.mididobrynya.com\/",
   "server" : "Kto-to.Ru SSH",
   "usesPublishing" : true
 }

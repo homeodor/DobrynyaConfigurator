@@ -5,8 +5,10 @@
 	export let inline = false;
 	export let targetPreview = false;
 	
+	export function updatePreview() { sysExTestPattern(hexArray) }
+	
 	$:{
-		if (targetPreview) sysExTestPattern(hexArray);
+		if (targetPreview) updatePreview();
 	}
 </script>
 

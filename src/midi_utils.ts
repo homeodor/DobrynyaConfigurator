@@ -199,7 +199,7 @@ export function noteMidiToHuman(note: number): string
 
 export function currentKeyInfoToKey(bank: BranchBank): KeyInfo | false
 {
-	return bank?.bank?.keyinfo ? keyInfoToKeyObject(bank.bank.keyinfo) : false;
+	return (bank?.bank?.keyinfo && bank?.bank?.keyinfo !== -1) ? keyInfoToKeyObject(bank.bank.keyinfo) : false;
 }
 
 export function keyObjectToKeyInfo(k: KeyInfo): number

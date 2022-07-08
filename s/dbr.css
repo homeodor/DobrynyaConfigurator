@@ -47,6 +47,7 @@
 		.pianoroll:not(.disabled) .thescalekey { background: var(--striped-gradient), var(--white-gradient); border:none } */
 		
 
+		#is-online.bootloader { background-color:#a3a831 }
 		#is-online { background-color: #782c2c; position: absolute; right: 1em; top: 1em; font-size: 80%; padding: 0.5em; border-radius: 1em; cursor:pointer; }
 		#is-online.online { background-color: #00c151 }
 		#is-online.disconnect { background-color: #7c7c7c }
@@ -88,10 +89,10 @@
 		.bsw-holder ul { /* display:flex; justify-content: space-between; align-items: flex-end ;*/ margin:0;padding:0 }
 		.bsw-holder li  { display:inline-block; list-style: none; padding:0.5em; width:2em; height:2em; color:var(--somewhat-yellow); grow:1 }
 		.bsw-holder li.bsw-label  { list-style: none; width:5em; height:2em; color:var(--somewhat-yellow); text-align: right }
-					.sel { box-shadow:8px 8px 47px #252d37, -8px -8px 47px #35414f; background:var(--somewhat-yellow); color:black!important; }
+					.sel { box-shadow:8px 8px 47px #252d37, -8px -8px 47px #35414f; background:var(--select-yellow); color:black!important; }
 					
 		.bsw-holder li.bsw-empty { --diagonal-cross-colour: #999; --diagonal-cross: linear-gradient(135deg, transparent 49%, var(--diagonal-cross-colour) 49%, var(--diagonal-cross-colour) 51%, transparent 51%); background: var(--diagonal-cross) no-repeat 55% 55%; background-size:65% 65% }
-		.bsw-holder li.bsw-empty.sel { --diagonal-cross-colour:#111; background:var(--diagonal-cross), var(--somewhat-yellow); color:black!important; }
+		.bsw-holder li.bsw-empty.sel { --diagonal-cross-colour:#111; background:var(--diagonal-cross), var(--select-yellow); color:black!important; }
 
 		/* li.bsw-empty { position:relative }					
 		li.bsw-empty:before { 	background-image: linear-gradient(to top right, rgba(0,0,0,0) 0%, rgba(0,0,0,0) calc(50% - 2px), rgba(255,0,0,1) 50%, rgba(0,0,0,0) calc(50% + 2px), rgba(0,0,0,0) 100%); display: block; position: absolute; content: ''; width: 1em; height: 1em; top: 0.5em; left: 0.5em; } */
@@ -334,6 +335,7 @@
 		span.explain { user-select: none; color: transparent; overflow: hidden; width: var(--qmark-size); height: var(--qmark-size); display: inline-block; font-weight: normal; vertical-align: -15%; position: relative; --qmark-size: 1.3em; /*margin-left: calc(var(--qmark-size)/2.4);*/ cursor: help; }
 
 		span.explain:before { content: '?'; border-radius: calc(var(--qmark-size)/2); border: 2px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); width: calc(var(--qmark-size)*0.9); height: calc(var(--qmark-size)*0.9); display: block; overflow: hidden; line-height: var(--qmark-size); text-align: left; font-size: calc(var(--qmark-size)/1.5); text-indent: calc(var(--qmark-size)*0.26) }
+		span.explain.dark:before { border: 2px solid rgba(0,0,0,0.2); color: rgba(0,0,0,0.6); }
 		
 		button span.explain:before { border-color:rgba(0,0,0,0.3); color:rgba(0,0,0,0.65); }
 		

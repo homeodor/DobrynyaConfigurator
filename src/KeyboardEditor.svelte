@@ -76,7 +76,7 @@
 		
 		console.log(ev.code);
 		
-		let code: number = ev.code;
+		let code: string = ev.code;
 		
 		if (!(code in keyboardUtils.keyboardJSToHIDCatchable)) return false;
 		
@@ -97,7 +97,7 @@
 		update();
 	}
 	
-	function update(v?: number)
+	export function update(v?: number)
 	{
 		
 		console.log(combosSorted);

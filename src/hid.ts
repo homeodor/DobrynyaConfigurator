@@ -79,7 +79,11 @@ async function connectToDevice(entry: HIDDeviceShim)
 {
 	
 	bootloader.device = entry;//hids[0];
-	if (!bootloader.device.opened) await bootloader.device.open();
+	// try {
+		if (!bootloader.device.opened) await bootloader.device.open();
+	// } catch(e) {
+	// 	return false;
+	// }
 	return true;
 }
 

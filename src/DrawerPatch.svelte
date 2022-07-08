@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as BSON from 'bson'
-	import { onMount, onDestroy } from 'svelte'
+	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
 	
-	import { patchChanged } from './events';
+	import { patchChanged, openPatternEditor } from './events';
 	import { patchAsFileFromData, getPatch, arrayToFlag, flagToArray } from './data_utils'
 	import { ExpanderSanizer, expandData, sanizeData } from './data_expandsanize'
 	
@@ -54,10 +54,7 @@
 	// 	
 	// });
 	
-	function openColourpaint()
-	{
-		// !!!11 dispatch event
-	}
+	let dispatchEvent = createEventDispatcher();
 	
 	function patchAsFile(json: boolean = false)
 	{
@@ -199,7 +196,7 @@
 		<fieldset id="dw-patch-patchpattern">
 			<legend>Patch pattern</legend>
 			<p>Patch pattern is used to uniquely identify the patch. Use
-				<span class="unreal" on:click={openColourpaint}>Colour paint</span>
+				<span class="unreal" on:click={openPatternEditor}>Colour paint</span>
 				to edit it.</p>
 		</fieldset>
 		

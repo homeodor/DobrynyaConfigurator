@@ -280,7 +280,7 @@
 			<input type="checkbox" bind:checked={params.matchHue} />
 			Match hue across layers
 				<Halp>If selected, each pad will have the same hue across all layers
-					selected in the “fill” group. This is useful if for instance you want “normal”
+					selected in the “fill” group. This is useful if for instance you want “idle”
 					and “active” layers to have the same hues, but different brightness, so that
 					pads just light up brighter when hit.
 				</Halp>
@@ -294,8 +294,8 @@
 				</p>
 				<p><i>Just use maximum</i> will ignore the lower margin of the range altogether.
 					All hues will go as saturated as you allow them to be.</p>
-				<p><i>Use max for active, min for normal</i> will set minimum range value as the one
-					for “normal” layer, and the maximum for “active”. This is useful if you want
+				<p><i>Use max for active, min for idle</i> will set minimum range value as the one
+					for “idle” layer, and the maximum for “active”. This is useful if you want
 					your randomised hues to “pop” more on hitting the pad.</p>
 				<p><i>Random</i> will pick random saturation values within the range.</p>
 			</Halp>
@@ -306,7 +306,7 @@
 				Just use maximum</label><br />
 			<label>
 				<input type="radio" bind:group={params.satMode} value={ParamSatVal.Reasonable}>
-				Max for active, min for normal</label><br />
+				Max for active, min for idle</label><br />
 			<label>
 				<input type="radio" bind:group={params.satMode} value={ParamSatVal.Random}>
 				Random</label>
@@ -320,8 +320,8 @@
 					This setting will help you do exactly this.</p>
 				<p><i>Just use maximum</i> will ignore the lower margin of the range altogether.
 					All hues will go as bright as you allow them to be.</p>
-				<p><i>Use max for active, min for normal</i> will set minimum range value as the one
-					for “normal” layer, and the maximum for “active”. This is useful if you want
+				<p><i>Use max for active, min for idle</i> will set minimum range value as the one
+					for “idle” layer, and the maximum for “active”. This is useful if you want
 					your randomised hues to “pop” more on hitting the pad.</p>
 				<p><i>Random</i> will pick random brightness values within the range.</p>
 			</Halp>
@@ -333,7 +333,7 @@
 				Just use maximum</label><br />
 			<label>
 				<input type="radio" bind:group={params.valMode} value={ParamSatVal.Reasonable}>
-				Max for active, min for normal</label><br />
+				Max for active, min for idle</label><br />
 			<label>
 				<input type="radio" bind:group={params.valMode} value={ParamSatVal.Random}>
 				Random</label>

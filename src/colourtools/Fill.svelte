@@ -44,8 +44,17 @@
 	let prevMode: FillMode = params.mode;
 	let enableTargetPreview = false;
 	
+	let well1: ColourWell;
+	let well2: ColourWell;
+	let preview: Preview;
+	
+	function patternPreviewUpdate()
+	{
+		preview.updatePreview();
+	}
+	
 	$:{
-		enableTargetPreview = dialog?.open;
+		enableTargetPreview = dialog?.open && !well1.isOpen() && !well2.isOpen();
 		
 		if (prevHex != ctData.hex)
 		{
@@ -79,11 +88,11 @@
 
 <dialog class="dw-colour-toolmodal modal" bind:this={dialog}>
 	<h2>Fill</h2>
-	<Preview {before} {after} {enableTargetPreview} />
+	<Preview {before} {after} {enableTargetPreview} bind:this={preview} />
 	<fieldset>
 		<legend>Colours</legend>
-		<ColourWell bind:hex={params.well1} resetColour={false} />
-		<ColourWell bind:hex={params.well2} resetColour={false} />
+		<ColourWell on:close={patternPreviewUpdate} bind:this={well1} bind:hex={params.well1} resetColour={false} />
+		<ColourWell on:close={patternPreviewUpdate} bind:this={well2} bind:hex={params.well2} resetColour={false} />
 	</fieldset>
 	
 	<fieldset>

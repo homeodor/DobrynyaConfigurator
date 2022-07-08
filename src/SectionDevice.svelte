@@ -1,12 +1,18 @@
  <script lang="ts">
 	const realChips = 
 	{
-		'miniv2': 
+		microv2: 
 		{
 			'17': { name: "ATSAMD21G17", mhz: 48 },
 			'18': { name: "ATSAMD21G18", mhz: 48 },
 		},
-		'prov2': { name: "ATSAME53J20", mhz: 72 }
+		miniv2: 
+		{
+			'17': { name: "ATSAMD21G17", mhz: 48 },
+			'18': { name: "ATSAMD21G18", mhz: 48 },
+		},
+		l32:   { name: "ATSAMD21J18", mhz: 48 },
+		prov2: { name: "ATSAME53J20", mhz: 72 },
 	};
 
 	import { getFullModelCode } from './device';
@@ -15,16 +21,12 @@
 	import Opensource from "./Opensource.svelte";
 	
 	export let device: StatusResult;
-	export let hasNewFirmware: boolean;
-	export let goToFirmware: Function;
+
 	// export let isOnline: boolean;
 	
 	let chipName = "ATSAMD";
 	
 	let showOpenSource = false;
-	
-	// @ts-ignore
-	let hasHid = navigator.hid !== undefined;
 	
 	$: {
 		if (realChips[device.model.code])
@@ -54,7 +56,12 @@
 	<br />
 	<div id="infoholder">
 		<h4>Model</h4>
-		<div>{device.model.name}</div>
+		<div>
+			{#if device.model.webpage}
+			<a href="{device.model.webpage}">{device.model.name}</a>
+			{:else}
+			{device.model.name}
+			{/if}</div>
 		<h4>Revision</h4>
 		<div>Rev. {device.revision}</div>
 		<h4>Firmware</h4>

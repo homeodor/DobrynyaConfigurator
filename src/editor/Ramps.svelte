@@ -4,7 +4,8 @@
 	
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
 	
-	export let midi;
+	export let rampu;
+	export let rampd;
 	
 	let dispatchEvent = createEventDispatcher();
 	let theDialog;
@@ -12,14 +13,14 @@
 	onMount(  () => theDialog.showModal());
 	onDestroy(() => theDialog.close());
 	
-	let prevValueU = midi.rampu;
-	let prevValueD = midi.rampd;
+	let prevValueU = rampu;
+	let prevValueD = rampd;
 
 </script>
 
 <dialog bind:this={theDialog}>
-	<Ramp on:input bind:value={midi.rampu} rampID="rampu">Ramp up (Attack)</Ramp>
-	<Ramp on:input bind:value={midi.rampd} rampID="rampd">Ramp down (Release)</Ramp>
-	<OkCancel {theDialog} {dispatchEvent} on:close resetAction="{()=>{midi.rampu=prevValueU;midi.rampd=prevValueD}}" />
+	<Ramp on:input bind:value={rampu} rampID="rampu">Ramp up (Attack)</Ramp>
+	<Ramp on:input bind:value={rampd} rampID="rampd">Ramp down (Release)</Ramp>
+	<OkCancel {theDialog} {dispatchEvent} on:close resetAction="{()=>{rampu=prevValueU;rampd=prevValueD}}" />
 </dialog>
 

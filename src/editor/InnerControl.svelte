@@ -29,9 +29,13 @@
 		isRealCC = data?.midi?.cc < 0x80;
 		if (data?.encmode)
 		{
-			isRelative =       data?.encmode && data.encmode >= EncoderBehaviour.Endless64Zero && data.encmode <= EncoderBehaviour.EndlessSigned;
-			isAuxModeEncoder = data?.encmode && data.encmode >= EncoderBehaviour.ScaleKey && data.encmode <= EncoderBehaviour.InternalTempo;
+			isRelative =       data.encmode >= EncoderBehaviour.Endless64Zero && data.encmode <= EncoderBehaviour.EndlessSigned;
+			isAuxModeEncoder = data.encmode >= EncoderBehaviour.ScaleKey && data.encmode <= EncoderBehaviour.InternalTempo;
+			console.log("ENCMODE IS", data.encmode);
+		} else {
+			isRelative = isAuxModeEncoder = false;
 		}
+		
 		
 		if (data?.combo)
 		{

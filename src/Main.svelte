@@ -3,12 +3,17 @@
 	
 	import { build, version } from './version';
 	
+	import * as BSON from 'bson'
+	
 	import type { StatusResult } from './types'
-	import { defaultStatusResult, getFullModelCode, isMinimumVersion, FirmwareState } from './device'
-	import { sysExAndDo, sysExFilenameAndDo, flipConnected, sysExBootloader } from './midi'
+	import { defaultStatusResult, getFullModelCode, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
+	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
+	import { fixSettings, getSettingsFromDevice, settings } from './settings_utils'
+	import { WaitingBlock } from './waitingblock'
 	
 	import GotIt from './widgets/GotIt.svelte';
+	import Confirm from './widgets/Confirm.svelte';
 		
 	import SectionEditor from './SectionEditor.svelte'
 	import SectionPatches from './SectionPatches.svelte'
@@ -21,16 +26,18 @@
 	let device: StatusResult = defaultStatusResult(true);
 	let isOnline: boolean = false;
 	let isConnected: boolean = true;
+	let isBootloader: boolean = false;
 		
 	let openSection = "";
 	let sectionSwitchingAllowed = false;
 	
-	let settingsRawData: Uint8Array;
 	let patchesInfoHasBeenLoaded = false;
 	
 	let editor: SectionEditor;
 	
 	let patchesInfo: PatchInfoItem[];
+	
+	let alertNoPatches: Confirm;
 	
 	// @ts-ignore
 	let hasHid = navigator !== undefined;
@@ -119,9 +126,7 @@
 		let previousSerial = device.serial;
 			
 		if ((ev as CustomEvent).detail) device = (ev as CustomEvent).detail;
-			// there’s nothing bad in updating the details each time, becase there might’ve been a firmware update or something
-		
-		console.log("DVERS", device.version);
+			// there’s nothing bad in updating the details each time, because there might’ve been a firmware update or something
 		
 		if (!isMinimumVersion(device.version))
 		{
@@ -131,17 +136,40 @@
 			return;
 		}
 		
+		fixSettings(device.model.settingsLength); // if settings need fixing, this will be done NOW
+		
 		if (previousSerial === device.serial && stuffHasBeenLoaded)
 			return; // same device, no need to reload everything, assume no changes happened
 		
 		updateVersionInfo();
 		
-		await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=>settingsRawData=d);
-		await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
+		sysExLockPatchSwitching(false); // the device might have locked patch switching, so unlock it
+		
+		await getSettingsFromDevice();
+		
+		while(true)
+		{
+			try
+			{
+				await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
+				break;
+			} catch(e) {
+				if (e.status != SysExStatus.NO_FILE) throw(e);
+				WaitingBlock.unblock();
+				if (!(await alertNoPatches.confirm())) // cancel === "Disk mode" in this case 
+				{
+					sysExDiskMode();
+					throw("No patches on this device");
+				}
+				
+				let filedata = BSON.serialize(await getDefaultPatch(device.model)); // Uint8Array
+				let maxDetalCode = device.model.name.replaceAll(" ","").replaceAll("#","Sharp");
+				await sysExFileAndDo(SysExCommand.WRITEPATCH, `MaxDetal${maxDetalCode}.dbrpatch`, filedata, ()=>{});				
+				continue;
+			}
+		}
 		
 		stuffHasBeenLoaded = true;
-		
-		console.log("So what???");
 		
 		if (!sectionSwitchingAllowed)
 		{
@@ -187,7 +215,7 @@
 
 <svelte:body on:dobrynyahere={dobrynyaIsHere} on:dobrynyagone={dobrynyaGone} on:section={section}></svelte:body>
 
-<div id="is-online" class:online={isOnline} class:disconnect={!isConnected} on:click={flipDisconnectNow}>{device.model.name}</div>
+<div id="is-online" class:online={isOnline} class:disconnect={!isConnected} class:bootloader={isBootloader} on:click={flipDisconnectNow}>{device.model.name}</div>
 
 <div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
@@ -214,27 +242,32 @@
 	{#if patchesInfo}
 	<!-- NB settingsRawData[32] is a rather ugly solution to a necessity of sending device-level channel downward. If more settings will be needed to be acknowledged in the editor,
 		I may do something else here, i.e. decode settings in Main, but for now I think there are more cons to this -->
-	<SectionEditor bind:this={editor} on:section={section} bind:patchesInfo isOnline={isOnline&&isConnected} deviceLevelVelocity={settingsRawData?.[36]} deviceLevelChannel={settingsRawData?.[32]} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
+	<SectionEditor bind:this={editor} on:section={section} bind:patchesInfo isOnline={isOnline&&isConnected} deviceLevelVelocity={settings?.midi.vel.value ?? 0x7f} deviceLevelChannel={settings?.midi.vel.channel ?? 0} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
 	{/if}
 	<!-- {/if} -->
 	{#if openSection=="patches"}
 	<SectionPatches changeSection={section} {editor} {device} on:section={section} bind:patchesInfo {patchesInfoHasBeenLoaded} isOnline={isOnline&&isConnected} />
 	{/if}
 	{#if openSection=="settings"}
-	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} {device} {settingsRawData} />
+	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} {device} />
 	{/if}
 	{#if openSection=="device"}
-	<SectionDevice on:section={section} {device} {hasNewFirmware} {goToFirmware} />
+	<SectionDevice on:section={section} {device} />
 	{/if}
 	{#if openSection=="firmware"}
-	<SectionFirmware {device} {isOnline} {isConnected} {flipDisconnectNow} {hasNewFirmware} {updateVersionInfo} />
+	<SectionFirmware {device} {isOnline} {isConnected} {flipDisconnectNow} {hasNewFirmware} {updateVersionInfo} bind:isBootloader />
 	{/if}
 </main>
+
+<Confirm bind:this={alertNoPatches} cancelText="Disk mode">
+	<p>This device has no patches. The default patch will be uploaded.</p>
+</Confirm>
 
 	<p>
 <!-- {#if device.model.code}
 <p><a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">Get the latest firmware</a>
 </p>
 {/if} -->
-<div class="copyright" style="color:rgba(65, 75, 87);"><a style="color:inherit; border-color:rgba(65,75,87)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br />
+<div class="copyright" style="color:rgb(69 86 106);"><a style="color:inherit; border-color:rgba(69 86 106)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br /><br />
+<a href="https://www.mididobrynya.com/">mididobrynya.com</a>
 </div>

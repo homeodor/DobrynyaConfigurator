@@ -46,7 +46,7 @@ input[type="checkbox"].appleswitch {
 }
 input[type="checkbox"].appleswitch + mark {
 	position: relative;
-	padding: 0.24em 0 0 3rem;
+	padding: 0.24em 0 0 2.89rem;
 }
 
 legend input[type="checkbox"].appleswitch + mark {
@@ -58,11 +58,11 @@ input[type="checkbox"].appleswitch + mark:before {
 	position: absolute;
 	display: block;
 	left: 0;
-	top: -0.05rem;
+	top: 0.05rem;
 	background: rgba(255,255,255,1);
 	transition: margin-left 0.3s, box-shadow 0.3s, background-color 0.3s;
-	width: 2.6rem;
-	height: 1.6rem;
+	width: 2.4rem;
+	height: 1.4rem;
 	border-radius: 20px;
 	/* border: 1px solid var(--accent-colour); */
 }
@@ -73,9 +73,9 @@ input[type="checkbox"].appleswitch + mark:after {
 	display: block;
 	box-sizing: border-box;
 	left: 0;
-	top: 0.05rem;
-	width: 1.4rem;
-	height: 1.4rem;
+	top: 0.1rem;
+	width: 1.25rem;
+	height: 1.25rem;
 	border-radius: 1.4rem;
 	background: var(--accent-colour);
 	border: 2px solid white;
@@ -88,7 +88,7 @@ input[type="checkbox"].appleswitch + mark:hover:after {
 }
 
 input[type="checkbox"].appleswitch:checked + mark:after {
-	margin-left: 1.1rem;
+	margin-left: 1rem;
 	border: 2px solid var(--accent-colour);
 	background: white;
 }
@@ -410,8 +410,8 @@ fieldset input[type=range]
 }
 
 .b-upload { position: relative; overflow: hidden; }
-.b-upload span { font-size:120%; line-height:0.9em; padding-right:0.1em; }
-.b-upload span:last-child { color:#ff5400; }
+.b-upload span, .reddot { font-size:120%; line-height:0.9em; padding-right:0.1em; }
+.b-upload span:last-child, .reddot { color:#ff5400; }
 .b-upload svg { position: absolute; width: 6em; top: -1.6em; opacity:0; left: calc(50% - 2.5em); mix-blend-mode: darken; }
 .b-upload svg.animated { opacity:1; animation: tick-ok 0.3s cubic-bezier(0.65, 0, 0.45, 1) forwards, tick-vanish 3s ease-out forwards; }
 .b-upload svg path { fill: var(--ok-green) }

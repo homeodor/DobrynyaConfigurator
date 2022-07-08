@@ -149,14 +149,14 @@
 	<h2>Copy layers & complementary colours</h2>
 	<p>You can copy one layer to another, while making some changes to the colours.</p>
 	
-	<Preview {before} {after} {enableTargetPreview} } />
+	<Preview {before} {after} {enableTargetPreview} />
 	
 	<fieldset>
 		<legend>Copy from</legend>
 		<div class="checkboxblock">
 				<label>
 					<input type="radio" bind:group={params.from} value={ColourPaintLayer.Idle} />
-					Normal colour
+					Idle colour
 				</label><br /> 
 				<label>
 					<input type="radio" bind:group={params.from} value={ColourPaintLayer.Active} />
@@ -170,7 +170,7 @@
 		<div class="checkboxblock">
 				<label>
 					<input type="radio" bind:group={params.to} value={ColourPaintLayer.Idle} />
-					Normal colour
+					Idle colour
 				</label><br /> 
 				<label>
 					<input type="radio" bind:group={params.to} value={ColourPaintLayer.Active} />

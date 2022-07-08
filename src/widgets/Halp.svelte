@@ -2,6 +2,8 @@
 <script lang="ts">
 	import { tick } from 'svelte';
 	
+	export let dark = false;
+	
 	let hovered = false;
 	let halpWidget: HTMLSpanElement;
 	let halpDiv: HTMLDivElement;
@@ -40,7 +42,7 @@
 <svelte:window bind:innerWidth bind:innerHeight bind:scrollY />
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-<span bind:this={halpWidget} class="explain" on:mouseenter="{fixSlotPosition}" on:mouseleave="{()=>{hovered=false}}" on:mouseover={fixSlotPosition} ></span>
+<span bind:this={halpWidget} class="explain" class:dark={dark} on:mouseenter="{fixSlotPosition}" on:mouseleave="{()=>{hovered=false}}" on:mouseover={fixSlotPosition} ></span>
 {#if hovered}
 <span style="position: static">
 <div class="babepleasegethelp" bind:this={halpDiv}>
