@@ -32,7 +32,7 @@
 		"dev": "vite",
 		"vite:electron": "vite --config vite-electron.js",
 		"vite:electronbuild": "vite build --config vite-electron.js",
-		"build": "node buildversion.js; vite build",
+		"build": "node buildversion.mjs; vite build",
 		"preview": "vite preview"
 	},
 	"devDependencies": {

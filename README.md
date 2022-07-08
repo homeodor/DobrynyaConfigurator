@@ -35,6 +35,10 @@ This repo is available for people who want to
 
 There is a basic support for the standalone [Electron-based](https://electronjs.org) app, but this is not a priority at the moment. From what I see, it works apart from the firmware update. However, the code may be ugly and/or unsafe.
 
+## buildversion.mjs
+
+There is a script that runs when the project builds. It just increments the build number. It rewrites ```version.ts``` in the project ```src/``` and also changes the version number in package.json (i.e. sets the version to ```1.0.33``` for build 33).
+
 # How Dobrynya works
 
 Here are some details that will help you understand the underpinnings of the Configurator and the device.
