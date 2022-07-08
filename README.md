@@ -31,6 +31,10 @@ This repo is available for people who want to
 - **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
 - **Check out Web HID, specifically a HF2 protocol.** There are barely ANY examples of the Microsoft’s [HF2](https://github.com/microsoft/uf2/blob/master/hf2.md) firmware upload protocol. Now there are.
 
+## Electron app
+
+There is a basic support for the standalone [Electron-based](https://electronjs.org) app, but this is not a priority at the moment. From what I see, it works apart from the firmware update. However, the code may be ugly and/or unsafe.
+
 # How Dobrynya works
 
 Here are some details that will help you understand the underpinnings of the Configurator and the device.
@@ -254,7 +258,7 @@ There is a whole part of this Configurator that communicates with the bootloader
 
 ## License
 
-The code is provided under MIT license, however this license **does not** cover the images in the i/ folder. Those are covered by a separate CC BY-NC-SA license. If you want to use the images in a commercial project or otherwise, [contact me](https://shurik.uk).
+The code is provided under MIT license, however this license **does not** cover the images in the i/ and electron-resources/ folder. Those are covered by a separate CC BY-NC-SA license. If you want to use the images in a commercial project or otherwise, [contact me](https://shurik.uk).
 
 ## In place of a conclusion
 
