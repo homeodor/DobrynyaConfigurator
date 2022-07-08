@@ -1,0 +1,60 @@
+{
+  "name": "dobrynyaconfigurator",
+  "private": true,
+  "version": "1.0.25",
+  "build": {
+    "files": [
+      {
+        "from": "electron"
+      },
+      "electron-resources/*",
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "copyright": "Copyright © 2022 Alexander Golovanov",
+    "mac": {
+      "icon": "electron-resources/DobrynyaApp.icns",
+      "category": "public.app-category.utilities"
+    },
+    "appId": "com.mididobrynya.config",
+    "productName": "Dobrynya Configurator",
+    "directories": {
+      "buildResources": "electron-resources",
+      "output": "electron-dist"
+    }
+  },
+  "scripts": {
+    "start": "NODE_ENV=development concurrently 'npm run vite:electron' 'sleep 5 && npm run electron:start'",
+    "electron:build": "electron-builder",
+    "electron:make": "vite build --config vite-electron.js; electron-builder",
+    "electron:start": "electron electron",
+    "dev": "vite",
+    "vite:electron": "vite --config vite-electron.js",
+    "vite:electronbuild": "vite build --config vite-electron.js",
+    "build": "node buildversion.js; vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+    "@tsconfig/svelte": "^3.0.0",
+    "@types/js-cookie": "^3.0.2",
+    "concurrently": "^7.2.2",
+    "electron": "^19.0.8",
+    "electron-builder": "^23.1.0",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.7.2",
+    "svelte-preprocess": "^4.10.7",
+    "typescript": "^4.7.3",
+    "vite": "^2.9.9",
+    "vite-plugin-mkcert": "^1.6.4"
+  },
+  "dependencies": {
+    "@rollup/plugin-typescript": "^8.3.2",
+    "bson": "^4.6.4",
+    "electron-json-storage": "^4.5.0",
+    "electron-store": "^8.0.2",
+    "js-cookie": "^3.0.1",
+    "ua-parser-js": "^1.0.2"
+  }
+}

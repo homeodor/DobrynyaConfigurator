@@ -6,3 +6,9 @@ let buildNumber = parseInt(file.split(";")[0].split(" ")[4]) + 1;
 
 writeFileSync('./src/version.ts', `export const build = ${buildNumber};
 export const version = "1.0beta"`);
+
+let packageJSON = JSON.parse(readFileSync('./package.json'));
+
+packageJSON.version = `1.0.${buildNumber}`;
+
+writeFileSync('./package.json', JSON.stringify(packageJSON, null, "\t"));

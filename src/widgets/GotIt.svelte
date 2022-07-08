@@ -1,18 +1,29 @@
 <script>
 	import Cookies from 'js-cookie';
 	
+	
+	let isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;//window.isElectron;
+	let storage = window.localStorage;
+		
 	export let cookieName;
 	
 	let value;
 	
 	function set()
 	{
-		Cookies.set(cookieName, true, { expires: 3650 });
-		value = Cookies.get(cookieName);
+		if (isElectron)
+		{
+			storage.setItem(cookieName, 'true');
+			value = storage.getItem(cookieName);
+			console.log(value);
+		} else {
+			Cookies.set(cookieName, true, { expires: 3650 });
+			value = Cookies.get(cookieName);
+		}
 	}
 	
 	$:{
-		value = Cookies.get(cookieName);
+		value = isElectron ? storage?.getItem(cookieName) : Cookies.get(cookieName);
 	}
 </script>
 <style>

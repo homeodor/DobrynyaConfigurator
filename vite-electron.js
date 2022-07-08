@@ -12,7 +12,11 @@ const production = !process.env.ROLLUP_WATCH;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/",
+  base: "./",
+  build:
+  {
+    outDir: "electron/dist"
+  },
   server: { https: true },
   output: {
   //      sourcemap: true, // <-- remove
