@@ -12,3 +12,5 @@ let packageJSON = JSON.parse(readFileSync('./package.json'));
 packageJSON.version = `1.0.${buildNumber}`;
 
 writeFileSync('./package.json', JSON.stringify(packageJSON, null, "\t"));
+
+console.log(`Updating current build version to ${buildNumber}`);
