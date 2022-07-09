@@ -29,169 +29,173 @@ function fixValueToZero(v: number): number { return (v == 0xff) ? 0    : v; }
 function fixValueTo7F  (v: number): number { return (v >  0x7f) ? 0x7f : v; }
 
 export let isSaved: boolean = true;
-export let settingsRawData: Uint8Array;
+let settingsRawData: Uint8Array;
 let settingsNeedFixing: boolean = false;
 let settingsObjectIsValid: boolean = false;
 
 export function markSettingsUnsaved() { isSaved = false; }
 export function markSettingsDirty()   { settingsNeedFixing = true }
 
-const settingsModel: SettingsObject =
+function settingsModel(): SettingsObject
 {
-	control: 
-	{
-		control:
+	return {
+		control: 
 		{
-			length: 4
-		}
-	},
-
-	screen: 
-	{
-		brightness:
-		{
-			reserved: true
+			control:
+			{
+				length: 4
+			}
 		},
-		contrast:
-		{},
-		timeout:
-		{
-			length: 2
-		},
-		reserved1:
-		{
-			reserved: true,
-			length: 8
-		}
-	},
-
-	leds:
-	{
-		brightness: {},    
-		brightnesschill: {},    
-		brightnessdeco: {},        
-		brightnessblink: {},
-		timeoutchill:
-		{
-			length: 2
-		},
-		timeoutoff:
-		{
-			reserved: true,
-			length: 2
-		},
-		timeoutpalette:
-		{},
-		palettes:
-		{
-			isFlag: true
-		},
-		flags:
-		{
-			isFlag:true,
-			reserved:true
-		},
-		blinkmode:
-		{},
-		chillanimations:
-		{
-			isFlag:true
-		},
-		reserved2:
-		{
-			reserved:true,
-			length:3
-		}
-	},
-
-	midi:
-	{
-		channel: {},
-		outputs:
-		{
-			isFlag:true
-		},
-		inputs:
-		{
-			isFlag:true
-		},
-		hwmidi:
-		{
-			fixfunc: fixValueToZero,
-			isFlag:true
-		},
-		vel:
-		{
-			fixfunc: fixValueTo7F,
-		},
-		reserved1:
-		{
-			reserved:true,
-			length:11
-		}
-	},
-
-	input:
-	{
-		debouncepad: {},
-		debounceother: {},
-		smoothfader:
-		{
-			reserved:true
-		},
-		smoothjoystick:
-		{
-			reserved:true
-		},
-		encoderkinetics:
-		{
-			reserved:true,
-			length:4
-		},
-		direction:
-		{
-			isFlag:true
-		},
-		reserved1:
-		{
-			reserved:true,
-			length:7
-		}
-	},
 	
-	lowpower:
-	{
-		reserved1:
+		screen: 
 		{
-			reserved:true,
-			length:16
-		}
-	},
-	
-	ble:
-	{
-		reserved1:
-		{
-			reserved:true,
-			length:16
-		}
-	},
-	
-	haptic:
-	{
-		events:
-		{
-			length:2,
-			isFlag:true
+			brightness:
+			{
+				reserved: true
+			},
+			contrast:
+			{},
+			timeout:
+			{
+				length: 2
+			},
+			reserved1:
+			{
+				reserved: true,
+				length: 8
+			}
 		},
-		channel: {}
+	
+		leds:
+		{
+			brightness: {},    
+			brightnesschill: {},    
+			brightnessdeco: {},        
+			brightnessblink: {},
+			timeoutchill:
+			{
+				length: 2
+			},
+			timeoutoff:
+			{
+				reserved: true,
+				length: 2
+			},
+			timeoutpalette:
+			{},
+			palettes:
+			{
+				isFlag: true
+			},
+			flags:
+			{
+				isFlag:true,
+				reserved:true
+			},
+			blinkmode:
+			{},
+			chillanimations:
+			{
+				isFlag:true
+			},
+			reserved2:
+			{
+				reserved:true,
+				length:3
+			}
+		},
+	
+		midi:
+		{
+			channel: {},
+			outputs:
+			{
+				isFlag:true
+			},
+			inputs:
+			{
+				isFlag:true
+			},
+			hwmidi:
+			{
+				fixfunc: fixValueToZero,
+				isFlag:true
+			},
+			vel:
+			{
+				fixfunc: fixValueTo7F,
+			},
+			reserved1:
+			{
+				reserved:true,
+				length:11
+			}
+		},
+	
+		input:
+		{
+			debouncepad: {},
+			debounceother: {},
+			smoothfader:
+			{
+				reserved:true
+			},
+			smoothjoystick:
+			{
+				reserved:true
+			},
+			encoderkinetics:
+			{
+				reserved:true,
+				length:4
+			},
+			direction:
+			{
+				isFlag:true
+			},
+			reserved1:
+			{
+				reserved:true,
+				length:7
+			}
+		},
+		
+		lowpower:
+		{
+			reserved1:
+			{
+				reserved:true,
+				length:16
+			}
+		},
+		
+		ble:
+		{
+			reserved1:
+			{
+				reserved:true,
+				length:16
+			}
+		},
+		
+		haptic:
+		{
+			events:
+			{
+				length:2,
+				isFlag:true
+			},
+			channel: {}
+		}
 	}
-};
+}
 
-export let settings = deepClone(settingsModel);
+export let settings = settingsModel();
 
 export function parseSettingsData()
 {
+	console.log(settingsObjectIsValid);
+	
 	if (settingsObjectIsValid) return; // it’s all good, no need to re-parse
 	
 	if (!isSaved) return; // there was a previous state available
@@ -201,6 +205,7 @@ export function parseSettingsData()
 	for (let i in settings)
 	{
 		if (i == "fakeparam") continue;
+		
 		
 		for (let j in settings[i])
 		{
@@ -221,7 +226,12 @@ export function parseSettingsData()
 				param.value |= (settingsRawData[arp++] << (byteshift * 8));
 			}
 			
-			if (typeof param.fixfunc == "function") param.value = param.fixfunc(param.value);
+			console.log(j, typeof param.fixfunc);
+			
+			if (typeof param.fixfunc == "function") {
+				console.warn("Fixing parameter", j);
+				param.value = param.fixfunc(param.value);
+			}
 			
 			if (param.isFlag)
 			{
@@ -292,7 +302,7 @@ export async function saveSettings(settingsLength: number, uploadButton: ButtonU
 export async function getSettingsFromDevice()
 {
 	await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=> settingsRawData = d);
-	console.log(settingsRawData);
+	parseSettingsData();
 }
 
 export async function fixSettings(settingsLength: number)
@@ -301,10 +311,9 @@ export async function fixSettings(settingsLength: number)
 	console.warn("Fixing settings requested");
 	
 	settingsObjectIsValid = false; // invalidate the object
-	settings = deepClone(settingsModel); // reset the object
+	settings = settingsModel(); // reset the object
 	
 	await getSettingsFromDevice();
-	parseSettingsData();
 	await saveSettings(settingsLength);
 	
 	settingsNeedFixing = false;

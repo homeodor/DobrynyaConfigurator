@@ -32,7 +32,7 @@
 		isSavedNow = isSaved; // make it reactive
 	}
 	
-	parseSettingsData();
+//	parseSettingsData();
 	
 	function timeToValue(v:string): number | boolean
 	{
