@@ -226,10 +226,7 @@ export function parseSettingsData()
 				param.value |= (settingsRawData[arp++] << (byteshift * 8));
 			}
 			
-			console.log(j, typeof param.fixfunc);
-			
 			if (typeof param.fixfunc == "function") {
-				console.warn("Fixing parameter", j);
 				param.value = param.fixfunc(param.value);
 			}
 			
