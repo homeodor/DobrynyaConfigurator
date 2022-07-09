@@ -261,6 +261,7 @@ export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: s
 		if (isNaN(pCurrent) || isNaN(pNew)) throw "One of the version components is NaN";
 		
 		if (pNew > pCurrent) return true;
+		if (pNew < pCurrent) return false;
 	}
 	
 	return false;
@@ -271,7 +272,6 @@ export function versionCompare(currentVersion: string, newVersion: VersionDataSh
 	// 2.0/26.06.2022-13:51
 
 	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
-	console.log(currVersionWithoutTime, currentVersion, newVersion);
 	
 	return versionCompareRaw(
 		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
@@ -281,6 +281,7 @@ export function versionCompare(currentVersion: string, newVersion: VersionDataSh
 
 export function isMinimumVersion(currentVersion: string)
 {
+	console.log(currentVersion, minimumFirmware, versionCompare(currentVersion, minimumFirmware));
 	return !versionCompare(currentVersion, minimumFirmware);
 }
 
