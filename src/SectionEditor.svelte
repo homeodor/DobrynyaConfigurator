@@ -62,6 +62,8 @@
 	let dispatch = createEventDispatcher();
 	
 	let drawer = '';
+	
+	let colourPaintDrawer: DrawerColour;
 	let colourPaintMode: ColourPaintLayer = ColourPaintLayer.Off;
 	let colourPaintShowBank: boolean = true;
 	let paintData;
@@ -147,8 +149,8 @@
 	
 	function openNewUI(force: boolean = false)
 	{
-		newPatchNameIsValid=checkIfPatchNameIsValid(newPatchName,patchesInfo);
-		newInterfaceOpen = force ?? !newInterfaceOpen;
+		newPatchNameIsValid = checkIfPatchNameIsValid(newPatchName,patchesInfo);
+		newInterfaceOpen = force ? true : !newInterfaceOpen;
 	}
 	
 	async function uploadThePatchAction(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
@@ -169,6 +171,7 @@
 			currentPatchName,
 			() => //(data: any, filename: string) =>
 			{
+				if (drawer === "colourpaint") colourPaintDrawer.updateDevicePreview(true); // force device to redraw
 				uploadButton.ok();
 				isSaved = true;
 			}
@@ -276,6 +279,8 @@
 	async function closeEditor()
 	{
 		const editorEl = document.getElementById("controleditor");
+		
+		if (!editorEl) return; // no editor === no problem
 		
 		editorEl.style.clipPath = editorEl.style.clipPath.replace(`${editorBigRadius}px`,`1px`);
 		setTimeout(() => {
@@ -552,7 +557,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {deviceLevelChannel} /></div>
 		{/if}
 		{#if drawer == "colourpaint"}
-			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
 		{/if}
 		{#if drawer == "banktemplates"}
 			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} /></div>

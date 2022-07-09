@@ -287,7 +287,7 @@
 	
 	let previousPattern = null;
 	
-	function updateDevicePreview(force: boolean = false)
+	export function updateDevicePreview(force: boolean = false)
 	{
 		if (mainColourWell) console.log(force, colourPaintMode == ColourPaintLayer.Off, mainColourWell?.isOpen(), Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined);
 		if (
