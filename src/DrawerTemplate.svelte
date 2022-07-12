@@ -9,6 +9,7 @@
 	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from './midi_utils'
 
 	export let currentBank: BranchBank;
+	export let numberOfActiveBanks: number;
 	
 	const titleFill = "Clears whatever is present in the bank first";
 	const titleAppend = "Adds to whatever is present in the bank, replacing conficting settings";
@@ -159,14 +160,19 @@
 			</button></div>
 			
 				
-			<div class="ce-block"><button class="dangerous" on:click={purgeTheBank}>Purge the bank
+			<div class="ce-block"><button class="dangerous" on:click={purgeTheBank} disabled={numberOfActiveBanks <= 1}>Purge the bank
 				<Halp>Clears all settings for the bank, including colours and pads. The device won’t open empty banks.</Halp>
 			</button></div>
+
+			{#if numberOfActiveBanks < 2}
+			<p class="explain">The device won’t open purged banks, so it’s best to have at least one bank active in the patch
+				(even if it doesn’t do anything).</p>
+			{/if}
 			
 			<Confirm bind:this={purgeConfirm} okText="Purge">
 				<p>This will purge the bank, erasing all settings, including bank parameters such as colour and scale, as well as all
 					pads’ parameters.</p>
-				<p>The device ignores empty banks, so this bank will essentially be off.</p> 
+				<p>The device ignores purged banks, so this bank will essentially be off.</p> 
 			</Confirm>
 			
 		</fieldset>

@@ -3,9 +3,11 @@
 	import * as BSON from 'bson'
 	
 	import { openPatternEditor } from './events'
-	
+	import { createPadsIfAbsent } from './data_utils'
+ 	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
 	import { SysExCommand, currentKeyInfoToKey } from './midi_utils';
+	import { importantFactorySettings } from './settings_utils'
 	import type { MidiResult } from './midi_utils';
 	import { patchTemplates } from './patchtemplates';
 	import ControlEditor from './ControlEditor.svelte'
@@ -24,12 +26,13 @@
 	import GotIt from './widgets/GotIt.svelte'
 	
 	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, deepClone, getPatch, sortPatchList, fixAndExpandPatch, isSame } from './data_utils'
+	import { NameFailsBecause, checkIfPatchNameIsValid, deepClone, getPatch, sortPatchList, fixAndExpandPatch, isSame, createObjectIfAbsent } from './data_utils'
 	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
 	import type { Patch, PatchInfoItem } from './types_patch'
 	import { ColourPaintLayer, randomPattern, hexToCSS } from './colour_utils'
+	import { CaseColour } from './device';
 	
 	export let deviceLevelVelocity: number;
 	export let deviceLevelChannel: number;
@@ -49,6 +52,8 @@
 	let currentPatchName: string;
 	let currentHand: Hand = Hand.LEFT;
 	let currentBank: number = 0;
+
+	let numberOfActiveBanks = 0;
 
 	let controlEditor: ControlEditor;
 	
@@ -193,7 +198,11 @@
 		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
 			return;
 		
-		if (cleanSlate) patchData = deepClone(patchTemplates[device.model.code]);
+		if (cleanSlate)
+		{
+			patchData = deepClone(patchTemplates[device.model.code]);
+			createPadsIfAbsent(patchData.padbanks[0][0]);
+		}
 		
 		let uploadPatchName = newPatchName + ".dbrpatch";
 		randomPattern(patchData.info.pattern);
@@ -349,6 +358,14 @@
 	
 	$:
 	{
+		numberOfActiveBanks = 0;
+
+		for (let bank of currentPatch.padbanks[currentHand])
+		{
+			if (!isSame(bank, {})) numberOfActiveBanks++;
+		}
+
+
 		console.log("Current patch name set to ", currentPatchName);
 		
 		if (patchesInfo && currentPatch) patchesInfo.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.info);
@@ -560,7 +577,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
 		{/if}
 		{#if drawer == "banktemplates"}
-			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {numberOfActiveBanks} /></div>
 		{/if}
 		
 		
@@ -577,7 +594,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{/if}
 	</div>
 
-	<div class="dobrynya-outline" class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
+	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.encoders} />
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.encoders} />
@@ -589,10 +606,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 
 		{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
-			<!-- export let controlKind: Control = Control.Pad;
-			export let controlNumber: number = 0;
-			export let currentHand: Hand = Hand.LEFT;
-			export let currentBank: number = -1; -->
+
 		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch.padbanks[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch.padbanks[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
