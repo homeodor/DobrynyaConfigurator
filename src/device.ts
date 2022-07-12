@@ -17,6 +17,12 @@ export enum FirmwareState
 	UpToDate,	
 };
 
+export enum CaseColour
+{
+	Light,
+	Dark,
+};
+
 const minimumFirmware: VersionDataShort =
 {
 	fullVersion: "2.0-26.06.2022",
@@ -63,11 +69,12 @@ export interface Capabilities
 	proximity: boolean,
 	haptic: boolean,
 	pianoroll: boolean,
-	decolight: boolean
+	decolight: boolean,
+	sidestick: boolean,
 }
 
 
-export const capabilityFlags: string[] = [ 'imu','battery','ble','proximity','haptic','pianoroll','decolight' ];
+export const capabilityFlags: string[] = [ 'imu','battery','ble','proximity','haptic','pianoroll','decolight','sidestick' ];
 
 export enum OnlineStatus
 {

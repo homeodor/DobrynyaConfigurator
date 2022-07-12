@@ -1,5 +1,6 @@
 import { WaitingBlock } from './waitingblock'
-import { sysExAndDo } from './midi';	
+import { sysExAndDo } from './midi';
+import { CaseColour } from './device'
 import { eightToSeven, SysExCommand } from './midi_utils';
 import { deepClone } from './data_utils';
 
@@ -35,6 +36,22 @@ let settingsObjectIsValid: boolean = false;
 
 export function markSettingsUnsaved() { isSaved = false; }
 export function markSettingsDirty()   { settingsNeedFixing = true }
+
+export interface ImportantFactorySettings
+{
+	hasDecolight: boolean,
+	caseColour: CaseColour
+};
+
+function factorySettingsModel(): ImportantFactorySettings
+{
+	return {
+		hasDecolight: false,
+		caseColour: CaseColour.Light
+	};
+}
+
+export let importantFactorySettings: ImportantFactorySettings;
 
 function settingsModel(): SettingsObject
 {
@@ -314,4 +331,23 @@ export async function fixSettings(settingsLength: number)
 	await saveSettings(settingsLength);
 	
 	settingsNeedFixing = false;
+}
+
+function isNotZeroOrFF(v: number)
+{
+	return v !== 0 && v !== 0xff;
+}
+
+function ffMeansZero(v: number)
+{
+	return v == 0xff ? 0 : v;
+}
+
+export async function getFactorySettings()
+{
+	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array)=> {
+		importantFactorySettings = factorySettingsModel();
+		importantFactorySettings.hasDecolight = isNotZeroOrFF(d[21]) || isNotZeroOrFF(d[22]) || isNotZeroOrFF(d[23]); // decolight points
+		importantFactorySettings.caseColour = ffMeansZero(d[50]) 
+	});
 }

@@ -152,6 +152,7 @@
 		.inline-editable input:focus { outline:0; }
 		
 		#patternpreview, .patternpreview, .dobrynya-outline { background: linear-gradient(145deg, #fffff5, var(--somewhat-yellow)); }
+		.dobrynya-outline.dark { background: linear-gradient(145deg, #3b3b37, #39392e); }
 		
 		#ct-preview { display:inline-flex; align-items: center; gap:1em; }
 		
