@@ -9,7 +9,7 @@
 	import { defaultStatusResult, getFullModelCode, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
 	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
-	import { fixSettings, getSettingsFromDevice, settings } from './settings_utils'
+	import { fixSettings, getSettingsFromDevice, settings, getFactorySettings } from './settings_utils'
 	import { WaitingBlock } from './waitingblock'
 	
 	import GotIt from './widgets/GotIt.svelte';
@@ -142,7 +142,7 @@
 			return; // same device, no need to reload everything, assume no changes happened
 		
 		updateVersionInfo();
-		
+		getFactorySettings(); // yup
 		sysExLockPatchSwitching(false); // the device might have locked patch switching, so unlock it
 		
 		await getSettingsFromDevice();

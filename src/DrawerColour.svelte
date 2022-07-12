@@ -6,7 +6,7 @@
 	import { patchChanged } from './events'
 	import { getIconURL, getIconCSS } from './icons'
 	import { ColourPaintLayer, colourOff, hexToCSS, randomPattern } from './colour_utils'
-	import { createObjectIfAbsent, deepClone, emptyPadDataArray, numberOfPads, isSame } from './data_utils';
+	import { createObjectIfAbsent, createPadsIfAbsent, numberOfPads, isSame } from './data_utils';
 	import { expandSetSanize } from './data_expandsanize'
 	
 	import { Control } from './types';
@@ -228,7 +228,7 @@
 						else
 						{
 							console.log(colourPaintMode);
-							createObjectIfAbsent(bank,"pads",deepClone(emptyPadDataArray));
+							createPadsIfAbsent(bank);
 							expandSetSanize(colourDataModel, bank.pads[i], ()=>{
 								bank.pads[i].colour[colourPaintMode] = hexFixed
 							});

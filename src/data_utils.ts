@@ -7,9 +7,12 @@ import type { Patch, PatchInfoItem, BranchBank, BranchControl } from './types_pa
 
 export const numberOfPads = 16;
 
-export const emptyPadDataArray = [];
-
-for (let i=0; i<numberOfPads; i++) emptyPadDataArray.push({});
+export function getEmptyPadDataArray()
+{
+	const emptyPadDataArray = [];
+	for (let i=0; i<numberOfPads; i++) emptyPadDataArray.push({});
+	return emptyPadDataArray;
+}
 
 // export interface PatchListItem
 // {
@@ -239,7 +242,7 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 }
 
 export function createObjectIfAbsent(obj: object, name: string, what: any = {}): boolean { if (!(name in obj)) { obj[name] = what; return true; } return false; }
-export function createPadsIfAbsent(bank: BranchBank): boolean { return createObjectIfAbsent(bank, "pads", deepClone(emptyPadDataArray)) }
+export function createPadsIfAbsent(bank: BranchBank): boolean { return createObjectIfAbsent(bank, "pads", getEmptyPadDataArray()) }
 
 export function fixAndExpandPatch(currentPatch: any, model: Model)
 {
@@ -247,7 +250,7 @@ export function fixAndExpandPatch(currentPatch: any, model: Model)
 // fixing absent keys...
 	
 	createObjectIfAbsent(currentPatch, "info");
-	createObjectIfAbsent(currentPatch.info, "pattern", deepClone(emptyPadDataArray).forEach((_: any, k: number, a: Pattern)=>a[k]=0)); // add pattern array if it is not present, filled with zeroes
+	createObjectIfAbsent(currentPatch.info, "pattern", getEmptyPadDataArray().forEach((_: any, k: number, a: Pattern)=>a[k]=0)); // add pattern array if it is not present, filled with zeroes
 	createObjectIfAbsent(currentPatch, "settings");
 	
 	for (let fixDevicePresence of [ 'encoders', 'faders', 'pots' ])
