@@ -74,6 +74,7 @@ export interface Patch
 	pots: BranchControl[],
 	proximity: BranchControl,
 	joystick: BranchJoystickBank[],
+	imu: any, // tbd
 };
 
 export interface PatchInfoItem
