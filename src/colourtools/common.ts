@@ -1,5 +1,5 @@
 import type { BranchBank } from "../types_patch";
-import { numberOfPads, createObjectIfAbsent, emptyPadDataArray, deepClone } from '../data_utils'
+import { numberOfPads, createPadsIfAbsent } from '../data_utils'
 import { patchChanged } from "../events";
 import { copyPattern, colourOff, ColourPaintLayer, gracefulGetColour } from '../colour_utils'
 import type { ColourArray  } from "../types";
@@ -222,7 +222,7 @@ export function setCurrentHexes(hex: HexArrays, theBank: BranchBank, pattern: nu
 			if (hx != colourOff) // we find at least one colour
 			{
 				// if found, we try to create the pads array
-				createObjectIfAbsent(theBank, "pads", deepClone(emptyPadDataArray));
+				createPadsIfAbsent(theBank);
 				break; // and break out
 			} // if no colours were on, we do nothing
 		}
