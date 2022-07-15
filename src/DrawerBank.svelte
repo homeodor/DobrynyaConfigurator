@@ -199,7 +199,11 @@
 				<label>
 					<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={scaleEnabled} />
 					<mark>Scale and key
-				<Halp>&nbsp;</Halp>
+				<Halp><p>Pads will use this scale by default.</p>
+					<p>Each pad can still be overridden to send other notes or send no note at all; things like CC
+					are also available, of course.</p>
+					<p>Encoders can be set to change scale parameters on the fly.</p>
+				</Halp>
 					</mark>
 				</label>
 			</legend>
@@ -244,7 +248,7 @@
 				<h4>Channel <Overridable /></h4>
 				<Channel on:input={patchChanged} bind:value={channelValue} channelDefaultName="Device default" channelDefault={deviceLevelChannel} />
 				<p>
-				<label><input on:input={patchChanged} type="checkbox" bind:checked={channelIsGlobal} disabled={channelValue == -1} /> Global
+				<label class:disabled={channelValue == -1}><input on:input={patchChanged} type="checkbox" bind:checked={channelIsGlobal} disabled={channelValue == -1} /> Global
 				<Halp>
 					With this option, once the bank is selected, all controls will send data on this channel, not just the pads – unless, of course,
 					those controls have their own custom channel setting.
@@ -254,10 +258,11 @@
 
 		<fieldset id="dw-bank-lightshow">
 			<legend>Lightshow
-				<Halp>Lightshows are a rather advanced technique when the host (not the Dobrynya itself)
-					drives LEDs of the device for various effects. If you are interested, google
+				<Halp><p>Lightshows are a rather advanced technique when the host (not the Dobrynya itself)
+					drives LEDs of the device for various complex effects.</p>
+					<p>If you are interested, google
 					“lightshow launchpad” to know more. If you just want some fun colourful effects,
-					check out “Bursts” on the patch settings page.</Halp> 
+					check out “Bursts” on the patch settings page.</p></Halp> 
 				
 			</legend>
 			<div class="ce-block">

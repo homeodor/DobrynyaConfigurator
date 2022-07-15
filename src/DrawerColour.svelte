@@ -327,6 +327,8 @@
 	
 	$:
 	{
+		console.warn("Colour paint is updated");
+		
 		if (openCtModal != openCtModalPrev && openCtModal != "notacc")
 		{
 			ctDialogs[openCtModal].start();
@@ -339,6 +341,8 @@
 			bucketCSS = [ hexToCSS(hex), hexToCSS(hex) ];
 		}
 		
+		ctData.bank = bank;
+		ctData.pattern = pattern;
 		ctData.layer = colourPaintMode;
 		
 		isPattern = colourPaintMode === ColourPaintLayer.Pattern;
@@ -364,6 +368,12 @@
 <Confirm bind:this={confirmHexOff}>
 	<p>This will turn off the bank {colourPaintModeBankName} colour.</p>
 </Confirm>
+
+{#if bank}
+	<div style="display:none">I don’t know how to fix this, but Svelte does not update BANK for this drawer,
+		so I believe something in the DOM must be dependent on this variable?
+	</div>
+{/if}
 
 <div class="drawer" id="dw-colourpaint">
 	<GotIt cookieName="colourworks">

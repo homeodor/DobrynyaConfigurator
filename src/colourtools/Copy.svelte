@@ -23,8 +23,8 @@
 	
 	let dispatchEvent = createEventDispatcher();
 	
-	export function start() { ctData = ctStart(dialog, ctData); } // self-assignments keep Svelte happier
-	function finish() { ctData = ctFinish(dialog,copyLayers,params,ctData); dispatchEvent("input"); }
+	export function start() { ctData.hexStorage = ctStart(dialog, ctData); } // self-assignments keep Svelte happier
+	function finish() { ctFinish(dialog,copyLayers,params,ctData); dispatchEvent("input"); }
 	
 	enum ParamSatVal { Keep, Dim, Max };
 	

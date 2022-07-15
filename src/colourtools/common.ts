@@ -50,11 +50,10 @@ export enum CTAffect
 	
 */
 
-export function ctStart(dialog: HTMLDialogElement, data: CTData)
+export function ctStart(dialog: HTMLDialogElement, data: CTData): HexArrays
 {
 	dialog.showModal();
-	data.hexStorage = getCurrentHexes(data.bank, data.pattern);
-	return data; // svelte will be happy
+	return getCurrentHexes(data.bank, data.pattern);
 }
 
 export function ctExit(dialog: HTMLDialogElement, data: CTData)
@@ -75,8 +74,6 @@ export function ctFinish(dialog: HTMLDialogElement, action: Function, params: an
 	}
 	
 	ctExit(dialog, data);
-	
-	return data; // make svelte happy
 }
 
 /*

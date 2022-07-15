@@ -53,7 +53,6 @@
 	let currentPatchName: string;
 	let currentHand: Hand = Hand.LEFT;
 	let currentBank: number = 0;
-	let currentBankObject: BranchBank;
 
 	let numberOfActiveBanks = 0;
 
@@ -80,8 +79,8 @@
 	const drawers = 
 	[
 		{ id: 'banktemplates', 	title: "Bank templates" },
-		{ id: 'colourpaint', 	title: "Colour paint" },
 		{ id: 'banksettings', 	title: "Bank settings" },					
+		{ id: 'colourpaint', 	title: "Colour paint" },
 		{ id: 'patchsettings', 	title: "Patch settings" },
 	];
 	
@@ -355,9 +354,7 @@
 	let globalVelocity: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 	
 	$:
-	{
-		currentBankObject = currentPatch?.padbanks?.[currentHand][currentBank];
-		
+	{		
 		numberOfActiveBanks = 0;
 
 		if (currentPatch)
@@ -384,9 +381,9 @@
 		if (currentPatch)
 		{
 //			deviceLevelVelocity
-			if (currentBankObject?.bank?.vel !== undefined)
+			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.vel !== undefined)
 			{
-				globalVelocity.value = currentBankObject.bank.vel;
+				globalVelocity.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.vel;
 				globalVelocity.isDeviceLevel = false;
 			} else {
 				globalVelocity.value = deviceLevelVelocity;
@@ -394,9 +391,9 @@
 			}
 
 			
-			if (currentBankObject?.bank?.ch !== undefined && currentBankObject.bank.ch !== -1)
+			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.ch !== undefined && currentPatch?.padbanks?.[currentHand][currentBank].bank.ch !== -1)
 			{
-				globalChannel.value = currentBankObject.bank.ch;
+				globalChannel.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.ch;
 				globalChannel.isDeviceLevel = false;
 			} else {
 				globalChannel.value = deviceLevelChannel;
@@ -578,13 +575,13 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPatch {currentPatch} {currentPatchName} model={device.model} /></div>
 		{/if}
 		{#if drawer == "banksettings"}
-			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentBankObject} {deviceLevelChannel} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {deviceLevelChannel} /></div>
 		{/if}
 		{#if drawer == "colourpaint"}
-			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentBankObject} bind:pattern={currentPatch.info.pattern} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
 		{/if}
 		{#if drawer == "banktemplates"}
-			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentBankObject} {numberOfActiveBanks} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {numberOfActiveBanks} /></div>
 		{/if}
 		
 		
@@ -609,12 +606,12 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.encoders}  />{/if}
 		</div>
 	
-		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentBankObject} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
+		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch?.padbanks?.[currentHand][currentBank]} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
 
 		{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 
-		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentBankObject.bank?.colour} scaleIsOn={currentKeyInfoToKey(currentBankObject) !== false} />
+		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.padbanks?.[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
 	</div>

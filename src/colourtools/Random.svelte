@@ -33,8 +33,8 @@
 		preview = preview;
 	}
 	
-	export function start() { ctData = ctStart(dialog, ctData); reseed(); } // self-assignments keep Svelte happier
-	function finish() { ctData = ctFinish(dialog,randomFill,params,ctData); dispatchEvent("input"); }
+	export function start() { ctData.hexStorage = ctStart(dialog, ctData); reseed(); }
+	function finish() { ctFinish(dialog,randomFill,params,ctData); dispatchEvent("input"); }
 	
 	enum ParamSatVal { Max, Reasonable, Random };
 	

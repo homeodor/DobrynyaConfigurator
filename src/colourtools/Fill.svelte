@@ -3,9 +3,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone, isSame } from '../basic';
+	import { deepClone } from '../basic';
 	import { colourOff } from '../colour_utils'
-	import type { ColourPaintLayer } from '../colour_utils'
 	
 	import { fill, HueMode, FillMode } from './fill_func';
 	
@@ -27,8 +26,8 @@
 	export let ctData: CTData;// = { hexStorage: null, bank: bank, pattern: pattern, layer: colourPaintMode };
 	export const isOpen = function() { return dialog.open; }
 	
-	export function start()  { ctData = ctStart(dialog, ctData); }
-		   function finish() { ctData = ctFinish(dialog,fill,params,ctData); dispatchEvent("input"); }
+	export function start()  { ctData.hexStorage = ctStart(dialog, ctData); }
+		   function finish() { ctFinish(dialog,fill,params,ctData); dispatchEvent("input"); }
 		
 	let params = 
 	{
