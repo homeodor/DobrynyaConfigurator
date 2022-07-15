@@ -192,7 +192,7 @@
 		uploadPatchName: string, 								// the filename
 		loadPatchAfter: boolean = true,							// load the patch afterwards?
 		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedback on success
-		patchData: Patch | null,								// the patch data. Null will make it clone the currentPatch
+		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
 	)
 	{
 		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
