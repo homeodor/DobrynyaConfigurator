@@ -1,2 +1,2 @@
-export const build = 51;
+export const build = 52;
 export const version = "1.0beta"
