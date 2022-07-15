@@ -33,8 +33,6 @@
 		preview = preview;
 	}
 	
-	console.log(autoseed());
-	
 	export function start() { ctData = ctStart(dialog, ctData); reseed(); } // self-assignments keep Svelte happier
 	function finish() { ctData = ctFinish(dialog,randomFill,params,ctData); dispatchEvent("input"); }
 	
@@ -83,6 +81,8 @@
 	// let layerPrev: ColourPaintLayer = ColourPaintLayer.Off;
 	
 	$:{
+		
+		console.log(enableTargetPreview, params.layersIdle);
 		okEnabled = (params.layersIdle || params.layersActive || params.layersPattern);
 		
 		enableTargetPreview = dialog?.open;
@@ -108,8 +108,8 @@
 		if (params.layersIdle)    affectLayers.push(ColourPaintLayer.Idle);
 		if (params.layersActive)  affectLayers.push(ColourPaintLayer.Active);
 		if (params.layersPattern) affectLayers.push(ColourPaintLayer.Pattern);
-		
-		console.log("Affect layers", affectLayers);
+		// 
+		// console.log("Affect layers", affectLayers);
 		
 		let hMin = params.hueMin;
 		let hMax = params.hueMax;

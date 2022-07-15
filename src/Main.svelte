@@ -243,7 +243,7 @@
 	{#if patchesInfo}
 	<!-- NB settingsRawData[32] is a rather ugly solution to a necessity of sending device-level channel downward. If more settings will be needed to be acknowledged in the editor,
 		I may do something else here, i.e. decode settings in Main, but for now I think there are more cons to this -->
-	<SectionEditor bind:this={editor} on:section={section} bind:patchesInfo isOnline={isOnline&&isConnected} deviceLevelVelocity={settings?.midi.vel.value ?? 0x7f} deviceLevelChannel={settings?.midi.vel.channel ?? 0} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
+	<SectionEditor bind:this={editor} on:section={section} bind:patchesInfo isOnline={isOnline&&isConnected} deviceLevelVelocity={window.settings?.midi.vel.value ?? 0x7f} deviceLevelChannel={window.settings?.midi.channel.value ?? 0} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
 	{/if}
 	<!-- {/if} -->
 	{#if openSection=="patches"}

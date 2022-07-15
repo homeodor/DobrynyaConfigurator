@@ -592,9 +592,6 @@ function colourToSysExArray(hex: HexColour)
 
 export function sysExTestPattern(arr: ColourArray)
 {
-	// if (!("pattern" in currentPatch.info))
-	//     return;
-	//     
 	let patternSysExArray = [];
 	
 	for (let hex of arr)

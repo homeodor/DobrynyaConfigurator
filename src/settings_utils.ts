@@ -2,9 +2,7 @@ import { WaitingBlock } from './waitingblock'
 import { sysExAndDo } from './midi';
 import { CaseColour } from './device'
 import { eightToSeven, SysExCommand } from './midi_utils';
-import { deepClone } from './data_utils';
-
-import { getPaletteCSS } from './palettes'
+import { persistentSettings } from './stores';
 
 import type ButtonUpload from './widgets/ButtonUpload.svelte'
 
@@ -25,6 +23,12 @@ interface SettingsObject
 		[index: string]: SettingsObjectItem
 	}	
 };
+
+declare global {
+	interface Window {
+		settings: SettingsObject;
+	}
+}
 
 function fixValueToZero(v: number): number { return (v == 0xff) ? 0    : v; }
 function fixValueTo7F  (v: number): number { return (v >  0x7f) ? 0x7f : v; }
@@ -207,7 +211,9 @@ function settingsModel(): SettingsObject
 	}
 }
 
-export let settings = settingsModel();
+window.settings = settingsModel();
+
+export let settings = window.settings;
 
 export function parseSettingsData()
 {
@@ -219,14 +225,14 @@ export function parseSettingsData()
 	
 	let arp = 0;
 	
-	for (let i in settings)
+	for (let i in window.settings)
 	{
 		if (i == "fakeparam") continue;
 		
 		
-		for (let j in settings[i])
+		for (let j in window.settings[i])
 		{
-			let param = settings[i][j];
+			let param = window.settings[i][j];
 			
 			if (typeof param.length == "undefined") param.length = 1;
 			
@@ -259,7 +265,7 @@ export function parseSettingsData()
 		}
 	}
 	
-	console.log(settings);
+	console.log(window.settings);
 	
 	settingsObjectIsValid = true;
 }
@@ -268,11 +274,11 @@ export async function saveSettings(settingsLength: number, uploadButton: ButtonU
 {
 	let b8 = [];
 	
-	for (let i in settings)
+	for (let i in window.settings)
 	{
-		for (let j in settings[i])
+		for (let j in window.settings[i])
 		{
-			let param: SettingsObjectItem = settings[i][j];
+			let param: SettingsObjectItem = window.settings[i][j];
 
 			let l = param.length;
 			
@@ -325,7 +331,8 @@ export async function fixSettings(settingsLength: number)
 	console.warn("Fixing settings requested");
 	
 	settingsObjectIsValid = false; // invalidate the object
-	settings = settingsModel(); // reset the object
+	window.settings = settingsModel(); // reset the object
+	settings = window.settings;
 	
 	await getSettingsFromDevice();
 	await saveSettings(settingsLength);

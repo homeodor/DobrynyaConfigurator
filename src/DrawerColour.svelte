@@ -289,14 +289,16 @@
 	
 	export function updateDevicePreview(force: boolean = false)
 	{
-		if (mainColourWell) console.log(force, colourPaintMode == ColourPaintLayer.Off, mainColourWell?.isOpen(), Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined);
+//		if (mainColourWell) console.log(force, colourPaintMode == ColourPaintLayer.Off, mainColourWell?.isOpen(), Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined);
 		if (
 			!force && (										// if we do not force the update
 			!mainColourWell ||								// if nothing is loaded
 			colourPaintMode == ColourPaintLayer.Off ||		// or the mode is not set
 			mainColourWell?.isOpen() ||						// or the colour well interface is open
 			Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined // or any of the advanced tools are open
-		)) return false;
+		)) { 
+			return false;
+		}
 		
 		console.log(bank, pattern, getCurrentHexes(bank,pattern));
 		
@@ -345,8 +347,6 @@
 		if (paintData) paintData = paintEvent(paintData);
 		
 		colourPaintModeBankName = setColourPaintModeBankName();
-		
-		console.log(colourPaintMode, bank, pattern);
 		
 		updateDevicePreview();
 		
@@ -398,7 +398,7 @@
 				<p>Layer:
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Idle }"    class:sel={colourPaintMode == ColourPaintLayer.Idle}    class="unreal">Idle</span>
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Active }"  class:sel={colourPaintMode == ColourPaintLayer.Active}  class="unreal">Active</span>
-					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Pattern }" class:sel={colourPaintMode == ColourPaintLayer.Pattern} class="unreal">Patch pattern
+					<span style="white-space: nowrap" on:click="{()=>colourPaintMode = ColourPaintLayer.Pattern }" class:sel={colourPaintMode == ColourPaintLayer.Pattern} class="unreal">Patch pattern
 						<Halp dark={colourPaintMode == ColourPaintLayer.Pattern}>
 							Patch pattern is used to distinguish the patch from others. Click “Randomise” to get a unique combo!
 						</Halp>

@@ -31,8 +31,6 @@
 		pads = [];
 		globalColours = [];
 		
-		console.log(bank);
-		
 		if (bank?.bank?.colour) globalColours = bank.bank.colour;
 		
 		for (let i = 0; i < numberOfPads; i++)

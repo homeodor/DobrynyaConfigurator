@@ -8,7 +8,11 @@
 	export function updatePreview() { sysExTestPattern(hexArray) }
 	
 	$:{
-		if (targetPreview) updatePreview();
+		hexArray = hexArray;
+		if (targetPreview)
+		{
+			updatePreview();
+		}
 	}
 </script>
 

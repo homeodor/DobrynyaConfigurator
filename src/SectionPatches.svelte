@@ -80,7 +80,7 @@
 			result  !== NameFailsBecause.Nothing
 		) return ohJustFail();
 		
-		let newValue = `${event.detail.value}.dbrpatch`;
+		let newValue = `${event.detail.value.replace(" "," ").trim()}.dbrpatch`;
 		
 		try
 		{
@@ -120,8 +120,8 @@
 		
 		editor.newPatch(false, false, async (patchInfo: PatchInfoItem)=>{
 			justUploadedName = patchInfo.name;
+			setTimeout(()=>justUploadedName="", 3500);
 			await tick();
-			console.log(patchList.querySelector(".uploaded-patch"));
 			patchList.querySelector(".uploaded-patch")?.scrollIntoView({block: "center", behavior: "smooth"});
 		}, patchData);
 		// if it is the current patch and it either had no changes,

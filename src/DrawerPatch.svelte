@@ -38,7 +38,7 @@
 		},
 		() =>
 		{
-			if (currentPatch.info.desc.trim() == "") delete currentPatch.info.desc;
+			if (currentPatch.info.desc && currentPatch.info.desc.trim() == "") delete currentPatch.info.desc;
 		} // cleanup function
 	);
 	

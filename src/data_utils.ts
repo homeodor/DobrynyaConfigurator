@@ -336,7 +336,14 @@ export function checkIfPatchNameIsValid(testName: string, patchesInfo: PatchInfo
 	{
 		let ccode = char.charCodeAt(0);
 		
-		if ((ccode < 0x20 || ccode > 0x7e) || forbiddencharacters.includes(char)) return NameFailsBecause.BadCharacters; 
+		if (ccode == 160) continue; // non-breaking space wtf
+		
+		if ((ccode < 0x20 || ccode > 0x7e) || forbiddencharacters.includes(char)) {
+			
+			console.log(ccode, ccode < 0x20, ccode > 0x7e, forbiddencharacters.includes(char), "FAILS HERE");
+			return NameFailsBecause.BadCharacters; 
+		
+		}
 		
 			// меняем любые запрещённые в FAT и просто странные символы на подчёркивание (_)
 			// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО! 
@@ -351,7 +358,7 @@ export function checkIfPatchNameIsValid(testName: string, patchesInfo: PatchInfo
 	if (testName.length >= 32) return NameFailsBecause.TooLong;
 	
 	if (patchesInfo.find((v: PatchInfoItem) => v.name === testName)) return NameFailsBecause.Exists;
-	
+	console.log("ALL GOOD");
 	return NameFailsBecause.Nothing;
 }
 
