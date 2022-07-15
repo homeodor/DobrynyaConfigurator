@@ -2,7 +2,7 @@
 	import { getPaletteCSS } from '../palettes'
 	import Halp from './Halp.svelte';
 	
-	export let flags;
+	export let flags: boolean[];
 	export let oninput = () => {}
 	export let disabled = false;
 </script>
