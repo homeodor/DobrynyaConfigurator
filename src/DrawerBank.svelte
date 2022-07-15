@@ -195,15 +195,15 @@
 			</div>
 		</fieldset>	
 		<fieldset id="dw-bank-key" class="blockenablertarget">
-			<legend>
+			<legend style="display:table"> <!-- fix chrome being a jerk and putting the appleswitch in a wrong place -->
 				<label>
 					<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={scaleEnabled} />
 					<mark>Scale and key
-				<Halp>Pads will use this scale by default. Each pad can still be overridden to send other notes or send no note at all; things like CC
-					are also available, of course. Also, encoders can be set to change scale parameters on the fly.</Halp>
+				<Halp>&nbsp;</Halp>
 					</mark>
 				</label>
 			</legend>
+
 			
 			<div class="ce-block">
 				<button on:click={allPadsToScale} disabled={!scaleEnabled || scale.key == -1}>Set all pads to scale
