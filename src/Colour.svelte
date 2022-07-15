@@ -4,7 +4,7 @@
 	import { sysExTestFill } from './midi'
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
 	import { colourOff, hexToObj, hsvToHex, hexToCSS, invH, dimV, dimS } from './colour_utils'
-	import { isSame, deepClone } from './data_utils';
+	import { isSame, deepClone } from './basic';
 	import type { HexObject } from './types'
 
 	export let hex: number = colourOff;

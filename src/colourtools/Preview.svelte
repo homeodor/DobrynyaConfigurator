@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isSame } from '../data_utils';
+	import { isSame } from '../basic'
 	import PreviewSingle from './PreviewSingle.svelte';
 	
 	export let enableTargetPreview = false;

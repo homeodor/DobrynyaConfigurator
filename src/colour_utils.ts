@@ -1,5 +1,5 @@
 import type { HexColour, ColourArray, Pattern, HexObject } from './types'
-import { deepClone, getRandomIntInclusive, map } from './data_utils'
+import { deepClone, getRandomIntInclusive, map } from './basic'
 
 export const colourOff = 0xff00;
 

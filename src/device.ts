@@ -1,4 +1,4 @@
-import { deepClone } from "./data_utils";
+import { deepClone } from "./basic";
 
 export interface VersionDataShort
 {

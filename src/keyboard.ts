@@ -376,11 +376,15 @@ export const keyboardMediaShort =
 	"Bookmarks" : 0x022A,
 }
 
-import { getKeyByValue } from './data_utils'
 import { get } from 'svelte/store';
 import { isMacLike } from './stores.js';
 
 let isMacLikeLocal = get(isMacLike); // set once
+
+function getKeyByValue(object: any, value: any)
+{
+	return Object.keys(object).find(key => object[key] === value);
+}
 
 export function ctrlCmd(ev)
 {

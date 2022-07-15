@@ -7,7 +7,7 @@
 		
 	import { patchChanged } from '../events';
 	import { MidiCtrl, paramOffNegative, paramOff } from '../midi_utils'
-	import { map } from '../data_utils'
+	import { map } from '../basic'
 	
 	import { EncoderBehaviour } from '../types'
 	

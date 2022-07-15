@@ -3,9 +3,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from '../data_utils';
-	import type { BranchBank } from "../types_patch";
-	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from '../colour_utils'
+	import { deepClone } from '../basic';
+	import { colourOff, ColourPaintLayer } from '../colour_utils'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, getLayerFromHexes  } from './common';
 	import type { CTData, HexArrays } from './common'

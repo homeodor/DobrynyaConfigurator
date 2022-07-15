@@ -1,4 +1,4 @@
-import { fakeNoteUseScale } from './midi_utils'
+import { isEmpty } from './basic';
 import { ExpanderSanizer } from './data_expandsanize';
 
 import type { Model } from './device';
@@ -95,92 +95,6 @@ export function flagToArray(arr: boolean[], flag: number)
 	for (let i: number = 0; i < arr.length; i++) arr[i] = ((flag & (1 << i)) != 0);
 }
 
-export function getKeyByValue(object: any, value: any)
-{
-	return Object.keys(object).find(key => object[key] === value);
-}
-
-export function deepClone(data: any) { return JSON.parse(JSON.stringify(data)); }
-export function isSame(data1: any, data2: any) { return JSON.stringify(data1) === JSON.stringify(data2); }
-export function isEmpty(a: any) { return Object.keys(a).length === 0; }
-
-export function fillWithTemplate(bank: BranchBank, action: string, key: {trigger:boolean,toggle:boolean,key:string} | string, basevalue: number = 0, increment: number = 1)
-{
-	let isTrigger = false;
-	let isToggle = false;
-	
-	if (typeof key == "object")
-	{
-		isTrigger = key.trigger;
-		isToggle = key.toggle;
-		key = key.key;
-	}
-	
-	let what = key;
-	
-	console.log(what,key,isTrigger,isToggle);
-	
-	if (key == "scale")
-	{
-		basevalue = fakeNoteUseScale;
-		increment = 0;
-		key = "note";
-	}
-	
-	createObjectIfAbsent(bank,"pads",[]);
-	
-	const removeCCAuxKeys = [ "min","max","rampu","rampd","par" ];
-	
-	for (let i = 0; i < numberOfPads; i++)
-	{
-		if (bank.pads[i] == undefined) bank.pads[i] = {};
-		
-		let thePad = bank.pads[i];
-		
-		if ("midi" in thePad)
-		{
-			if (action == "fill")
-				delete(thePad.midi);
-			else if (action == "append")
-			{
-				if (what == "cc")
-				{
-					for (let keyCC of removeCCAuxKeys)
-					{
-						if (keyCC in thePad.midi) delete(thePad.midi[keyCC]);
-					}
-				}
-			}
-		}
-		
-		createObjectIfAbsent(thePad,"midi");
-		
-		if (key == null) continue;
-		
-		let possibleValue = basevalue + i * increment;
-		
-		if (
-			what != "scale" &&
-			possibleValue != fakeNoteUseScale &&
-			(possibleValue < 0 || possibleValue > 127)
-		)
-			continue;
-			
-		console.log("We are still here");
-		
-		thePad.midi[key] = possibleValue;
-		
-		console.log(thePad.midi)
-		
-		if (what == "cc")
-		{
-			thePad.midi["max"] = 127;
-			if (!isTrigger) thePad.midi["min"] = 0;
-			if (isToggle)   thePad.midi["par"] = 1;
-		}
-	}
-}
-
 export async function getPatch(currentPatch: Patch, model: Model, action: Function)
 {
 	ExpanderSanizer.latchAll(); // sanize all data and re-expand on the next ineration
@@ -219,17 +133,6 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 		
 		while (cleanObject.encoders.length > model.encoders) cleanObject.encoders.pop();
 		while (cleanObject.encoders.length < model.encoders) cleanObject.encoders.push({});
-		
-		// let hasAnyData = false;
-		// 
-		// for (let enc of cleanObject.encoders)
-		// {
-		// 	if (Object.keys(enc).length)
-		// 	{
-		// 		hasAnyData = true;
-		// 		break;
-		// 	}
-		// }
 	}
 	if ("joystick" in currentPatch) cleanObject.joystick = currentPatch.joystick;
 	if ("faders" in currentPatch) cleanObject.faders = currentPatch.faders;
@@ -299,67 +202,6 @@ export function fixAndExpandPatch(currentPatch: any, model: Model)
 			})
 		})
 	});
-}
-
-export function getRandomIntInclusive(min: number, max: number, random: number = Math.random()) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(random * (max - min + 1)) + min; //Максимум и минимум включаются
-}
-
-export function map(x: number, in_min: number, in_max: number, out_min: number, out_max: number): number
-{
-	let divisor: number = (in_max - in_min);
-//	if (divisor: number == 0) return -1;
-	return Math.floor(Math.floor((x - in_min) * (out_max - out_min)) / divisor + out_min);
-}
-
-export enum NameFailsBecause {
-	Nothing,
-	Empty,
-	BadCharacters,
-	Dot,
-	TooLong,
-	Exists
-};
-
-export function checkIfPatchNameIsValid(testName: string, patchesInfo: PatchInfoItem[]): NameFailsBecause
-{	
-	if (testName.length === 0) return NameFailsBecause.Empty;
-	// 
-	// if (testName.match(/([^a-z0-9!. ]+)/gi)) return NameFailsBecause.BadCharacters;
-	if (testName[0] == ".") return NameFailsBecause.Dot;
-	
-	const forbiddencharacters = [ "/","?","^","<",">","\\",":","*","|","\"" ];
-	
-	for (let char of testName)
-	{
-		let ccode = char.charCodeAt(0);
-		
-		if (ccode == 160) continue; // non-breaking space wtf
-		
-		if ((ccode < 0x20 || ccode > 0x7e) || forbiddencharacters.includes(char)) {
-			
-			console.log(ccode, ccode < 0x20, ccode > 0x7e, forbiddencharacters.includes(char), "FAILS HERE");
-			return NameFailsBecause.BadCharacters; 
-		
-		}
-		
-			// меняем любые запрещённые в FAT и просто странные символы на подчёркивание (_)
-			// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО! 
-			// Хотя нет, позвольте, ведь My_Cool_Patch.dbrpatch НАМНОГО КРУЧЕ И ПРОФЕССИОНАЛЬНЕЙ ВЫГЛЯДИТ, ДА????
-			// Фух.
-	}
-	
-	if (testName[testName.length - 1] == ".") return NameFailsBecause.Dot;
-	
-	testName += ".dbrpatch";
-	
-	if (testName.length >= 32) return NameFailsBecause.TooLong;
-	
-	if (patchesInfo.find((v: PatchInfoItem) => v.name === testName)) return NameFailsBecause.Exists;
-	console.log("ALL GOOD");
-	return NameFailsBecause.Nothing;
 }
 
 

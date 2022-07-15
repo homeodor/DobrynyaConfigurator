@@ -3,7 +3,9 @@
 	
 	import { colourOff } from './colour_utils'
 	import { scales, fakeNoteOff, paramOffNegative, paramOff, octaveInlineToRange, octaveRangeToInline, Notes, keyInfoToKeyObject, keyObjectToKeyInfo } from './midi_utils'
-	import { isEmpty, fillWithTemplate, createPadsIfAbsent } from './data_utils'
+	import { createPadsIfAbsent } from './data_utils'
+	import { isEmpty } from './basic';
+	import { fillWithTemplate } from './editor';
 	import { ExpanderSanizer } from './data_expandsanize';
 	import { patchChanged } from './events';
 	import type { KeyInfo } from './midi_utils';

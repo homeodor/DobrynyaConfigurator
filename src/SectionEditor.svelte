@@ -26,7 +26,9 @@
 	import GotIt from './widgets/GotIt.svelte'
 	
 	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, deepClone, getPatch, sortPatchList, fixAndExpandPatch, isSame, createObjectIfAbsent } from './data_utils'
+	import { NameFailsBecause, checkIfPatchNameIsValid, longestFilename, extensionLength, getNewPatchName } from './editor';
+	import { deepClone, isSame } from './basic';
+	import { getPatch, sortPatchList, fixAndExpandPatch } from './data_utils'
 	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
@@ -42,7 +44,6 @@
 	export let device: StatusResult;
 	export let isOnline: boolean;
 	export function getIsSaved(): boolean { return isSaved }
-	export function getCurrentPatch(): Patch { return currentPatch };
 	export function setCurrentPatchName(v: string) { currentPatchValue = currentPatchName = v; console.log("Current patch name set to ", currentPatchName) }
 	
 	let isSaved: boolean = true;
@@ -64,6 +65,8 @@
 	let newPatchNameIsValid: NameFailsBecause = NameFailsBecause.Empty;
 	let newPatchName = "";
 	let useCleanSlate = "no";
+	let useCleanSlatePrev = "no";
+	let nameHasBeenChanged = false;
 	
 	let dispatch = createEventDispatcher();
 	
@@ -159,7 +162,7 @@
 		newInterfaceOpen = force ? true : !newInterfaceOpen;
 	}
 	
-	async function uploadThePatchAction(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
+	async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
 	{
 		// currentPatch = sanizePatch(currentPatch, device.model);
 		getPatch(patchData, device.model, async ()=>
@@ -172,7 +175,7 @@
 	
 	function uploadThePatch()
 	{
-		uploadThePatchAction(
+		patchToDevice(
 			SysExCommand.OVERWRITEPATCH,
 			currentPatchName,
 			() => //(data: any, filename: string) =>
@@ -185,17 +188,13 @@
 	}
 
 	export async function newPatch(
-		cleanSlate: boolean, // use an empty template for patch, or the current data?
-		loadPatchAfter: boolean = true,					// load the patch afterwards?
-		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedbank on success
-		patchData: Patch | null = currentPatch,				// the patch data. Defaults to currentPatch
+		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
+		uploadPatchName: string, 								// the filename
+		loadPatchAfter: boolean = true,							// load the patch afterwards?
+		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedback on success
+		patchData: Patch | null,								// the patch data. Null will make it clone the currentPatch
 	)
 	{
-		if (patchData === null)
-		{
-			patchData = currentPatch;
-		}
-		
 		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
 			return;
 		
@@ -203,9 +202,14 @@
 		{
 			patchData = deepClone(patchTemplates[device.model.code]);
 			createPadsIfAbsent(patchData.padbanks[0][0]);
+		} else {
+			if (patchData === null)
+			{
+				patchData = deepClone(currentPatch);
+			}
 		}
 		
-		let uploadPatchName = newPatchName + ".dbrpatch";
+		uploadPatchName += ".dbrpatch";
 		randomPattern(patchData.info.pattern);
 		
 		let sysExCommand: SysExCommand = SysExCommand.WRITEPATCH;
@@ -230,27 +234,20 @@
 			patchesInfo = patchesInfo;			
 		}
 		
-		uploadThePatchAction(sysExCommand, uploadPatchName, handler, patchData);
+		patchToDevice(sysExCommand, uploadPatchName, handler, patchData);
 	}
 	
 	function checkIfNewPatchNameIsValid(ev: any)
 	{
+		nameHasBeenChanged = true;
 		newPatchNameIsValid = checkIfPatchNameIsValid(ev.currentTarget.value.trim(), patchesInfo);
 	}
 	
-	function getNewPatchName()
+	async function updateNewPatchName()
 	{
-		if (patchesInfo === undefined || currentPatchName === undefined || !patchesInfo.length) return; // come later
-		
-		let i: number = 1;
-		let suggestedPatchName: string;
-			
-		do
-		{
-			suggestedPatchName = `New ${i++}`
-		} while (patchesInfo.find(v => {return v.name === `${suggestedPatchName}.dbrpatch`}))
-		
-		return suggestedPatchName;
+		if (nameHasBeenChanged) return;
+		newPatchName = getNewPatchName(patchesInfo, useCleanSlate === "no" ? currentPatchName : null);
+		nameHasBeenChanged = false;
 	}
 	
 	let editorAlive = false;
@@ -357,8 +354,6 @@
 	let globalChannel:  DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 	let globalVelocity: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 	
-	
-	
 	$:
 	{
 		currentBankObject = currentPatch?.padbanks?.[currentHand][currentBank];
@@ -375,7 +370,14 @@
 		
 		if (patchesInfo && currentPatch) patchesInfo.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.info);
 		
-		if (!newInterfaceOpen) newPatchName = getNewPatchName();
+		if (
+			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
+			useCleanSlate != useCleanSlatePrev // if the user changed the useCleanSlate param
+		)
+		{
+			updateNewPatchName();
+			useCleanSlatePrev = useCleanSlate;
+		}
 		
 		currentPatchValue = currentPatchName;
 		
@@ -429,7 +431,7 @@
 		checkPatchEqualTimeout = null;
 	}
 	
-	function markSaved()
+	export function markSaved()
 	{
 		isSaved = true;
 		sysExLockPatchSwitching(false);
@@ -533,7 +535,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			</p>
 			
 			<p>
-				<button on:click="{()=>{newPatch(useCleanSlate == 'yes')}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
+				<button on:click="{()=>{newPatch(useCleanSlate == 'yes', newPatchName)}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
 				<button on:click="{()=>{newInterfaceOpen = false}}">Close</button>
 			</p>
 			

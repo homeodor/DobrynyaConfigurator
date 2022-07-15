@@ -3,7 +3,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from '../data_utils';
+	import { deepClone } from '../basic';
 	import type { BranchBank } from "../types_patch";
 	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from '../colour_utils'
 	

@@ -3,7 +3,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone, isSame } from '../data_utils';
+	import { deepClone, isSame } from '../basic';
 	import { colourOff } from '../colour_utils'
 	import type { ColourPaintLayer } from '../colour_utils'
 	
