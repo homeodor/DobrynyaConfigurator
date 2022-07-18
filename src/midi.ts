@@ -4,9 +4,9 @@ import type { MidiResult } from './midi_utils'
 import { interpretMidiEvent, onMIDIMessage } from './midi_onmidi'
 import type { HexColour, ColourArray, Hand } from './types'
 
-let midi = null;
-let portOut: MIDIOutput = null;
-let portIn: MIDIInput = null;
+let midi: MIDIAccess | null = null;
+let portOut: MIDIOutput | null = null;
+let portIn: MIDIInput | null = null;
 
 let pingInterval = null;
 
@@ -26,15 +26,12 @@ export let online = true;
 
 function enablePing()
 {
-	if (!pingInterval)
-	{
-		pingInterval = setInterval(checkDobrynyaIsHere, 2000);
-	}
+	if (pingInterval === null) pingInterval = setInterval(checkDobrynyaIsHere, 2000);
 }
 
 function disablePing()
 {
-	if (pingInterval)
+	if (pingInterval !== null)
 	{
 		clearInterval(pingInterval);
 		pingInterval = null;
@@ -52,67 +49,58 @@ async function checkDobrynyaIsHere()
 {
 	dobrynyaIsHere = false;
 	
-	if (!midi.outputs || midi.outputs.size === 0)
+	// @ts-ignore
+	if (!midi.outputs || Array.from(midi?.outputs.values()).length === 0)
 	{
 		dobrynyaEvent('gone');
 		return false;
 	}
 	
-	for (let entry of midi.inputs.values())
-	{
-		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
-		{
-			portIn = entry;
-			portIn.addEventListener("midimessage", onMIDIMessage);				
-			break;
-		}
-	}
+	// @ts-ignore
+	portOut = Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => { return entry.name.startsWith("MIDI Dobrynya ") });
+	// @ts-ignore
+	portIn  = Array.from(midi?.inputs.values() ).find((entry: MIDIInput)  => { return entry.name.startsWith("MIDI Dobrynya ") });
 	
-	for (let entry of midi.outputs.values())
-	{
-		if (entry.name.indexOf("MIDI Dobrynya ") === 0)
-		{
-			portOut = entry;
+	if (portIn) portIn.addEventListener("midimessage", onMIDIMessage);
+	
+	if (!portOut)
+	{	
+		dobrynyaWasHere = false;
+		return dobrynyaEvent('gone');
+	}
 			
-			try 
-			{
-				let result: MidiResult = await sysExAndWait(SysExCommand.STATUS, 300);
-				
-				if (result.status == SysExStatus.OLD_FIRMWARE) // we do not load anything really, we just want the version info and the serial
-				{
-					result = await sysExAndWait(SysExCommand.GETSERIAL, 300);
-					result.data.version = (await sysExAndWait(SysExCommand.GETVERSION, 300)).data;
-				}
-				
-				if (!result.success)
-				{
-					console.log(result);
-					dobrynyaWasHere = false;
-					return dobrynyaEvent('gone');
-				}
-				
-				dobrynyaIsHere = true;
-				
-				if (dobrynyaIsHere != dobrynyaWasHere) // appeared after a pause
-				{
-					resetConnected();
-					console.info("Dobrynya is here!");
-					dobrynyaEvent('here', result.data);
-					dobrynyaWasHere = dobrynyaIsHere;
-				}
+	try 
+	{
+		let result: MidiResult = await sysExAndWait(SysExCommand.STATUS, 300);
+		
+		if (result.status == SysExStatus.OLD_FIRMWARE) // we do not load anything really, we just want the version info and the serial
+		{
+			result = await sysExAndWait(SysExCommand.GETSERIAL, 300);
+			result.data.version = (await sysExAndWait(SysExCommand.GETVERSION, 300)).data;
+		}
+		
+		if (!result.success)
+		{
+			console.log(result);
+			dobrynyaWasHere = false;
+			return dobrynyaEvent('gone');
+		}
+		
+		dobrynyaIsHere = true;
+		
+		if (dobrynyaIsHere != dobrynyaWasHere) // appeared after a pause
+		{
+			resetConnected();
+			console.info("Dobrynya is here!");
+			dobrynyaWasHere = dobrynyaIsHere;
+			return dobrynyaEvent('here', result.data);
+		}
 
-			} catch(e) {
-				dobrynyaWasHere = false;
-				console.log(e);
-				return dobrynyaEvent('gone');
-			}
-			
-			return true;
-		}
+	} catch(e) {
+		dobrynyaWasHere = false;
+		console.log(e);
+		return dobrynyaEvent('gone');
 	}
-	
-	dobrynyaWasHere = false;
-	return dobrynyaEvent('gone');
 }
 
 export async function init()
