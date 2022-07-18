@@ -56,8 +56,6 @@ export enum SysExCommand
 	REBOOT = 0x60,
 	REBOOT_MSC,
 	REBOOT_BOOT,
-	WRITEFIRMWARE,
-	FULLRESET // 0x64
 };
 
 export enum SysExStatus
