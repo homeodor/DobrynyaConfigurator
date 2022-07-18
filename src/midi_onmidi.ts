@@ -6,7 +6,6 @@ import { capabilityFlags, models, ChipIDs, defaultStatusResult } from './device'
 import type { StatusResult } from './types'
 import * as BSON from 'bson'
 import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank } from './events'
-// import type { Models } from './model'
 
 const headerLength: number = 12;
 
@@ -51,6 +50,7 @@ function sevenToEight (d: Uint8Array, hasFilename: boolean = false): SevenToEigh
 
 function serialDataToOutput(pureData: number[], output: StatusResult)
 {
+	console.log(pureData)
 	output.class = pureData[2] >> 4;
 	output.modelNumber = pureData[2] & 0xf;
 	output.modelID = pureData[2];
@@ -111,7 +111,11 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			let output: StatusResult = defaultStatusResult();
 			
 			output.isCorrect = (pureData[0] == 0x1) ? true : false;
-			serialDataToOutput(pureData, output);
+
+			if (output.isCorrect)
+			{
+				serialDataToOutput(pureData, output);
+			}
 			
 			let capabilityFlagsData = ((pureData[12] << 24) | (pureData[11] << 16) | (pureData[10] << 8) | pureData[9]);
 			
