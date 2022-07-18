@@ -242,8 +242,8 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x61```|```REBOOT_MSC```         | Reboots the device into disk moe |
 |```0x62```|```REBOOT_BOOT```        | Reboots the device into bootloader |
 |```0x63```|```WRITEFIRMWARE```      | Reserved |
-|```0x64```|```FULLRESET```          | Formats the internal drive. Needs to be sent three times to work. |
-|```0x65```|```ERASE_FLASH```        | Erases flash memory altogether. Needs to be sent three times to work. You don’t want to do this, trust me. |
+|```0x64```|```FORMATDISK```         | Formats the internal drive. Needs to be sent three times to work. |
+|```0x65```|```ERASEFLASH```         | Erases flash memory altogether. Needs to be sent three times to work. You don’t want to do this, trust me. |
 |```0x66```|```REBOOT_ESP32```       | Reserved |
 
 ### Use MIDI Monitor
