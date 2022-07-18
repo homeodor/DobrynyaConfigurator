@@ -15,10 +15,15 @@
 		prov2: { name: "ATSAME53J20", mhz: 72 },
 	};
 
-	import { getFullModelCode } from './device';
-	import miniV2 from '../i/miniv2.webp'
+	import { importantFactorySettings } from './settings_utils'
+	import imageMiniV2 from '../i/devices/miniv2.webp'
+	import imageMicroV2Dark from '../i/devices/microv2_dark.webp'
+	import imageMicroV2Light from '../i/devices/microv2_light.webp'
 	import type { StatusResult } from './types'
 	import Opensource from "./Opensource.svelte";
+	import { CaseColour } from './device'
+	
+	let imageURL = imageMiniV2;
 	
 	export let device: StatusResult;
 
@@ -35,6 +40,17 @@
 			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
 		}
 		console.log(device);
+		
+		let isDark = importantFactorySettings.caseColour === CaseColour.Dark;
+		
+		if (device)
+		{
+			switch (device?.model?.code)
+			{
+				case "miniv2": imageURL = imageMiniV2; break;
+				case "microv2": imageURL = isDark ? imageMicroV2Dark : imageMicroV2Light; break;					
+			}
+		}
 	}
 </script>
 <style>
@@ -46,13 +62,15 @@
 	#infoholder > h4 { text-align: right; }
 </style>
 <svelte:head>
-	<link rel="preload" href={miniV2} as="image" />
+	<link rel="preload" href={imageMiniV2} as="image" />
+	<link rel="preload" href={imageMicroV2Dark} as="image" />
+	<link rel="preload" href={imageMicroV2Light} as="image" />
 </svelte:head>
 <section id="tab-info">
 
 
 	<h1 id="info-modelname">Midi Dobrynya</h1>
-	<img src="{miniV2}" id="modelimage" alt="Dobrynya" />
+	<img src="{imageURL}" id="modelimage" alt="Dobrynya" />
 	<br />
 	<div id="infoholder">
 		<h4>Model</h4>
