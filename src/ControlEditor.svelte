@@ -157,11 +157,11 @@
 		keyboardEditor.update();
 	}
 
-	async function setDefaultMinMaxAfterTick()
-	{
-		await tick();
-		midiControlEditor?.setDefaultMinMax();
-	}
+	// async function setDefaultMinMaxAfterTick()
+	// {
+	// 	await tick();
+	// 	midiControlEditor?.setDefaultMinMax();
+	// }
 
 	function openBankSettings() { quickCustom("drawer", {drawer:'banksettings'}); }
 	

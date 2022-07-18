@@ -6,10 +6,10 @@
 	import * as BSON from 'bson'
 	
 	import type { StatusResult } from './types'
-	import { defaultStatusResult, getFullModelCode, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
+	import { defaultStatusResult, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
 	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
-	import { fixSettings, getSettingsFromDevice, settings, getFactorySettings } from './settings_utils'
+	import { fixSettings, getSettingsFromDevice, getFactorySettings } from './settings_utils'
 	import { WaitingBlock } from './waitingblock'
 	
 	import GotIt from './widgets/GotIt.svelte';
@@ -38,9 +38,6 @@
 	let patchesInfo: PatchInfoItem[];
 	
 	let alertNoPatches: Confirm;
-	
-	// @ts-ignore
-	let hasHid = navigator !== undefined;
 	
 	function romanize (num: number)
 	{

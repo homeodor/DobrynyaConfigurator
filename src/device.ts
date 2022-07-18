@@ -21,6 +21,7 @@ export enum CaseColour
 {
 	Light,
 	Dark,
+	Gray,
 };
 
 const minimumFirmware: VersionDataShort =

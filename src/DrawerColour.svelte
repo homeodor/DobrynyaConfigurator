@@ -27,7 +27,7 @@
 	import CTCopy from './colourtools/Copy.svelte'
 	// import CTExplicit from './colourtools/Explicit.svelte'
 	
-	export let paintData = null;
+	export let paintData: InvokeControlEventData = null;
 
 	export let bank: BranchBank;
 	export let pattern: number[];

@@ -10,7 +10,6 @@
 	let dispatchEvent = createEventDispatcher();
 	
 	let keyboardCatcher: any;
-	let exoticSelector: HTMLElement;
 	
 	let exoticSelectorValue: string = "notacombo";
 	
@@ -160,7 +159,7 @@ Add
 	{/if}
 <br />
 
-<p><select class="cbm-keycombo-exotic notselect" id="cbm-keycombo1-exotic" bind:this={exoticSelector} bind:value={exoticSelectorValue}>
+<p><select class="cbm-keycombo-exotic notselect" id="cbm-keycombo1-exotic" bind:value={exoticSelectorValue}>
 	<option value="notacombo">More keys</option>
 	{#each combosSorted as {name, arr}}
 	<optgroup label={name}>

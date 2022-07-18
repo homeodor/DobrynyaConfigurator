@@ -50,7 +50,6 @@ function sevenToEight (d: Uint8Array, hasFilename: boolean = false): SevenToEigh
 
 function serialDataToOutput(pureData: number[], output: StatusResult)
 {
-	console.log(pureData)
 	output.class = pureData[2] >> 4;
 	output.modelNumber = pureData[2] & 0xf;
 	output.modelID = pureData[2];

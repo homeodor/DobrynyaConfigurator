@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as BSON from 'bson'
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
+	import { onDestroy, createEventDispatcher } from 'svelte'
 	
 	import { patchChanged, openPatternEditor } from './events';
 	import { patchAsFileFromData, getPatch, arrayToFlag, flagToArray } from './data_utils'
-	import { ExpanderSanizer, expandData, sanizeData } from './data_expandsanize'
+	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { Model } from './device';
 	import type { Patch, BranchSettings } from './types_patch'
@@ -43,18 +43,6 @@
 	);
 	
 	onDestroy(()=>expanderSanizer.kill());
-	
-	// onMount(() => {
-	// 	expandData(patchSettingsModel, currentPatch.settings);
-	// 	if (!("desc" in currentPatch.info)) currentPatch.info.desc = "";
-	// });
-	
-	// onDestroy(() => {
-	// 	sanizeData(patchSettingsModel, currentPatch.settings);
-	// 	
-	// });
-	
-	let dispatchEvent = createEventDispatcher();
 	
 	function patchAsFile(json: boolean = false)
 	{
