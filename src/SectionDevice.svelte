@@ -33,7 +33,7 @@
 	
 	let showOpenSource = false;
 	
-	$: {
+	$:{
 		if (realChips[device.model.code])
 		{
 			let chipObj = realChips[device.model.code][device.model.chipCode] ?? realChips[device.model.code];
@@ -41,7 +41,7 @@
 		}
 		console.log(device);
 		
-		let isDark = importantFactorySettings.caseColour === CaseColour.Dark;
+		let isDark = importantFactorySettings.caseColour === CaseColour.Dark || importantFactorySettings.caseColour === CaseColour.Gray;
 		
 		if (device)
 		{

@@ -3,6 +3,7 @@
 	import * as BSON from 'bson'
 	
 	import { openPatternEditor } from './events'
+	import type { InvokeControlEventData } from './events'
 	import { createPadsIfAbsent } from './data_utils'
  	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
@@ -26,13 +27,13 @@
 	import GotIt from './widgets/GotIt.svelte'
 	
 	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, longestFilename, extensionLength, getNewPatchName } from './editor';
+	import { NameFailsBecause, checkIfPatchNameIsValid, extensionLength, getNewPatchName } from './editor';
 	import { deepClone, isSame } from './basic';
 	import { getPatch, sortPatchList, fixAndExpandPatch } from './data_utils'
 	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
-	import type { BranchBank, Patch, PatchInfoItem } from './types_patch'
+	import type { Patch, PatchInfoItem } from './types_patch'
 	import { ColourPaintLayer, randomPattern, hexToCSS } from './colour_utils'
 	import { CaseColour } from './device';
 	
@@ -74,7 +75,7 @@
 	let colourPaintDrawer: DrawerColour;
 	let colourPaintMode: ColourPaintLayer = ColourPaintLayer.Off;
 	let colourPaintShowBank: boolean = true;
-	let paintData;
+	let paintData: InvokeControlEventData;
 
 	const drawers = 
 	[
@@ -110,7 +111,6 @@
 	};
 	
 	let confirmDiscard: Confirm;
-	let confirmEmptyPatch: Confirm;
 	
 	let patchSelector: HTMLSelectElement;
 	
@@ -299,8 +299,6 @@
 	
 	async function openEditor(element: HTMLElement, kind: Control, i: number)
 	{
-		let keyIsScale = false; // CHANGE THIS
-		
 		controlEditor?.sanizeNow();
 		
 		editorData = true;// = true;
@@ -454,7 +452,7 @@
 		if (drawer == "colourpaint") closeEditor(); // if the selected drawer is colourpaint, close the editor	
 	}
 	
-	function ondrawer(ev) { setDrawer(ev.detail.drawer); }
+	function ondrawer(ev: CustomEvent) { setDrawer(ev.detail.drawer); }
 	
 	//@ts-ignore
 //	window.ms = markSaved;
@@ -598,7 +596,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{/if}
 	</div>
 
-	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
+	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:gray={importantFactorySettings.caseColour == CaseColour.Gray} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.encoders} />
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.encoders} />
@@ -619,10 +617,6 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 {/if} <!-- if openSection == editor -->
 <Confirm bind:this={confirmDiscard} okText="Discard">
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
-</Confirm>
-<Confirm bind:this={confirmEmptyPatch} okText="Upload">
-	<p>Your patch has no filled banks. Do you still want to upload it?</p>
-	<p>The device doesn’t open empty banks, as empty banks are considered to be “off”.</p>
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
 	<p>You have unsaved changes. Patch switching is locked on the device.</p>
