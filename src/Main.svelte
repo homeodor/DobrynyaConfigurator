@@ -198,12 +198,6 @@
 		if (!sectionSwitchingAllowed && !(typeof ev === "string" && ev === "firmware")) return;
 		openSection = (typeof ev === "string") ? ev : ev.detail.section;
 	}
-
-	function goToFirmware()
-	{
-//		if (isOnline && isConnected) sysExBootloader();
-		openSection = "firmware";
-	}
 	
 	console.log({data: openSection});
 	
@@ -227,7 +221,7 @@
 <GotIt cookieName="beta">This is a beta version of both the Configutator and the device firmware. It may still have some rough edges! Your feedback is much appreciated, too, so if you have anything to say, please contact us. ❤️</GotIt>
 	
 <main>
-	{#if openSection==""}
+	{#if openSection=="" && device.isCorrect}
 	<section id="tab-nodevice">
 		<h1>Please connect a (single) MIDI Dobrynya.</h1>
 	</section>
