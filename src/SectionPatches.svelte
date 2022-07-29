@@ -143,6 +143,8 @@
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDownloadOfCurrent);
 		
+		if (patchData === null && isThePatch) patchData = editor.getCurrentPatch();
+		
 		let downloadAction = async ()=>
 		{
 			patchAsFileFromData(
@@ -153,13 +155,12 @@
 		};
 		
 		getPatch(patchData, device.model, downloadAction);
-			
 	}
 	
 	let confirmDeletePatch: Confirm;
 	let fileToBeDeleted = "";
 	
-	async function deletePatch(name: string, isThePatch: boolean, element: HTMLButtonElement)
+	async function deletePatch(name: string, isThePatch: boolean, element: EventTarget)
 	{
 		fileToBeDeleted = name;
 		await tick();
@@ -168,7 +169,7 @@
 			// setTimeout(()=>{ patchEl.innerHTML = ""; }, 200);
 		await sysExFilenameAndDo(SysExCommand.DELETEPATCH, name, ()=>
 		{
-			let patchEl = element.closest(".patchlist-item");
+			let patchEl = (element as HTMLButtonElement).closest(".patchlist-item");
 			let patchH = patchEl.getBoundingClientRect().height;
 			(patchEl as HTMLElement).style.setProperty('--computed-height', `${patchH}px`);
 			patchEl.classList.add("deleted-patch");
@@ -268,7 +269,8 @@
 			</div>
   		</div>
   		<div>
-			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
+			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>
+			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
 			{#if patch.info.device != device.modelID}
 				<div class="warn">{getThisDobrynyaModel(patch.info.device)} </div>
 			{/if}

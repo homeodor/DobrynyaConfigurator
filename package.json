@@ -1,7 +1,7 @@
 {
 	"name": "dobrynyaconfigurator",
 	"private": true,
-	"version": "1.0.59",
+	"version": "1.0.60",
 	"build": {
 		"files": [
 			{

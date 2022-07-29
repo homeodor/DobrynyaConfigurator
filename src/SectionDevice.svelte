@@ -93,7 +93,7 @@
 
 	
 	{#if !showOpenSource}
-	<p><span class="unreal" on:click={()=>showOpenSource=true}>Open source code used in Dobrynya’s firmware</span></p>
+	<p><span class="unreal" on:click={()=>showOpenSource=true}>Open source code and assets used in Dobrynya’s codebase</span></p>
 	{:else}
 	<p><span class="unreal" on:click={()=>showOpenSource=false}>Close libraries list</span></p>
 	<Opensource />

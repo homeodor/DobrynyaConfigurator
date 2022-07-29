@@ -50,6 +50,7 @@
 	let isSaved: boolean = true;
 	
 	let currentPatch: Patch;
+	export function getCurrentPatch() { return currentPatch; }
 	let currentPatchOriginalState: Patch;
 	let currentPatchName: string;
 	let currentHand: Hand = Hand.LEFT;
