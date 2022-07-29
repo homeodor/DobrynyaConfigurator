@@ -1,5 +1,4 @@
 <script lang="ts">
-	export let style = "";
 	export let animated = false;
 	
 	let tick: SVGElement;
