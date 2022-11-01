@@ -1,7 +1,7 @@
 {
 	"name": "dobrynyaconfigurator",
 	"private": true,
-	"version": "1.0.60",
+	"version": "1.0.62",
 	"build": {
 		"files": [
 			{
@@ -40,13 +40,13 @@
 		"@tsconfig/svelte": "^3.0.0",
 		"@types/js-cookie": "^3.0.2",
 		"concurrently": "^7.2.2",
-		"electron": "^19.0.8",
-		"electron-builder": "^23.1.0",
+		"electron": "^21.2.1",
+		"electron-builder": "^23.6.0",
 		"svelte": "^3.44.0",
 		"svelte-check": "^2.7.2",
 		"svelte-preprocess": "^4.10.7",
 		"typescript": "^4.7.3",
-		"vite": "^2.9.9",
+		"vite": "^3.2.2",
 		"vite-plugin-mkcert": "^1.6.4"
 	},
 	"dependencies": {
