@@ -6,9 +6,9 @@
 	
 	import { getIconURL } from '../icons';
 	
-	import { deepClone, getRandomIntInclusive, numberOfPads } from '../data_utils';
-	import type { BranchBank } from "../types_patch";
-	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from '../colour_utils'
+	import { deepClone, getRandomIntInclusive } from '../basic';
+	import { numberOfPads } from '../data_utils';
+	import { colourOff, ColourPaintLayer } from '../colour_utils'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, colourIsExplicitlySet } from './common';
 	import type { CTData, HexArrays } from './common'
@@ -33,8 +33,8 @@
 		preview = preview;
 	}
 	
-	export function start() { ctData = ctStart(dialog, ctData); reseed(); } // self-assignments keep Svelte happier
-	function finish() { ctData = ctFinish(dialog,randomFill,params,ctData); dispatchEvent("input"); }
+	export function start() { ctData.hexStorage = ctStart(dialog, ctData); reseed(); }
+	function finish() { ctFinish(dialog,randomFill,params,ctData); dispatchEvent("input"); }
 	
 	enum ParamSatVal { Max, Reasonable, Random };
 	

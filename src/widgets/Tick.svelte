@@ -1,11 +1,12 @@
 <script lang="ts">
-	export let style = "";
 	export let animated = false;
 	
-	let tick;
+	let tick: SVGElement;
 	
 	export function reAnimate()
 	{
+		if (!tick) return; // may happen when invoked out of editor
+		
 		if (!animated)
 		{
 			tick.setAttribute('class', "");
@@ -15,24 +16,12 @@
 		tick.setAttribute("class", "animated");
 		
 		setTimeout(()=>tick.setAttribute("class", ""), 3000);
-		
-		// 
-		// if (tick.getAttribute('class') != "animated")
-		// 	tick.setAttribute('class', "animated");
-		// else
-		// {
-		// 	console.log("re-animating");
-		// 	tick.style.animation = 'none';
-		// 	tick.offsetHeight; /* trigger reflow */
-		// 	tick.style.animation = null; 
-		// }
 	}
 </script>
 <style type="text/css">
 	
 
 </style>
-<!-- <img bind:this={tick} {style} class:animated src="../i/montserrat-tick.svg" alt="OK" /> -->
 <svg bind:this={tick} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
 

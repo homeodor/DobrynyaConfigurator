@@ -3,9 +3,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from '../data_utils';
-	import type { BranchBank } from "../types_patch";
-	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from '../colour_utils'
+	import { deepClone } from '../basic';
+	import { colourOff, ColourPaintLayer } from '../colour_utils'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, getLayerFromHexes  } from './common';
 	import type { CTData, HexArrays } from './common'
@@ -23,8 +22,8 @@
 	
 	let dispatchEvent = createEventDispatcher();
 	
-	export function start() { ctData = ctStart(dialog, ctData); } // self-assignments keep Svelte happier
-	function finish() { ctData = ctFinish(dialog,fade,params,ctData); dispatchEvent("input"); }
+	export function start() { ctData.hexStorage = ctStart(dialog, ctData); } // self-assignments keep Svelte happier
+	function finish() { ctFinish(dialog,fade,params,ctData); dispatchEvent("input"); }
 	
 	interface CTFadeParams
 	{

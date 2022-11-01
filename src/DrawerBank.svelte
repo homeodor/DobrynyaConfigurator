@@ -3,7 +3,9 @@
 	
 	import { colourOff } from './colour_utils'
 	import { scales, fakeNoteOff, paramOffNegative, paramOff, octaveInlineToRange, octaveRangeToInline, Notes, keyInfoToKeyObject, keyObjectToKeyInfo } from './midi_utils'
-	import { isEmpty, fillWithTemplate, createPadsIfAbsent } from './data_utils'
+	import { createPadsIfAbsent } from './data_utils'
+	import { isEmpty } from './basic';
+	import { fillWithTemplate } from './editor';
 	import { ExpanderSanizer } from './data_expandsanize';
 	import { patchChanged } from './events';
 	import type { KeyInfo } from './midi_utils';
@@ -193,15 +195,19 @@
 			</div>
 		</fieldset>	
 		<fieldset id="dw-bank-key" class="blockenablertarget">
-			<legend>
+			<legend style="display:table"> <!-- fix chrome being a jerk and putting the appleswitch in a wrong place -->
 				<label>
 					<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={scaleEnabled} />
 					<mark>Scale and key
-				<Halp>Pads will use this scale by default. Each pad can still be overridden to send other notes or send no note at all; things like CC
-					are also available, of course. Also, encoders can be set to change scale parameters on the fly.</Halp>
+				<Halp><p>Pads will use this scale by default.</p>
+					<p>Each pad can still be overridden to send other notes or send no note at all; things like CC
+					are also available, of course.</p>
+					<p>Encoders can be set to change scale parameters on the fly.</p>
+				</Halp>
 					</mark>
 				</label>
 			</legend>
+
 			
 			<div class="ce-block">
 				<button on:click={allPadsToScale} disabled={!scaleEnabled || scale.key == -1}>Set all pads to scale
@@ -242,7 +248,7 @@
 				<h4>Channel <Overridable /></h4>
 				<Channel on:input={patchChanged} bind:value={channelValue} channelDefaultName="Device default" channelDefault={deviceLevelChannel} />
 				<p>
-				<label><input on:input={patchChanged} type="checkbox" bind:checked={channelIsGlobal} disabled={channelValue == -1} /> Global
+				<label class:disabled={channelValue == -1}><input on:input={patchChanged} type="checkbox" bind:checked={channelIsGlobal} disabled={channelValue == -1} /> Global
 				<Halp>
 					With this option, once the bank is selected, all controls will send data on this channel, not just the pads – unless, of course,
 					those controls have their own custom channel setting.
@@ -252,10 +258,11 @@
 
 		<fieldset id="dw-bank-lightshow">
 			<legend>Lightshow
-				<Halp>Lightshows are a rather advanced technique when the host (not the Dobrynya itself)
-					drives LEDs of the device for various effects. If you are interested, google
+				<Halp><p>Lightshows are a rather advanced technique when the host (not the Dobrynya itself)
+					drives LEDs of the device for various complex effects.</p>
+					<p>If you are interested, google
 					“lightshow launchpad” to know more. If you just want some fun colourful effects,
-					check out “Bursts” on the patch settings page.</Halp> 
+					check out “Bursts” on the patch settings page.</p></Halp> 
 				
 			</legend>
 			<div class="ce-block">

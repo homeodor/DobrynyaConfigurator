@@ -8,6 +8,14 @@ interface OpenSourceData
 
 const opensource: OpenSourceData[] = [
 	{
+		name: "Studio apartment HDRI",
+		url: "https://hdrmaps.com/studio-apartment/",
+		license: "CC-BY",
+		more: "Used as an HDRI to light the tuning fork on the app icon :)",
+		copyright: "Grzegorz Wronkowski",
+		licenseOpen: false,
+	},
+	{
 		name: "Arduino Core for SAMD21 and SAMD51 CPU",
 		license: "LGPL 2.1",
 		github: "adafruit/ArduinoCore-samd",
@@ -165,6 +173,22 @@ const opensource: OpenSourceData[] = [
 		<p>© {lib.copyright}. Licensed under <span class="unreal" on:click="{()=>lib.licenseOpen = !lib.licenseOpen}">{lib.license}</span> license.</p>
 	
 		{#if lib.licenseOpen}
+		{#if lib.license == "CC-BY"}
+		<div id="mit-license-src" class="info-freelibs-license">The MIT License (MIT)
+			You are free to:
+			
+				Share — copy and redistribute the material in any medium or format
+				Adapt — remix, transform, and build upon the material
+				for any purpose, even commercially.
+			
+			The licensor cannot revoke these freedoms as long as you follow the license terms.
+			
+			Under the following terms:
+			
+			Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+			
+			No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.</div>
+		{/if}
 		{#if lib.license == "MIT"}
 		<div id="mit-license-src" class="info-freelibs-license">The MIT License (MIT)
 			

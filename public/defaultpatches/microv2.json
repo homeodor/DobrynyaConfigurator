@@ -1,0 +1,839 @@
+{
+  "info": {
+	"device": 33,
+	"desc": "The Ultimate Fingerdrumming Experience",
+	"pattern": [
+	  0,
+	  0,
+	  0,
+	  0,
+	  0,
+	  33023,
+	  33023,
+	  0,
+	  0,
+	  33023,
+	  33023,
+	  0,
+	  0,
+	  0,
+	  0,
+	  0
+	]
+  },
+  "encoders": [
+	{
+	  "encmode": 0,
+	  "midi": {
+		"cc": 104
+	  }
+	},
+	{
+	  "encmode": 0,
+	  "midi": {
+		"cc": 105
+	  }
+	},
+	{
+	  "encmode": 0,
+	  "midi": {
+		"cc": 106
+	  }
+	}
+  ],
+  "padbanks": [
+	[
+	  {
+		"bank": {
+		  "colour": [
+			33012,
+			207
+		  ],
+		  "midi": {
+			"cc": 12,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 36
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 37
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 38
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 39
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 40
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 41
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 42
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 43
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 44
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 45
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 46
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 47
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 48
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 49
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 50
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 51
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			41204,
+			8399
+		  ],
+		  "midi": {
+			"cc": 13,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 52
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 53
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 54
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 55
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 56
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 57
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 58
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 59
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 60
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 61
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 62
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 63
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 64
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 65
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 66
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 67
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			24820,
+			57551
+		  ],
+		  "midi": {
+			"cc": 14,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 68
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 69
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 70
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 71
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 72
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 73
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 74
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 75
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 76
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 77
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 78
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 79
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 80
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 81
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 82
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 83
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			4340,
+			37071
+		  ],
+		  "midi": {
+			"cc": 15,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 84
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 85
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 86
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 87
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 88
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 89
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 90
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 91
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 92
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 93
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 94
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 95
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 96
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 97
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 98
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 99
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			57588,
+			24783
+		  ],
+		  "midi": {
+			"cc": 10,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 0
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 1
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 2
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 3
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 4
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 5
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 6
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 7
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 8
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 9
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 10
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 11
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 12
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 13
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 14
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 15
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			49396,
+			16591
+		  ],
+		  "midi": {
+			"cc": 11,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 20
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 21
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 22
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 23
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 24
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 25
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 26
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 27
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 28
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 29
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 30
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 31
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 32
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 33
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 34
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 35
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			6644,
+			41167
+		  ],
+		  "midi": {
+			"cc": 13,
+			"max": 127
+		  }
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "note": 100
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 101
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 102
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 103
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 104
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 105
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 106
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 107
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 108
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 109
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 110
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 111
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 112
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 113
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 114
+			}
+		  },
+		  {
+			"midi": {
+			  "note": 115
+			}
+		  }
+		]
+	  },
+	  {
+		"bank": {
+		  "colour": [
+			16628,
+			49359
+		  ]
+		},
+		"pads": [
+		  {
+			"midi": {
+			  "cc": 16,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 17,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 18,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 19,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 20,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 21,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 22,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 23,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 24,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 25,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 26,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 27,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 28,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 29,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 30,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  },
+		  {
+			"midi": {
+			  "cc": 31,
+			  "par": 1,
+			  "min": 0,
+			  "max": 127
+			}
+		  }
+		]
+	  }
+	]
+  ],
+  "settings": {
+	"burst": 4194052
+  }
+}

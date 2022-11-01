@@ -21,14 +21,16 @@
 	import Halp from './widgets/Halp.svelte';
 	import RenameInline from './widgets/RenameInline.svelte';
 	import Confirm from './widgets/Confirm.svelte';
-	
-	import { sortPatchList, patchAsFileFromData, NameFailsBecause, checkIfPatchNameIsValid, getPatch } from './data_utils';
+		
+	import { NameFailsBecause, checkIfPatchNameIsValid, nbsp, getNewPatchName } from './editor'
+	import { sortPatchList, patchAsFileFromData, getPatch } from './data_utils';
 	import { hexToCSS } from './colour_utils'
 	import { sysExDiskMode, sysExBootloader } from './midi'
 	import type { PatchInfoItem } from './types_patch'
+	import type { StatusResult } from './types'
 
 	export let patchesInfo: PatchInfoItem[];
-	export let patchesInfoHasBeenLoaded; // maybe indicate it is still loading smh?
+	export let patchesInfoHasBeenLoaded: boolean; // maybe indicate it is still loading smh?
 	export let editor: SectionEditor;
 	export let changeSection: Function;
 	export let device: StatusResult;
@@ -80,7 +82,7 @@
 			result  !== NameFailsBecause.Nothing
 		) return ohJustFail();
 		
-		let newValue = `${event.detail.value.replace(" "," ").trim()}.dbrpatch`;
+		let newValue = `${event.detail.value.replace(nbsp," ").trim()}.dbrpatch`;
 		
 		try
 		{
@@ -110,20 +112,28 @@
 		if (!(isThePatch && (editor.getIsSaved() || await confirmDialog.confirm())))
 			return { patchData: await getPatchData(name), isCurrent: false };
 		else
-			return { patchData: editor.getCurrentPatch(), isCurrent: true };
+			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
 	}
 	
 	async function duplicate(name: string, isThePatch: boolean)
 	{
-		
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDuplicateOfCurrent);
 		
-		editor.newPatch(false, false, async (patchInfo: PatchInfoItem)=>{
-			justUploadedName = patchInfo.name;
-			setTimeout(()=>justUploadedName="", 3500);
-			await tick();
-			patchList.querySelector(".uploaded-patch")?.scrollIntoView({block: "center", behavior: "smooth"});
-		}, patchData);
+		console.log("PATCH DATA!!!", patchData);
+		
+		editor.newPatch(
+			false,								// not a clean slate
+			getNewPatchName(patchesInfo, name), // get a name + Copy n
+			false, 								// do not load afterwards
+			async (patchInfo: PatchInfoItem)=>	// fix UI
+			{
+				justUploadedName = patchInfo.name;
+				setTimeout(()=>justUploadedName="", 3500);
+				await tick();
+				patchList.querySelector(".uploaded-patch")?.scrollIntoView({block: "center", behavior: "smooth"});
+			},
+			patchData							// well, patch data
+		);
 		// if it is the current patch and it either had no changes,
 		// or the user decides to push all changes to the duplicate,
 		// we just get the editor data and write them to Dobrynya
@@ -132,6 +142,8 @@
 	async function download(name: string, isThePatch: boolean, isJson: boolean)
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDownloadOfCurrent);
+		
+		if (patchData === null && isThePatch) patchData = editor.getCurrentPatch();
 		
 		let downloadAction = async ()=>
 		{
@@ -143,23 +155,21 @@
 		};
 		
 		getPatch(patchData, device.model, downloadAction);
-			
 	}
 	
 	let confirmDeletePatch: Confirm;
 	let fileToBeDeleted = "";
 	
-	async function deletePatch(name: string, isThePatch: boolean, element: HTMLButtonElement)
+	async function deletePatch(name: string, isThePatch: boolean, element: EventTarget)
 	{
 		fileToBeDeleted = name;
 		await tick();
-		console.log();
 		if (!await confirmDeletePatch.confirm()) { fileToBeDeleted = ""; return false; }
 		
 			// setTimeout(()=>{ patchEl.innerHTML = ""; }, 200);
 		await sysExFilenameAndDo(SysExCommand.DELETEPATCH, name, ()=>
 		{
-			let patchEl = element.closest(".patchlist-item");
+			let patchEl = (element as HTMLButtonElement).closest(".patchlist-item");
 			let patchH = patchEl.getBoundingClientRect().height;
 			(patchEl as HTMLElement).style.setProperty('--computed-height', `${patchH}px`);
 			patchEl.classList.add("deleted-patch");
@@ -171,7 +181,8 @@
 			
 			if (isThePatch)
 			{
-				editor.selectPatch(patchesInfo[0].name, true); // quietly load the patch if we deleted the current
+				editor.markSaved(); // the patch is gone, so whatever
+				editor.selectPatch(patchesInfo.find(v=>{return v.name!=name}).name, true); // quietly load the patch if we deleted the current, making sure IT IS NOT THE CURRENT
 			}
 		});
 		
@@ -258,7 +269,8 @@
 			</div>
   		</div>
   		<div>
-			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
+			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>
+			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
 			{#if patch.info.device != device.modelID}
 				<div class="warn">{getThisDobrynyaModel(patch.info.device)} </div>
 			{/if}
@@ -267,7 +279,7 @@
 			<button disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch, true)}"><img alt="Tune" src="{iconTune}" ></button>
 			<button disabled={!isOnline} on:click="{()=>duplicate(patch.name, patch.isThePatch)}"><img alt="Duplicate" src="{iconDuplicate}" /></button>
 			<button disabled={!isOnline} on:click="{(ev)=>download(patch.name, patch.isThePatch, ev.altKey)}"><img alt="Download" src="{iconDownload}" /></button>
-			<button disabled={!isOnline} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
+			<button disabled={!isOnline || patchesInfo.length <= 1} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
   		</div>
 		</div>
 	{/if}

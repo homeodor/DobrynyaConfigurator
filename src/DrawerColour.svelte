@@ -6,7 +6,8 @@
 	import { patchChanged } from './events'
 	import { getIconURL, getIconCSS } from './icons'
 	import { ColourPaintLayer, colourOff, hexToCSS, randomPattern } from './colour_utils'
-	import { createObjectIfAbsent, createPadsIfAbsent, numberOfPads, isSame } from './data_utils';
+	import { createObjectIfAbsent, createPadsIfAbsent, numberOfPads } from './data_utils';
+	import { isSame } from './basic'
 	import { expandSetSanize } from './data_expandsanize'
 	
 	import { Control } from './types';
@@ -26,7 +27,7 @@
 	import CTCopy from './colourtools/Copy.svelte'
 	// import CTExplicit from './colourtools/Explicit.svelte'
 	
-	export let paintData = null;
+	export let paintData: InvokeControlEventData = null;
 
 	export let bank: BranchBank;
 	export let pattern: number[];
@@ -326,6 +327,8 @@
 	
 	$:
 	{
+		console.warn("Colour paint is updated");
+		
 		if (openCtModal != openCtModalPrev && openCtModal != "notacc")
 		{
 			ctDialogs[openCtModal].start();
@@ -338,6 +341,8 @@
 			bucketCSS = [ hexToCSS(hex), hexToCSS(hex) ];
 		}
 		
+		ctData.bank = bank;
+		ctData.pattern = pattern;
 		ctData.layer = colourPaintMode;
 		
 		isPattern = colourPaintMode === ColourPaintLayer.Pattern;
@@ -363,6 +368,12 @@
 <Confirm bind:this={confirmHexOff}>
 	<p>This will turn off the bank {colourPaintModeBankName} colour.</p>
 </Confirm>
+
+{#if bank}
+	<div style="display:none">I don’t know how to fix this, but Svelte does not update BANK for this drawer,
+		so I believe something in the DOM must be dependent on this variable?
+	</div>
+{/if}
 
 <div class="drawer" id="dw-colourpaint">
 	<GotIt cookieName="colourworks">

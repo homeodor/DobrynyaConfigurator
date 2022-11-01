@@ -3,6 +3,7 @@
 	import * as BSON from 'bson'
 	
 	import { openPatternEditor } from './events'
+	import type { InvokeControlEventData } from './events'
 	import { createPadsIfAbsent } from './data_utils'
  	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
@@ -26,11 +27,13 @@
 	import GotIt from './widgets/GotIt.svelte'
 	
 	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, deepClone, getPatch, sortPatchList, fixAndExpandPatch, isSame, createObjectIfAbsent } from './data_utils'
+	import { NameFailsBecause, checkIfPatchNameIsValid, extensionLength, getNewPatchName } from './editor';
+	import { deepClone, isSame } from './basic';
+	import { getPatch, sortPatchList, fixAndExpandPatch } from './data_utils'
 	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
-	import type { BranchBank, Patch, PatchInfoItem } from './types_patch'
+	import type { Patch, PatchInfoItem } from './types_patch'
 	import { ColourPaintLayer, randomPattern, hexToCSS } from './colour_utils'
 	import { CaseColour } from './device';
 	
@@ -42,17 +45,16 @@
 	export let device: StatusResult;
 	export let isOnline: boolean;
 	export function getIsSaved(): boolean { return isSaved }
-	export function getCurrentPatch(): Patch { return currentPatch };
 	export function setCurrentPatchName(v: string) { currentPatchValue = currentPatchName = v; console.log("Current patch name set to ", currentPatchName) }
 	
 	let isSaved: boolean = true;
 	
 	let currentPatch: Patch;
+	export function getCurrentPatch() { return currentPatch; }
 	let currentPatchOriginalState: Patch;
 	let currentPatchName: string;
 	let currentHand: Hand = Hand.LEFT;
 	let currentBank: number = 0;
-	let currentBankObject: BranchBank;
 
 	let numberOfActiveBanks = 0;
 
@@ -64,6 +66,8 @@
 	let newPatchNameIsValid: NameFailsBecause = NameFailsBecause.Empty;
 	let newPatchName = "";
 	let useCleanSlate = "no";
+	let useCleanSlatePrev = "no";
+	let nameHasBeenChanged = false;
 	
 	let dispatch = createEventDispatcher();
 	
@@ -72,13 +76,13 @@
 	let colourPaintDrawer: DrawerColour;
 	let colourPaintMode: ColourPaintLayer = ColourPaintLayer.Off;
 	let colourPaintShowBank: boolean = true;
-	let paintData;
+	let paintData: InvokeControlEventData;
 
 	const drawers = 
 	[
 		{ id: 'banktemplates', 	title: "Bank templates" },
-		{ id: 'colourpaint', 	title: "Colour paint" },
 		{ id: 'banksettings', 	title: "Bank settings" },					
+		{ id: 'colourpaint', 	title: "Colour paint" },
 		{ id: 'patchsettings', 	title: "Patch settings" },
 	];
 	
@@ -108,7 +112,6 @@
 	};
 	
 	let confirmDiscard: Confirm;
-	let confirmEmptyPatch: Confirm;
 	
 	let patchSelector: HTMLSelectElement;
 	
@@ -159,7 +162,7 @@
 		newInterfaceOpen = force ? true : !newInterfaceOpen;
 	}
 	
-	async function uploadThePatchAction(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
+	async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
 	{
 		// currentPatch = sanizePatch(currentPatch, device.model);
 		getPatch(patchData, device.model, async ()=>
@@ -172,7 +175,7 @@
 	
 	function uploadThePatch()
 	{
-		uploadThePatchAction(
+		patchToDevice(
 			SysExCommand.OVERWRITEPATCH,
 			currentPatchName,
 			() => //(data: any, filename: string) =>
@@ -185,17 +188,13 @@
 	}
 
 	export async function newPatch(
-		cleanSlate: boolean, // use an empty template for patch, or the current data?
-		loadPatchAfter: boolean = true,					// load the patch afterwards?
-		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedbank on success
-		patchData: Patch | null = currentPatch,				// the patch data. Defaults to currentPatch
+		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
+		uploadPatchName: string, 								// the filename
+		loadPatchAfter: boolean = true,							// load the patch afterwards?
+		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedback on success
+		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
 	)
 	{
-		if (patchData === null)
-		{
-			patchData = currentPatch;
-		}
-		
 		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
 			return;
 		
@@ -203,9 +202,14 @@
 		{
 			patchData = deepClone(patchTemplates[device.model.code]);
 			createPadsIfAbsent(patchData.padbanks[0][0]);
+		} else {
+			if (patchData === null)
+			{
+				patchData = deepClone(currentPatch);
+			}
 		}
 		
-		let uploadPatchName = newPatchName + ".dbrpatch";
+		uploadPatchName += ".dbrpatch";
 		randomPattern(patchData.info.pattern);
 		
 		let sysExCommand: SysExCommand = SysExCommand.WRITEPATCH;
@@ -230,27 +234,20 @@
 			patchesInfo = patchesInfo;			
 		}
 		
-		uploadThePatchAction(sysExCommand, uploadPatchName, handler, patchData);
+		patchToDevice(sysExCommand, uploadPatchName, handler, patchData);
 	}
 	
 	function checkIfNewPatchNameIsValid(ev: any)
 	{
+		nameHasBeenChanged = true;
 		newPatchNameIsValid = checkIfPatchNameIsValid(ev.currentTarget.value.trim(), patchesInfo);
 	}
 	
-	function getNewPatchName()
+	async function updateNewPatchName()
 	{
-		if (patchesInfo === undefined || currentPatchName === undefined || !patchesInfo.length) return; // come later
-		
-		let i: number = 1;
-		let suggestedPatchName: string;
-			
-		do
-		{
-			suggestedPatchName = `New ${i++}`
-		} while (patchesInfo.find(v => {return v.name === `${suggestedPatchName}.dbrpatch`}))
-		
-		return suggestedPatchName;
+		if (nameHasBeenChanged) return;
+		newPatchName = getNewPatchName(patchesInfo, useCleanSlate === "no" ? currentPatchName : null);
+		nameHasBeenChanged = false;
 	}
 	
 	let editorAlive = false;
@@ -303,8 +300,6 @@
 	
 	async function openEditor(element: HTMLElement, kind: Control, i: number)
 	{
-		let keyIsScale = false; // CHANGE THIS
-		
 		controlEditor?.sanizeNow();
 		
 		editorData = true;// = true;
@@ -357,12 +352,8 @@
 	let globalChannel:  DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 	let globalVelocity: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 	
-	
-	
 	$:
-	{
-		currentBankObject = currentPatch?.padbanks?.[currentHand][currentBank];
-		
+	{		
 		numberOfActiveBanks = 0;
 
 		if (currentPatch)
@@ -375,16 +366,23 @@
 		
 		if (patchesInfo && currentPatch) patchesInfo.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.info);
 		
-		if (!newInterfaceOpen) newPatchName = getNewPatchName();
+		if (
+			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
+			useCleanSlate != useCleanSlatePrev // if the user changed the useCleanSlate param
+		)
+		{
+			updateNewPatchName();
+			useCleanSlatePrev = useCleanSlate;
+		}
 		
 		currentPatchValue = currentPatchName;
 		
 		if (currentPatch)
 		{
 //			deviceLevelVelocity
-			if (currentBankObject?.bank?.vel !== undefined)
+			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.vel !== undefined)
 			{
-				globalVelocity.value = currentBankObject.bank.vel;
+				globalVelocity.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.vel;
 				globalVelocity.isDeviceLevel = false;
 			} else {
 				globalVelocity.value = deviceLevelVelocity;
@@ -392,9 +390,9 @@
 			}
 
 			
-			if (currentBankObject?.bank?.ch !== undefined && currentBankObject.bank.ch !== -1)
+			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.ch !== undefined && currentPatch?.padbanks?.[currentHand][currentBank].bank.ch !== -1)
 			{
-				globalChannel.value = currentBankObject.bank.ch;
+				globalChannel.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.ch;
 				globalChannel.isDeviceLevel = false;
 			} else {
 				globalChannel.value = deviceLevelChannel;
@@ -429,7 +427,7 @@
 		checkPatchEqualTimeout = null;
 	}
 	
-	function markSaved()
+	export function markSaved()
 	{
 		isSaved = true;
 		sysExLockPatchSwitching(false);
@@ -455,7 +453,7 @@
 		if (drawer == "colourpaint") closeEditor(); // if the selected drawer is colourpaint, close the editor	
 	}
 	
-	function ondrawer(ev) { setDrawer(ev.detail.drawer); }
+	function ondrawer(ev: CustomEvent) { setDrawer(ev.detail.drawer); }
 	
 	//@ts-ignore
 //	window.ms = markSaved;
@@ -533,7 +531,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			</p>
 			
 			<p>
-				<button on:click="{()=>{newPatch(useCleanSlate == 'yes')}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
+				<button on:click="{()=>{newPatch(useCleanSlate == 'yes', newPatchName)}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
 				<button on:click="{()=>{newInterfaceOpen = false}}">Close</button>
 			</p>
 			
@@ -576,13 +574,13 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPatch {currentPatch} {currentPatchName} model={device.model} /></div>
 		{/if}
 		{#if drawer == "banksettings"}
-			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentBankObject} {deviceLevelChannel} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {deviceLevelChannel} /></div>
 		{/if}
 		{#if drawer == "colourpaint"}
-			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentBankObject} bind:pattern={currentPatch.info.pattern} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
 		{/if}
 		{#if drawer == "banktemplates"}
-			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentBankObject} {numberOfActiveBanks} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {numberOfActiveBanks} /></div>
 		{/if}
 		
 		
@@ -599,7 +597,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{/if}
 	</div>
 
-	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
+	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:gray={importantFactorySettings.caseColour == CaseColour.Gray} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.encoders} />
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.encoders} />
@@ -607,12 +605,12 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.encoders}  />{/if}
 		</div>
 	
-		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentBankObject} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
+		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch?.padbanks?.[currentHand][currentBank]} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
 
 		{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 
-		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentBankObject.bank?.colour} scaleIsOn={currentKeyInfoToKey(currentBankObject) !== false} />
+		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.padbanks?.[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
 	</div>
@@ -620,10 +618,6 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 {/if} <!-- if openSection == editor -->
 <Confirm bind:this={confirmDiscard} okText="Discard">
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
-</Confirm>
-<Confirm bind:this={confirmEmptyPatch} okText="Upload">
-	<p>Your patch has no filled banks. Do you still want to upload it?</p>
-	<p>The device doesn’t open empty banks, as empty banks are considered to be “off”.</p>
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
 	<p>You have unsaved changes. Patch switching is locked on the device.</p>

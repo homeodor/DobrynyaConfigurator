@@ -1,4 +1,4 @@
-import { deepClone } from "./data_utils";
+import { deepClone } from "./basic";
 
 export interface VersionDataShort
 {
@@ -21,6 +21,7 @@ export enum CaseColour
 {
 	Light,
 	Dark,
+	Gray,
 };
 
 const minimumFirmware: VersionDataShort =
@@ -86,7 +87,7 @@ import type { StatusResult } from "./types";
 export function defaultStatusResult(isC: boolean = false): StatusResult
 {
 	return { isCorrect: isC, class: 0, modelNumber: 0, modelID: 0, variant: 0, revision: 0, serialID: 0, deviceID: "", serial: "", version: "", model: {name:'',code:''}, has:{
-		imu: false, battery: false, ble: false, proximity: false, haptic: false, pianoroll: false, decolight: false
+		imu: false, battery: false, ble: false, proximity: false, haptic: false, pianoroll: false, decolight: false, sidestick: false,
 	} };
 }
 

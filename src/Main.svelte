@@ -6,10 +6,10 @@
 	import * as BSON from 'bson'
 	
 	import type { StatusResult } from './types'
-	import { defaultStatusResult, getFullModelCode, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
+	import { defaultStatusResult, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
 	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
-	import { fixSettings, getSettingsFromDevice, settings, getFactorySettings } from './settings_utils'
+	import { fixSettings, getSettingsFromDevice, getFactorySettings } from './settings_utils'
 	import { WaitingBlock } from './waitingblock'
 	
 	import GotIt from './widgets/GotIt.svelte';
@@ -38,9 +38,6 @@
 	let patchesInfo: PatchInfoItem[];
 	
 	let alertNoPatches: Confirm;
-	
-	// @ts-ignore
-	let hasHid = navigator !== undefined;
 	
 	function romanize (num: number)
 	{
@@ -198,12 +195,6 @@
 		if (!sectionSwitchingAllowed && !(typeof ev === "string" && ev === "firmware")) return;
 		openSection = (typeof ev === "string") ? ev : ev.detail.section;
 	}
-
-	function goToFirmware()
-	{
-//		if (isOnline && isConnected) sysExBootloader();
-		openSection = "firmware";
-	}
 	
 	console.log({data: openSection});
 	
@@ -227,7 +218,7 @@
 <GotIt cookieName="beta">This is a beta version of both the Configutator and the device firmware. It may still have some rough edges! Your feedback is much appreciated, too, so if you have anything to say, please contact us. ❤️</GotIt>
 	
 <main>
-	{#if openSection==""}
+	{#if openSection=="" && device.isCorrect}
 	<section id="tab-nodevice">
 		<h1>Please connect a (single) MIDI Dobrynya.</h1>
 	</section>

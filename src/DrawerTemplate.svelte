@@ -5,7 +5,8 @@
 	
 	import { patchChanged, drawer } from './events';
 	import type { BranchBank } from './types_patch';		
-	import { numberOfPads, fillWithTemplate } from './data_utils'
+	import { numberOfPads } from './data_utils'
+	import { fillWithTemplate } from './editor';
 	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from './midi_utils'
 
 	export let currentBank: BranchBank;

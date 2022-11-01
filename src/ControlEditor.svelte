@@ -9,7 +9,8 @@
 	import { Hand, Control, EncoderBehaviour } from './types'
 	import type { DeviceOrBankValue } from './types'
 	import type { Patch, BranchControl } from './types_patch'
-	import { createPadsIfAbsent, deepClone } from './data_utils'
+	import { deepClone } from './basic'
+	import { createPadsIfAbsent } from './data_utils';
 	import { ExpanderSanizer, expandData, sanizeData } from './data_expandsanize';
 	
 	import { patchChanged, quickCustom } from './events';
@@ -156,11 +157,11 @@
 		keyboardEditor.update();
 	}
 
-	async function setDefaultMinMaxAfterTick()
-	{
-		await tick();
-		midiControlEditor?.setDefaultMinMax();
-	}
+	// async function setDefaultMinMaxAfterTick()
+	// {
+	// 	await tick();
+	// 	midiControlEditor?.setDefaultMinMax();
+	// }
 
 	function openBankSettings() { quickCustom("drawer", {drawer:'banksettings'}); }
 	

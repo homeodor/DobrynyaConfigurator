@@ -2,7 +2,6 @@ import { WaitingBlock } from './waitingblock'
 import { sysExAndDo } from './midi';
 import { CaseColour } from './device'
 import { eightToSeven, SysExCommand } from './midi_utils';
-import { persistentSettings } from './stores';
 
 import type ButtonUpload from './widgets/ButtonUpload.svelte'
 

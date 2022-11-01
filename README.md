@@ -18,7 +18,7 @@ This project, as well as the Dobrynya itself, is more of a hobby for me than a f
 
 Absolutely no training wheels are provided. You’ll have to know how to install Node and other scary things. This project requires some familiarity with modern JS, Svelte et cetera. Learn your stuff, DYOR, RTFM, examine [Svelte.dev](https://svelte.dev), watch [YouTube](https://www.youtube.com/watch?v=rv3Yq-B8qp4), read [StackOverflow](https://stackoverflow.com/questions/9751207/how-can-i-use-goto-in-javascript) – this is what I did, and here we are. If everything fails, [contact me](https://shurik.uk)!
 
-Also, I don’t consider myself a pro JavaScript/TypeScript/Svelte/CSS programmer. This means that though I am trying hard to make the code as good as possible, some things may have been done in an outrageously stupid and/or outdated manner, and numerous quirks may exist. I’ve started learning Svelte and TS in early June 2022, and in late June 2022 I’m writing this Readme with the configurator mostly ready. Have mercy!
+Also, I don’t consider myself a pro JavaScript/TypeScript/Svelte/CSS programmer. This means that though I am trying hard to make the code as good as possible, some things may have been done in an outrageously stupid and/or outdated manner, and numerous quirks may exist. I’ve started learning Svelte and TS in early June 2022, and in late June 2022 I’m writing this Readme with the configurator mostly done. Have mercy!
 
 The CSS also needs a cleanup (and probably a transition to SCSS).
 
@@ -26,7 +26,7 @@ The CSS also needs a cleanup (and probably a transition to SCSS).
 
 This repo is available for people who want to
 
- - **Develop a WEB MIDI project.** This configurator uses an elaborate system of System Exclusive (SysEx) MIDI messages to communicate with the device, and the request-respond is designed to be an asynchronous routine, kinda similar to how AJAX is handled this days, *async/await* and all. It’s not like there are tons of good code on the web!
+ - **Develop a Web MIDI project.** This configurator uses an elaborate system of System Exclusive (SysEx) MIDI messages to communicate with the device, and the request-respond is designed to be an asynchronous routine, kinda similar to how AJAX is handled these days, *async/await* and all. It’s not like there are tons of good code on the web!
 - **Learn how Dobrynya communication works.** All of the configurable MIDI controllers/instruments I know of use SysEx to talk to their host. Ever wanted to build your own MIDI device with complex SysEx? Maybe this code could be of help!
 - **Do really custom stuff with your Dobrynya.** You can totally examine the code, find some dirty secrets of the communication with Dobrynya and possibly use it to create your own custom apps and setups, such as in Cycling74’s Max. Care to automatically change your banks/patches on a certain event? It is totally possible.
 - **Check out Web HID, specifically a HF2 protocol.** There are barely ANY examples of the Microsoft’s [HF2](https://github.com/microsoft/uf2/blob/master/hf2.md) firmware upload protocol. Now there are.
@@ -242,8 +242,8 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x61```|```REBOOT_MSC```         | Reboots the device into disk moe |
 |```0x62```|```REBOOT_BOOT```        | Reboots the device into bootloader |
 |```0x63```|```WRITEFIRMWARE```      | Reserved |
-|```0x64```|```FULLRESET```          | Formats the internal drive. Needs to be sent three times to work. |
-|```0x65```|```ERASE_FLASH```        | Erases flash memory altogether. Needs to be sent three times to work. You don’t want to do this, trust me. |
+|```0x64```|```FORMATDISK```         | Formats the internal drive. Needs to be sent three times to work. |
+|```0x65```|```ERASEFLASH```         | Erases flash memory altogether. Needs to be sent three times to work. You don’t want to do this, trust me. |
 |```0x66```|```REBOOT_ESP32```       | Reserved |
 
 ### Use MIDI Monitor
