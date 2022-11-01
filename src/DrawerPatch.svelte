@@ -25,8 +25,9 @@
 	const patchSettingsModel: BranchSettings = 
 	{
 		burst: 0,
-		secbankdbl: false,
-		secbankhold: false,
+		encreset: false,
+		subdbl: false,
+		subhold: false,
 		shhold: false,
 		shdblsubbank: 3,
 		desc: "",
@@ -200,6 +201,18 @@
 				to edit it.</p>
 		</fieldset>
 		
+		<fieldset id="dw-patch-patchpattern">
+			<legend>Encoder reset</legend>
+			
+			<div class="ce-block">
+				<label>
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.encreset} />
+				<mark>Press and hold to reset the encoder</mark>
+				</label>
+				<p></p>
+			</div>
+		</fieldset>
+		
 		{#if model.code != "m32" && model.code != "l32" && model.code != "m32sharp"}
 		<fieldset id="dw-patch-subbanks">
 			<legend>Sub-banks
@@ -233,7 +246,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.secbankhold} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subhold} />
 				<mark>Hold to show a sub-bank</mark>
 				</label>
 				<p></p>
@@ -241,7 +254,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.secbankdbl} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subdbl} />
 				<mark>Double-press to open a sub-bank</mark>
 				</label>
 			</div>

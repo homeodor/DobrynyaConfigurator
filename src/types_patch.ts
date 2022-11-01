@@ -50,8 +50,9 @@ export interface BranchInfo
 export interface BranchSettings
 {
 	burst: number,
-	secbankdbl: boolean,
-	secbankhold: boolean,
+	encreset: boolean,
+	subdbl: boolean,
+	subhold: boolean,
 	shhold: boolean,
 	shdblsubbank: number,
 	desc: string,

@@ -268,6 +268,18 @@ export function fixAndExpandPatch(currentPatch: any, model: Model)
 	
 // fixing legacy stuff...
 
+	if ("secbankhold" in currentPatch.settings)
+	{
+		currentPatch.settings.subhold = currentPatch.settings.secbankhold;
+		delete currentPatch.settings.secbankhold;
+	}
+	
+	if ("secbankdbl" in currentPatch.settings)
+	{
+		currentPatch.settings.subdbl = currentPatch.settings.secbankdbl;
+		delete currentPatch.settings.secbankdbl;
+	}
+
 	interface BranchControlWithComboInMidi extends BranchControl { midi: any }
 	
 	currentPatch?.encoders?.forEach((theEncoder: BranchControlWithComboInMidi) =>
