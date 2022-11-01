@@ -24,6 +24,7 @@ electron/dist
 *.njsproj
 *.sln
 *.sw?
+.nova/Publishing/*
 
 # stuff?
 stuff
