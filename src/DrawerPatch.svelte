@@ -189,19 +189,34 @@
 				to edit it.</p>
 		</fieldset>
 		
+		{#if model.code != "prov2" && model.code != "promv2" && model.code != "promsharp" } <!-- Pro V2 has this setting in another block -->
 		<fieldset id="dw-patch-patchpattern">
 			<legend>Encoder reset</legend>
 			
 			<div class="ce-block">
 				<label>
 				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.encreset} />
-				<mark>Press and hold to reset the encoder</mark>
+				<mark>Long press resets encoders
+					<Halp>
+						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
+					</Halp>
+				</mark>
 				</label>
-				<p></p>
+				{#if currentPatch.settings.shdblsubbank}
+				<p class="warn">Access to sub-bank 4 while holding down Shift is enabled, too. If you press any pads in 3 seconds after
+					you press down Shift, the encoder will not be reset.</p>
+				{:else if currentPatch.settings.subhold}
+				<p class="warn">Access to sub-banks while holding down encoders 1, 2 and 3 is enabled. If you press any pads in 3 seconds after
+					you press these encoders, the encoders will not be reset.</p>
+				{:else if currentPatch.settings.shdblsubbank && currentPatch.settings.subhold}
+				<p class="warn">Access to sub-banks while holding down encoders is enabled. If you press any pads in 3 seconds after
+					you press encoders, the encoders will not be reset.</p>
+				{/if}
 			</div>
 		</fieldset>
+		{/if}
 		
-		{#if model.code != "m32" && model.code != "l32" && model.code != "m32sharp"}
+		{#if model.code != "m32" && model.code != "l32" && model.code != "m32sharp" && model.code != "prov2" && model.code != "promv2" && model.code != "promsharp" }
 		<fieldset id="dw-patch-subbanks">
 			<legend>Sub-banks
 				<Halp>Normally, sub-banks are accessed by pressing Shift and a corresponding encoder, or, for sub-bank 4, double-pressing
@@ -215,6 +230,9 @@
 				<mark> Hold Shift to show sub-bank 4</mark>
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</label>
+				{#if currentPatch.settings.encreset}
+				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
+				{/if}
 			</div>
 			
 			{#if model.code == "microv2" || model.code == "microsharp"}
@@ -237,7 +255,9 @@
 				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subhold} />
 				<mark>Hold to show a sub-bank</mark>
 				</label>
-				<p></p>
+				{#if currentPatch.settings.encreset}
+				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
+				{/if}
 			</div>
 			
 			<div class="ce-block">
@@ -250,6 +270,42 @@
 	
 		</fieldset>
 		{/if} <!-- model isnt 32 -->
+		
+		{#if model.code == "prov2" || model.code == "promv2" || model.code == "promsharp" }
+		<fieldset id="dw-patch-subbanks">
+			<legend>Encoders</legend>
+			
+			<div class="ce-block">
+				<label>
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.encreset} />
+				<mark>Long press resets encoders
+					<Halp>
+						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
+					</Halp>
+				</mark>
+				</label>
+			</div>
+			
+			<div class="ce-block">
+				<label>
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subhold} />
+				<mark>Hold to show a sub-bank
+					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
+				</mark>
+				</label>
+				<p></p>
+			</div>
+			
+			<p class="explain">Sub-banks are accessed by double-pressing encoders.</p>
+			
+			{#if currentPatch.settings.encreset && currentPatch.settings.subhold}
+			<p class="warn">You may not want to enable both of these settings at the same time, as they both rely on 
+				pressing and hold encoders. If you do, note that if you press any pads in 3 seconds after
+				you press encoders, the encoders will not be reset.</p>
+			{/if}
+		
+		</fieldset>
+		{/if} <!-- model is prov2 -->
 		
 		<fieldset>
 			<legend>Description

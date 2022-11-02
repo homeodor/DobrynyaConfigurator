@@ -156,7 +156,7 @@ export function fixAndExpandPatch(currentPatch: any, model: Model)
 	createObjectIfAbsent(currentPatch.info, "pattern", getEmptyPadDataArray().forEach((_: any, k: number, a: Pattern)=>a[k]=0)); // add pattern array if it is not present, filled with zeroes
 	createObjectIfAbsent(currentPatch, "settings");
 	
-	for (let fixDevicePresence of [ 'encoders', 'faders', 'pots' ])
+	for (let fixDevicePresence of [ 'encoders', 'faders', 'pots', 'auxbuttons' ])
 	{
 		if (model[fixDevicePresence])
 		{

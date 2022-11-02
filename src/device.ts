@@ -59,6 +59,7 @@ export interface Model
 	encoders?: number,
 	faders?: number,
 	pots?: number,
+	auxbuttons?: number,
 	hasJoysitck?: true,
 };
 
@@ -194,6 +195,7 @@ export const models: Model[][] =
 			encoders: 5,
 			faders: 4,
 			pots: 5,
+			auxbuttons: 5,
 			hasJoysitck: true,
 			chipVaries: false,
 			settingsLength: 112,
@@ -204,6 +206,7 @@ export const models: Model[][] =
 			encoders: 5,
 			faders: 4,
 			pots: 5,
+			auxbuttons: 5,
 			hasJoysitck: true,
 			chipVaries: false,
 			settingsLength: 112,

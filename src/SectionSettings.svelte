@@ -74,6 +74,14 @@
 				<RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.leds.brightness.value} max={255} defValue={112} />
 			</div>
 			
+			{#if device.model.code == "prov2" || device.model.code == "promv2" || device.model.code == "promsharp" }
+			<div class="ce-block">
+				<div class="checkboxblock">
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.leds.flags.flag[0]}> Display encoder value with colour</label><br />
+				</div>
+			</div>
+			{/if}
+			
 			{#if device.has.decolight }
 			<h3>Decorative light</h3>
 			
@@ -216,13 +224,13 @@
 			</div> -->
 		</fieldset>
 		
-		<fieldset id="se-inputs" class="hh cond-has has-haptic">
-			<legend for="se-inputs">Haptic</legend>
+		<fieldset id="se-haptic">
+			<legend for="se-haptic">Haptic</legend>
 			
 			<div class="ce-block">
 				<h4>Events with feedback</h4>
 				<div class="checkboxblock">
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.haptic.events.flag[0]}> Joystick sticky</label><br />
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.haptic.events.flag[0]}> Joystick sticks</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.haptic.events.flag[1]}> Joystick bank change</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.haptic.events.flag[2]}> Encoder range hit</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.haptic.events.flag[3]}> Encoder reset</label>
