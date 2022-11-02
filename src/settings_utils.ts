@@ -109,8 +109,7 @@ function settingsModel(): SettingsObject
 			},
 			flags:
 			{
-				isFlag:true,
-				reserved:true
+				isFlag:true
 			},
 			blinkmode:
 			{},
