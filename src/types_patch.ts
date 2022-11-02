@@ -21,6 +21,13 @@ export interface BranchControl
 	midi?: BranchMidi,
 }
 
+interface PadOrButton
+{
+	colour?: ColourArray,
+	combo?: number,
+	midi?: BranchMidi,
+};
+
 export interface BranchBank
 {
 	bank?: {
@@ -32,11 +39,7 @@ export interface BranchBank
 		lightshow?: number,
 		desc?: string
 	},
-	pads?: {
-		colour?: ColourArray,
-		combo?: number,
-		midi?: BranchMidi
-	}[]
+	pads?: PadOrButton[]
 }
 
 export interface BranchInfo
@@ -75,6 +78,7 @@ export interface Patch
 	pots: BranchControl[],
 	proximity: BranchControl,
 	joystick: BranchJoystickBank[],
+	auxbuttons: PadOrButton[],
 	imu: any, // tbd
 };
 

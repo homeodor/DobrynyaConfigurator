@@ -137,6 +137,7 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 	if ("joystick" in currentPatch) cleanObject.joystick = currentPatch.joystick;
 	if ("faders" in currentPatch) cleanObject.faders = currentPatch.faders;
 	if ("pots" in currentPatch) cleanObject.pots = currentPatch.pots;
+	if ("auxbuttons" in currentPatch) cleanObject.auxbuttons = currentPatch.auxbuttons;
 	if ("proximity" in currentPatch) cleanObject.proximity = currentPatch.proximity;
 	if ("imu" in currentPatch) cleanObject.imu = currentPatch.imu;
 	cleanObject.padbanks = currentPatch.padbanks;
