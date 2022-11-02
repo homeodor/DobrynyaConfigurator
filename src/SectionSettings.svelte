@@ -74,7 +74,7 @@
 				<RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.leds.brightness.value} max={255} defValue={112} />
 			</div>
 			
-			{#if device.model.code == "prov2" || device.model.code == "promv2" || device.model.code == "promsharp" }
+			{#if device.model.code != "prov2" && device.model.code != "promv2" && device.model.code != "promsharp" }
 			<div class="ce-block">
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.leds.flags.flag[0]}> Display encoder value with colour</label><br />
