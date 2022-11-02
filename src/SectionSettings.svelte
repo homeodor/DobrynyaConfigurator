@@ -224,6 +224,7 @@
 			</div> -->
 		</fieldset>
 		
+		{#if device.has.haptic}
 		<fieldset id="se-haptic">
 			<legend for="se-haptic">Haptic</legend>
 			
@@ -260,6 +261,7 @@
 					<option value="16">Channel 16</option>							
 				</select>
 			</div>	
-		</fieldset>	
+		</fieldset>
+		{/if}
 	</div>
 </section>
