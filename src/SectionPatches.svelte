@@ -191,7 +191,7 @@
 	
 	function rebootToDisk(ev: MouseEvent)
 	{
-		if (ev.altKey) sysExBootloader(); else sysExDiskMode();
+		if (ev.altKey) sysExBootloader(!ev.shiftKey); else sysExDiskMode();
 	}
 	
 	function openNewUI()

@@ -56,6 +56,7 @@ export enum SysExCommand
 	REBOOT = 0x60,
 	REBOOT_MSC,
 	REBOOT_BOOT,
+	REBOOT_BOOTMSC,
 };
 
 export enum SysExStatus

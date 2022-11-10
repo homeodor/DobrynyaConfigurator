@@ -7,7 +7,7 @@
 	
 	import type { StatusResult } from './types'
 	import { defaultStatusResult, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
-	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching } from './midi'
+	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching, sysExBootloader } from './midi'
 	import { SysExCommand, SysExStatus } from './midi_utils';
 	import { fixSettings, getSettingsFromDevice, getFactorySettings } from './settings_utils'
 	import { WaitingBlock } from './waitingblock'
@@ -179,8 +179,9 @@
 		loadPatchInfo();
 	}
 	
-	function flipDisconnectNow()
+	function flipDisconnectNow(ev: MouseEvent)
 	{
+		if (ev.altKey) sysExBootloader(!ev.shiftKey);
 		isConnected = flipConnected();
 	}
 	
