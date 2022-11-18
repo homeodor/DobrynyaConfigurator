@@ -184,7 +184,22 @@ function settingsModel(): SettingsObject
 			reserved1:
 			{
 				reserved:true,
-				length:16
+				length:4
+			},
+			timeoutleds:
+			{
+				length:2,
+				reserved: true
+			},
+			timeoutpoweroff:
+			{
+				length:2,
+				reserved: true
+			},
+			reserved2:
+			{
+				reserved:true,
+				length:8
 			}
 		},
 		

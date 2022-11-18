@@ -241,24 +241,24 @@
 			<div class="ce-block">
 				<h4>Control haptic with MIDI input</h4>
 				<select on:input={markSettingsUnsavedNow} bind:value={settings.haptic.channel.value} name="set-haptic-midichannel">
-					<option value="255">Off</option>
-					<option value="0">All channels</option>
-					<option value="1">Channel 1</option>							
-					<option value="2">Channel 2</option>							
-					<option value="3">Channel 3</option>							
-					<option value="4">Channel 4</option>							
-					<option value="5">Channel 5</option>							
-					<option value="6">Channel 6</option>							
-					<option value="7">Channel 7</option>							
-					<option value="8">Channel 8</option>							
-					<option value="9">Channel 9</option>							
-					<option value="10">Channel 10</option>							
-					<option value="11">Channel 11</option>							
-					<option value="12">Channel 12</option>							
-					<option value="13">Channel 13</option>							
-					<option value="14">Channel 14</option>							
-					<option value="15">Channel 15</option>							
-					<option value="16">Channel 16</option>							
+					<option value={255}>Off</option>
+					<option value={0}>All channels</option>
+					<option value={1}>Channel 1</option>							
+					<option value={2}>Channel 2</option>							
+					<option value={3}>Channel 3</option>							
+					<option value={4}>Channel 4</option>							
+					<option value={5}>Channel 5</option>							
+					<option value={6}>Channel 6</option>							
+					<option value={7}>Channel 7</option>							
+					<option value={8}>Channel 8</option>							
+					<option value={9}>Channel 9</option>							
+					<option value={10}>Channel 10</option>							
+					<option value={11}>Channel 11</option>							
+					<option value={12}>Channel 12</option>							
+					<option value={13}>Channel 13</option>							
+					<option value={14}>Channel 14</option>							
+					<option value={15}>Channel 15</option>							
+					<option value={16}>Channel 16</option>							
 				</select>
 			</div>	
 		</fieldset>
