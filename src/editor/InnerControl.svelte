@@ -29,7 +29,7 @@
 		isRealCC = data?.midi?.cc < 0x80;
 		if (data?.encmode)
 		{
-			isRelative =       data.encmode >= EncoderBehaviour.Endless64Zero && data.encmode <= EncoderBehaviour.EndlessSigned;
+			isRelative =       data.encmode >= EncoderBehaviour.Relative64Zero && data.encmode <= EncoderBehaviour.RelativeSigned;
 			isAuxModeEncoder = data.encmode >= EncoderBehaviour.ScaleKey && data.encmode <= EncoderBehaviour.InternalTempo;
 			console.log("ENCMODE IS", data.encmode);
 		} else {

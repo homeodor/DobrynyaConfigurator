@@ -57,9 +57,9 @@ export enum Control
 export enum EncoderBehaviour
 {
 	Absolute,
-	Endless64Zero,
-	Endless2Comp,
-	EndlessSigned,
+	Relative64Zero,
+	Relative2Comp,
+	RelativeSigned,
 	ScaleKey,
 	ScaleOctave,
 	ScaleOffset,
