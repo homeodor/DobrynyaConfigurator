@@ -149,12 +149,20 @@
 			case Control.Pad: currentPatch.padbanks[currentHand][currentBank].pads[controlNumber] = editorData; break;
 		}
 	}
+	
+	let editorLocked = false;
 
 	async function initEditorAfterTick()
 	{
+		midiControlEditor?.lock();
+		if (!midiControlEditor)
+		{
+			console.warn("Waiting for a tick");
+		}
 		await tick();
-		midiControlEditor?.init();
+		midiControlEditor.init();
 		keyboardEditor.update();
+		midiControlEditor.unlock();
 	}
 
 	// async function setDefaultMinMaxAfterTick()
@@ -189,19 +197,28 @@
 			theControl = controls.find(v=>{return v.control == controlKind});
 			expanderSanizer.sanize();
 			setCorrectEditorData();
-			console.log("Creating data", editorData);
+//			console.log("Creating data", editorData);
+			console.warn(editorData.midi);
 			expanderSanizer.expand(editorData);
-			console.log("Expadning data?", editorData.midi);
+			console.warn(editorData.midi.min);
+//			console.log("Expadning data?", editorData.midi);
 			prevHand = currentHand; prevControlKind = controlKind; prevControlNumber = controlNumber; prevBank = currentBank;
 			encModePrev = -1;
 			
+			console.warn(editorData.midi.min);
 			editorData = editorData; // svelte
 			
+			console.warn(editorData.midi.min);
 			initEditorAfterTick();
+			console.warn(editorData.midi.min);
 			
 		}
+		
+		console.warn(editorData.midi.min);
 
 		expanderSanizer.expand(editorData);
+		
+		console.warn(editorData.midi.min);
 
 		disableResetToBankColours = (editorData.colour[0] == colourOff && editorData.colour[1] == colourOff);
 		
@@ -214,10 +231,10 @@
 		
 		if (encModePrev != editorData.encmode) // check if encmode has been changed, and make some reasonable changes...
 		{
-			console.log("Encmode chnaged");
+//			console.log("Encmode chnaged");
 			if (encoderIsRelative)
 			{
-				console.log("It is relative");
+//				console.log("It is relative");
 				if (editorData.midi.cc > 127)
 					editorData.midi.cc = 1;
 				
@@ -226,6 +243,8 @@
 			
 			encModePrev = editorData.encmode;
 		}
+		
+		console.warn(editorData.midi.min);
 	}
 	
 </script>
@@ -261,9 +280,9 @@
 					<select on:input={patchChanged} bind:value={editorData.encmode}>
 						<optgroup label="Control Change">
 							<option value={EncoderBehaviour.Absolute}>Absolute (normal)</option>
-							<option value={EncoderBehaviour.Endless64Zero}>Relative, 64 is zero</option>
-							<option value={EncoderBehaviour.Endless2Comp}>Relative, 2’s comp</option>
-							<option value={EncoderBehaviour.EndlessSigned}>Relative, signed</option>
+							<option value={EncoderBehaviour.Relative64Zero}>Relative, 64 is zero</option>
+							<option value={EncoderBehaviour.Relative2Comp}>Relative, 2’s comp</option>
+							<option value={EncoderBehaviour.RelativeSigned}>Relative, signed</option>
 						</optgroup>
 						<optgroup label="Change scale" disabled={!scaleIsOn && !encoderIsScale}>
 							<option value={EncoderBehaviour.ScaleKey}>Key</option>
@@ -295,7 +314,7 @@
 				</div>
 		</fieldset>
 		{#if !encoderIsScaleOrTempo}
-		<MidiControl bind:cc={editorData.midi.cc} bind:min={editorData.midi.min} bind:max={editorData.midi.max} bind:par={editorData.midi.par} bind:rampu={editorData.midi.rampu} bind:rampd={editorData.midi.rampd} isDiscrete={theControl.discrete} {encoderIsRelative} encmode={editorData.encmode} />
+		<MidiControl bind:cc={editorData.midi.cc} bind:min={editorData.midi.min} bind:max={editorData.midi.max} bind:par={editorData.midi.par} bind:rampu={editorData.midi.rampu} bind:rampd={editorData.midi.rampd} isDiscrete={theControl.discrete} {encoderIsRelative} encmode={editorData.encmode} bind:this={midiControlEditor} />
 		{/if} <!-- if not encoderScaleOrTempo -->
 		<KeyboardEditor on:input={patchChanged} {controlKind} bind:value={editorData.combo} bind:this={keyboardEditor} />
 		<fieldset id="ce-reset">

@@ -9,7 +9,7 @@
 	for (let i=0; i<16; i++) channelsForList.push(i);
 </script>
 
-<select {disabled} size="1" id="cbm-channel" class="channel-selector" on:input bind:value>
+<select {disabled} size="1" id="cbm-channel" class="channel-selector" on:input on:change bind:value>
 	{#if channelDefaultName}
 	<option value={-1}>{channelDefaultName}{#if channelDefault != -1}&nbsp;({channelDefault+1}){/if}</option>
 	{/if}

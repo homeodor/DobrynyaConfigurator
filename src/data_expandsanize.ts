@@ -101,6 +101,7 @@ export class ExpanderSanizer
 	{
 		this.#cleanup = cleanup;
 		this.#dataStorage = v;
+		Object.freeze(this.#dataStorage.model);
 		this.#theMapID = (ExpanderSanizer.mapID++);
 		ExpanderSanizer.theMap.set(this.#theMapID, this);
 	}
