@@ -57,20 +57,20 @@ CMVVRR-xxxx
 
 The Configurator supports these devices:
 
-|Model ID|Class|Name|
-|-|-|-|
-|21|XS|Micro V2|
-|26|XS|Micro Sharp|
-|31|S|Mini V2|
+|Model ID|Class|Name|Status|
+|-|-|-|-|
+|21|XS|Micro V2|Available|
+|26|XS|Micro Sharp|Prototype|
+|31|S|Mini V2|Available|
 
 The other models which are yet to be supported:
 
-|Model ID|Class|Name|
-|-|-|-|
-|11|XXS|Pocket|
-|17|XXS|Pocket Module|
-|51|L|Pro V2|
-|53|L|32|
+|Model ID|Class|Name|Status|
+|-|-|-|-|
+|11|XXS|Pocket|Prototype|
+|17|XXS|Pocket Module|Early design|
+|51|L|Pro V2|Prototype|
+|53|L|32|Prototype|
 
 The serial number is important information for the Configurator: it is used to distinguish models as well as individual devices.
 
