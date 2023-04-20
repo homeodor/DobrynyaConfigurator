@@ -69,18 +69,19 @@
 		<fieldset id="se-leds">
 			<legend for="se-leds">Light</legend>
 			
+			<h3>Play mode</h3>
+			
 			<div class="ce-block">
-				<h4>Normal mode brightness</h4>
+				<h4>Brightness</h4>
 				<RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.leds.brightness.value} max={255} defValue={112} />
 			</div>
-			
+
 			{#if device.model.code != "prov2" && device.model.code != "promv2" && device.model.code != "promsharp" }
-			<div class="ce-block">
-				<div class="checkboxblock">
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.leds.flags.flag[0]}> Display encoder value with colour</label><br />
-				</div>
-			</div>
-			{/if}
+			<h4>
+					<label><input type="checkbox" class="appleswitch" on:input={markSettingsUnsavedNow} bind:checked={settings.leds.flags.flag[0]}><mark></mark> Colourful encoder feedback</label><br />
+
+			</h4>
+			{/if}			
 			
 			{#if device.has.decolight }
 			<h3>Decorative light</h3>
@@ -108,7 +109,7 @@
 			{/if}
 			
 			
-			<h3>Waiting mode</h3>
+			<h3>Idle mode</h3>
 			
 			<div class="ce-block">
 				<h4>Animations</h4>
@@ -126,7 +127,7 @@
 			</div>
 			
 			<div class="ce-block">
-				<h4>Go to waiting mode after</h4>
+				<h4>Go idle after</h4>
 				<RangeWithInline on:change={markSettingsUnsavedNow} width="4.5em" bind:value={settings.leds.timeoutchill.value} max={1800} list={logtime} inlineToRange={timeToValue} rangeToInline={valueToTime} />
 			</div>
 			
@@ -158,7 +159,7 @@
 			
 			<div class="ce-block">
 				<h4>Output</h4>
-				<p class="explain">System Exclusive messages are always enabled and work only through USB MIDI.</p>
+				<p class="explain">System Exclusive messages are always enabled and work only through USB MIDI. {#if device.has.ble}Classic MIDI is required for BLE MIDI to work.{/if}</p>
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[0]}> USB</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[1]}> Classic MIDI</label><br />
@@ -185,7 +186,7 @@
 				<p class="explain">These settings work regardless of the Input/Output settings</p>
 				<!-- <nobr> -->
 				<div class="checkboxblock">
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI{#if device.has.ble} and BLE{/if})</label><!--/nobr--><br />
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI{#if device.has.ble}&nbsp;and BLE{/if})</label><!--/nobr--><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Send active sensing</label>
 				</div>
 			</div>
