@@ -60,8 +60,8 @@ The Configurator supports these devices:
 |Model ID|Class|Name|Status|
 |-|-|-|-|
 |21|XS|Micro V2|Available|
-|26|XS|Micro Sharp|Prototype|
 |31|S|Mini V2|Available|
+|26|XS|Micro Sharp|Prototype|
 
 The other models which are yet to be supported:
 
