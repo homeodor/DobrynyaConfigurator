@@ -60,7 +60,17 @@ The Configurator supports these devices:
 |Model ID|Class|Name|
 |-|-|-|
 |21|XS|Micro V2|
+|26|XS|Micro Sharp|
 |31|S|Mini V2|
+
+The other models which are yet to be supported:
+
+|Model ID|Class|Name|
+|-|-|-|
+|11|XXS|Pocket|
+|17|XXS|Pocket Module|
+|51|L|Pro V2|
+|53|L|32|
 
 The serial number is important information for the Configurator: it is used to distinguish models as well as individual devices.
 
