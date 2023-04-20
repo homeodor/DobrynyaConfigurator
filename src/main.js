@@ -35,3 +35,7 @@ window.theApp = theApp;
 // window.keyboardEditor = keyboardEditor;
 
 window.expandersSanizers = new Map();
+
+window.addEventListener("error", (event) => {
+  alert(`Sorry, the app crashed. Please reload the window.\n${log.textContent}${event.type}: ${event.message}\n`);
+});
