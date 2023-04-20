@@ -105,6 +105,11 @@ async function checkDobrynyaIsHere()
 
 export async function init()
 {
+	if (navigator.requestMIDIAccess == undefined)
+	{
+		document.location.href = "incompatible.html";
+	}
+	
 	try
 	{
 		midi = await navigator.requestMIDIAccess({sysex:true});
@@ -114,8 +119,9 @@ export async function init()
 		console.log("Got midi", midi);
 		
 	} catch(e) {
+		console.log("MIDI Failed");
+		console.log(e.name);
 		console.log(e);
-		document.location.href = "incompatible.html";
 	}
 }
 
