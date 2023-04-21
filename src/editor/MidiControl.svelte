@@ -92,20 +92,23 @@
 	
 	function convertRelativeToAbsolute(v: number)
 	{
-		if (encmode == EncoderBehaviour.Relative64Zero) { console.log(v); return v + 64; }
-		if (v >= 0) return v;
-		if (encmode == EncoderBehaviour.Relative2Comp)  return 128 + v;
-		if (encmode == EncoderBehaviour.RelativeSigned) return Math.abs(v) | 0x40;
-		return Math.abs(v);
+		console.warn(`Converting ${v} to ${(v >= 0) ? v : (Math.abs(v) | 0x40)}`);
+		return (v >= 0) ? v : (Math.abs(v) | 0x40); // always signed value
+//		if (encmode == EncoderBehaviour.Relative64Zero) { console.log(v); return v + 64; }
+//		if (v >= 0) return v;
+//		if (encmode == EncoderBehaviour.Relative2Comp)  return 128 + v;
+//		if (encmode == EncoderBehaviour.RelativeSigned) return Math.abs(v) | 0x40;
+//		return Math.abs(v);
 	}
 	
 	function convertAbsoluteToRelative(v: number)
 	{
-		if (encmode == EncoderBehaviour.Relative64Zero) return v - 64;
-		if (v < 64) return v;
-		if (encmode == EncoderBehaviour.Relative2Comp)  return v - 128;
-		if (encmode == EncoderBehaviour.RelativeSigned) return -(v - 63);
-		return v % 64;
+		return (v < 64) ? v : -(v - 64);
+		// if (encmode == EncoderBehaviour.Relative64Zero) return v - 64;
+		// if (v < 64) return v;
+		// if (encmode == EncoderBehaviour.Relative2Comp)  return v - 128;
+		// if (encmode == EncoderBehaviour.RelativeSigned) return -(v - 63);
+		// return v % 64;
 	}
 	
 	export function setDefaultMinMax()
@@ -116,9 +119,9 @@
 		relativeEncoderMax = relativeEncoderMaxPrev = 1;
 		relativeEncoderMin = relativeEncoderMinPrev = -1;
 		
-		if (encmode == EncoderBehaviour.Relative64Zero)      { min = 63;  max = 65; }
-		else if (encmode == EncoderBehaviour.Relative2Comp)  { min = 127; max = 1;  }
-		else if (encmode == EncoderBehaviour.RelativeSigned) { min = 64;  max = 1;  }
+		// if (encmode == EncoderBehaviour.Relative64Zero)      { min = 63;  max = 65; }
+		// else if (encmode == EncoderBehaviour.Relative2Comp)  { min = 127; max = 1;  }
+		if (encmode == EncoderBehaviour.RelativeSigned || encmode == EncoderBehaviour.Relative64Zero || encmode == EncoderBehaviour.Relative2Comp) { min = 65;  max = 1;  }
 		else if (what == MidiCtrl.PITCH)					{ min = 64; max = 127; console.log("YUP"); }
 																  else { min = 0;   max = 127; }
 	}
