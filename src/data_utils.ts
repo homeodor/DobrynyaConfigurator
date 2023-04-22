@@ -19,17 +19,25 @@ export function getEmptyPadDataArray()
 // 	name: string, isThePatch: boolean
 // }
 
+export function downloadData(filedata: string | Buffer | Uint8Array, filename: string, filetype: string)
+{	
+	let url = URL.createObjectURL(new Blob([filedata], { type: filetype }));
+	
+	let a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	a.click();
+	a.remove();
+	
+	setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+}
+
 export function patchAsFileFromData(filedata: string | Buffer, filename: string, json: boolean)
 {
 	filename = json ? filename.replace(".dbrpatch",".json") : filename;
 	let filetype = json ? "application/json" : "application/bson";
 	
-	let blob = new Blob([filedata], { type: filetype });
-	
-	let a = document.createElement("a");
-	a.href = URL.createObjectURL(blob);
-	a.download = filename;
-	a.click();
+	downloadData(filedata, filename, filetype);
 }
 
 export function sortPatchList(aX: PatchInfoItem, bX: PatchInfoItem): number

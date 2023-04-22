@@ -1,3 +1,6 @@
+import { downloadData } from './data_utils'
+import { sleep } from './basic'
+
 interface HIDEventShim extends Event
 {
 	data: DataView
@@ -65,9 +68,24 @@ const hidFilters =
 	}
 ];
 
-export async function exitBootloader() { await requestAndWait(bootloader.device, 0x0003); }
+const hf2Command = 
+{
+	BININFO: 0x0001,
+	INFO: 0x0002,
+	RESET_INTO_APP: 0x0003,
+	RESET_INTO_BOOTLOADER: 0x0004,
+	START_FLASH: 0x0005,
+	WRITE_FLASH_PAGE: 0x0006,
+	CHKSUM_PAGES: 0x0007,
+	READ_WORDS: 0x0008,
+	WRITE_WORDS: 0x0009,
+	DMESG: 0x0010,
+};
 
-export async function writeUF2Data(requestArray: Uint8Array) { await requestAndWait(bootloader.device, 0x0006, requestArray); } // oh god.
+
+export async function exitBootloader() { await requestAndWait(bootloader.device, hf2Command.RESET_INTO_APP); }
+
+export async function writeUF2Data(requestArray: Uint8Array) { await requestAndWait(bootloader.device, hf2Command.WRITE_FLASH_PAGE, requestArray); } // oh god.
 
 export async function requestDevice()
 {
@@ -105,7 +123,7 @@ async function getBasicData()
 	// uint32_t flash_num_pages;
 	// uint32_t max_message_size;
 	// uint32_t family_id; // optional
-	let bootloaderDataArr = await requestAndWait(bootloader.device, 0x0001);
+	let bootloaderDataArr = await requestAndWait(bootloader.device, hf2Command.BININFO);
 	let dataView = new DataView(bootloaderDataArr.buffer);
 	
 	bootloader.flashPageSize  = dataView.getUint32(4, true);
@@ -113,7 +131,7 @@ async function getBasicData()
 	bootloader.maxMessageSize = dataView.getUint32(12,true);
 	bootloader.familyID       = dataView.getUint32(16,true);
 	
-	// console.log(bootloader);
+	console.log(bootloader);
 }
 
 async function getVersionData()
@@ -130,7 +148,7 @@ async function getVersionData()
 	
 	// console.log(new Uint8Array(dataStuff));
 	
-	let result = (new TextDecoder).decode(await requestAndWait(bootloader.device, 0x0008, new Uint8Array(dataStuff)));
+	let result = (new TextDecoder).decode(await requestAndWait(bootloader.device, hf2Command.READ_WORDS, new Uint8Array(dataStuff)));
 	console.log(result, result.startsWith("VERS"));
 	
 	if (result.startsWith("VERS"))
@@ -143,11 +161,43 @@ async function getVersionData()
 	}
 }
 
+export async function dumpFirmware(ev: MouseEvent)
+{
+	if (!ev.altKey) return;
+	console.warn("Dumping firmware");
+	
+	let dataStuff = new ArrayBuffer(8);
+	let dataView  = new DataView(dataStuff);
+	
+	const totalBytes = bootloader.flashNumPages * bootloader.flashPageSize;
+	
+	let fwBuffer = new Uint8Array(totalBytes);
+	
+	console.log(`Will dump ${totalBytes} bytes`);
+	
+	const chunk = 64;
+	
+	console.log(fwBuffer);
+	
+	for (let pos = 0; pos < totalBytes; pos += chunk)
+	{
+		console.log(`Requesting byte ${pos}...`);
+		uberc++;
+		dataView.setUint32(0,pos,true);
+		dataView.setUint32(4,chunk,true);
+		fwBuffer.set(await requestAndWait(bootloader.device, hf2Command.READ_WORDS, new Uint8Array(dataStuff)), pos);
+		await sleep(10);
+	}
+	
+	
+  	downloadData(fwBuffer, `${bootloader.fwVersion}.bin`, "application/binary");
+}
+
 export async function getBootloaderData()
 {
 	let bootloaderDataArr =
 		(new TextDecoder)
-		.decode(await requestAndWait(bootloader.device, 0x0002))
+		.decode(await requestAndWait(bootloader.device, hf2Command.INFO))
 		.trim()
 		.split("\r\n");
 		
@@ -182,8 +232,6 @@ export async function getBootloaderData()
 		bootloader.blVersion = "1.0";
 	}
 }
-
-
 
 async function requestAndWait(dev: HIDDeviceShim, cmd: number, data: Uint8Array | number[] = null): Promise<Uint8Array>
 {

@@ -38,7 +38,7 @@ export function textState(theState: UF2State)
 	{
 		case UF2State.Empty: 		return "";
 		case UF2State.Downloading: 	return "Downloading...";
-		case UF2State.Failed: 		return "Failed";
+		case UF2State.Failed: 		return "Server not available";
 		case UF2State.Downloaded: 	return "Ready for upload";
 		case UF2State.Custom: 		return `<i>${customUF2Name}</i>`;
 	}

@@ -14,3 +14,7 @@ export function map(x: number, in_min: number, in_max: number, out_min: number, 
 export function deepClone(data: any) { return JSON.parse(JSON.stringify(data)); }
 export function isSame(data1: any, data2: any) { return JSON.stringify(data1) === JSON.stringify(data2); }
 export function isEmpty(a: any) { return Object.keys(a).length === 0; }
+
+export function sleep(ms: number) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}

@@ -2,7 +2,7 @@
 	import type { StatusResult } from './types';
 	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompareRaw, versionCompare } from './device'
 	import { onMount, onDestroy } from 'svelte'
-	import { requestDevice, hidFillData, exitBootloader } from './hid'
+	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from './hid'
 	import { sysExBootloader } from './midi';
 	import * as fl from './flasher'
 	
@@ -37,7 +37,7 @@
 	
 	let uploadBLAnyway = false;
 	let uploadFWAnyway = false;
-	let newerBLAvailable = false;
+//	let newerBLAvailable = false;
 	let newerFWAvailable = false;
 	
 	async function getVersions()
@@ -51,7 +51,7 @@
 		uploadFWAnyway = false;
 		progress = 0;
 		maxProgress = 0;
-		newerBLAvailable = versionCompareRaw(bootloader.blVersion.split("."), remoteResponse.bootloader.version.split("."));
+//		newerBLAvailable = versionCompareRaw(bootloader.blVersion.split("."), remoteResponse.bootloader.version.split("."));
 		newerFWAvailable = versionCompare(bootloader.fwVersion, remoteResponse);		
 	}
 	
@@ -179,7 +179,7 @@
 	{#if bootloader}
 		<fieldset class="modemanifest" class:over={dragOverClass} on:drop="{(ev)=>{dragOverClass=false;fl.customUF2(ev)}}" on:dragover|stopPropagation|preventDefault="{()=>{}}" on:dragenter="{_=>dragOverClass=true}" on:dragleave="{_=>dragOverClass=false}">
 			
-			<p><img src="{dbrbootloader}" alt="Bootloader mode" class="dbrstate" /></p>
+			<p><img src="{dbrbootloader}" alt="Bootloader mode" class="dbrstate" on:click="{(e)=>dumpFirmware(e)}" /></p>
 			<p>Your Dobrynya is in bootloader mode.</p>
 			
 			<div id="fw-updateavailable" class="plashka" class:plashkagood class:plashkawarn class:plashkabad style="min-width:80%">
@@ -198,36 +198,7 @@
 			</div>
 			
 			<fieldset>
-			<legend>Bootloader</legend>
-				{#if remoteResponse}
-					{#if newerBLAvailable}
-					<p>There is a new version of bootloader. You have to update it first before updating the firmware.</p>
-					<table class="fuckingtable">
-						<tr>
-							<td>Your version</td>
-							<td>{bootloader.blVersion}</td>
-						</tr>
-						<tr>
-							<td>Latest version</td>
-							<td>{remoteResponse.bootloader.version}</td>
-						</tr>
-					</table><br />
-					{:else}
-					<p>Your bootloader version ({bootloader.blVersion}) is up to date. 
-						<span on:click="{()=>uploadBLAnyway=!uploadBLAnyway}" class="unreal">{#if uploadBLAnyway}Okay, fine.{:else}Upload anyway{/if}</span></p>
-					{/if}
-				{:else}
-				<p>Fetching...</p>
-				{/if}
-			
-				{#if newerBLAvailable || uploadBLAnyway}
-				<button on:click="{()=>{probablySwitching = true;fl.burnBootloader()}}" disabled={maxProgress > 0}>{#if newerBLAvailable}Update{:else}Upload{/if} bootloader</button>
-				<p class="explain warn" style="padding:0; margin-bottom:0">Your firmware will be erased, but you can upload it afterwards.
-					All of your other data will stay intact.</p>
-				{/if}
-			</fieldset>
-			<fieldset>
-				<legend>Firmware</legend>
+				<legend>Versions</legend>
 				{#if uf2IsCustom}
 				<div class="plashka plashkawarn">
 					<p>You have added a custom firmware file. If the file is wrong (i.e. designed for another device or variant),
@@ -242,12 +213,16 @@
 						<p>There is a new version of firmware!</p>
 						<table class="fuckingtable" style="margin-bottom:1em">
 							<tr>
-								<td>Your version</td>
-								<td>{bootloader.fwVersion.split("-")[0]}</td>
+								<td>Your bootloader</td>
+								<td>v{bootloader.blVersion}</td>
+							</tr>
+							<tr>
+								<td>Your firmware</td>
+								<td>v{bootloader.fwVersion.split("-")[0]}</td>
 							</tr>
 							<tr>
 								<td>Latest version</td>
-								<td>{remoteResponse.fullVersion}</td>
+								<td>v{remoteResponse.fullVersion}</td>
 							</tr>
 						</table><br />
 						{:else}
@@ -256,15 +231,54 @@
 						</p>
 						{/if}
 					{:else}
-					<p>Fetching...</p>
+					<table class="fuckingtable" style="margin-bottom:1em">
+							<tr>
+								<td>Your bootloader</td>
+								<td>v{bootloader.blVersion}</td>
+							</tr>
+							<tr>
+								<td>Your firmware</td>
+								<td>v{bootloader.fwVersion.split("-")[0]}</td>
+							</tr>
+						</table><br />
 					{/if}
 				{/if}
 			
 				{#if newerFWAvailable || uploadFWAnyway || uf2IsCustom}
-				<button on:click="{()=>{probablySwitching = true;fl.burnFirmware()}}" disabled={newerBLAvailable || maxProgress > 0}>{#if newerFWAvailable && !uf2IsCustom}Update{:else}Upload{/if}{#if uf2IsCustom}&nbsp;custom{/if} firmware</button>
+				<button on:click="{()=>{probablySwitching = true;fl.burnFirmware()}}" disabled={maxProgress > 0}>{#if newerFWAvailable && !uf2IsCustom}Update{:else}Upload{/if}{#if uf2IsCustom}&nbsp;custom{/if} firmware</button>
 				<p class="explain" style="padding:0; margin-bottom:0">All of your other data will stay intact.</p>
 				{/if}
 			</fieldset>
+			<!--<fieldset>
+			<legend>Bootloader</legend>
+				{#if remoteResponse}
+					{#if newerBLAvailable}
+					<p>There is a new version of bootloader. You have to update it first before updating the firmware.</p>
+					<!-- <table class="fuckingtable">
+						<tr>
+							<td>Your version</td>
+							<td>{bootloader.blVersion}</td>
+						</tr>
+						<tr>
+							<td>Latest version</td>
+							<td>{remoteResponse.bootloader.version}</td>
+						</tr>
+					</table>
+					</table><br />
+					{:else}
+					<p>Your bootloader version ({bootloader.blVersion}) is up to date. 
+						<span on:click="{()=>uploadBLAnyway=!uploadBLAnyway}" class="unreal">{#if uploadBLAnyway}Okay, fine.{:else}Upload anyway{/if}</span></p>
+					{/if}
+				{:else}
+				<p>Fetching...</p>
+				{/if}
+			
+				{#if newerBLAvailable || uploadBLAnyway}
+				<button on:click="{()=>{probablySwitching = true;fl.burnBootloader()}}" disabled={maxProgress > 0}>{#if newerBLAvailable}Update{:else}Upload{/if} bootloader</button>
+				<p class="explain warn" style="padding:0; margin-bottom:0">Your firmware will be erased, but you can upload it afterwards.
+					All of your other data will stay intact.</p>
+				{/if}
+			</fieldset> -->
 			{#if maxProgress}
 				<p>Uploading to the device...</p>
 				<progress max={maxProgress} value={progress}></progress>
@@ -412,7 +426,7 @@
 		to be used with the configurator.</div>
 	<div class="fw-updateavailablecl plashka plashkafw plashkagood hh">A new version of firmware is available for your device!</div>
 	<div class="fw-noupdates plashka plashkafw plashkagood hh">Your firmware is up to date!</div>
-	<p><button id="restart-bootloader" on:click="{()=>{probablySwitching = true; sysExBootloader();}}">Restart in bootloader mode</button></p>
+	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(ev.altKey);}}">Restart in bootloader mode</button></p>
 	{#if device.model.code}
 	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">download the firmware file</a> manually.</p>
 	{/if}
