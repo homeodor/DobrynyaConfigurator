@@ -120,6 +120,7 @@
 		// @ts-ignore
 		let patchNameRequested = (typeof ev === "string") ? ev : (ev.detail?.name ?? ev.target.value);
 			// use the value directly if it is a string, otherwise either take the detail.name from CustomEvent or target.value from Select event
+		closeEditor();
 		
 		if (!isSaved && !await confirmDiscard.confirm())
 		{
@@ -195,6 +196,8 @@
 		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
 	)
 	{
+		closeEditor();
+		
 		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
 			return;
 		
@@ -501,7 +504,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{/each}
 		{/if}
 		</div>
-		<select bind:this={patchSelector} disabled={!isOnline} id="patchselector" on:input={selectPatch} value={currentPatchValue} style="height:2.5rem">
+		<select bind:this={patchSelector} disabled={!isOnline } id="patchselector" on:input={selectPatch} value={currentPatchValue} style="height:2.5rem">
 		{#each patchesInfo as patch}
 			<option value="{patch.name}">{patch.name.replace(".dbrpatch","")}</option>
 		{/each}
@@ -610,7 +613,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 
-		<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.padbanks?.[currentHand][currentBank]) !== false} />
+			<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.padbanks?.[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
 	</div>
