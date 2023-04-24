@@ -15,6 +15,7 @@
 	export let elId: string = "";
 	export let width: string = "2.5em"
 	export let list: number[] | null = null;
+	export let nudgeMagnitude: number = 1;
 	
 	let listElement = null;
 	
@@ -49,6 +50,15 @@
 		value = defValue;
 	}
 	
+	function nudge(ev: any)
+	{
+		let nudgeValue = ev.detail.value;
+		value = value + nudgeValue;
+		if (nudgeValue >= 0 && value > max) value = max;
+		if (nudgeValue < 0  && value < min) value = min;
+		updateInline();
+	}
+	
 	export function updateRange()
 	{
 		let integerValue: number | boolean = inlineToRange(inlineValue);
@@ -75,6 +85,6 @@
 	{/each}
 </datalist>
 {/if}
-<input type="range" {min} {max} {step} bin:this={range} bind:value id={elId} on:input={dispatchChange} on:click={maybeReset} disabled={disabled} list={listElement?listElement.id:""}>
-<Inline bind:this={theInline} bind:value={inlineValue} on:input={updateRange} on:cancel={updateInline} width={width} disabled={disabled} />
+<input type="range" {min} {max} {step} bind:this={range} bind:value id={elId} on:input={dispatchChange} on:click={maybeReset} disabled={disabled} list={listElement?listElement.id:""}>
+<Inline bind:this={theInline} bind:value={inlineValue} on:input={updateRange} on:cancel={updateInline} width={width} disabled={disabled} {nudgeMagnitude} on:nudge={nudge} />
 <!-- <input type="text" class="inline-editable-new" bind:this={theInline} bind:value={inlineValue} on:change={updateRange} on:keydown="{keypress}" on:focus={selectAll} /> -->

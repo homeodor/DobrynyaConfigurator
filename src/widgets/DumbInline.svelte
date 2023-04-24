@@ -17,8 +17,9 @@
 	export let requireEnter: boolean = false;
 	export let validatorFunction: Function = (v) => { return true };
 	export let scrubbable: boolean = false;
+	export let nudgeMagnitude: number = 1;
 	
-	let prevValue;
+	let prevValue: string;
 	let laskKey: string | null = null;
 	
 	let theInline: Element;
@@ -30,17 +31,7 @@
 	// 
 	export function isActive(): boolean { return document.activeElement == theInline; }
 	
-	function checkIfEnabled(ev: Event)
-	{
-
-	}
-	
-	function input(ev)
-	{
-		
-	}
-	
-	function keypress(ev)
+	function keypress(ev: KeyboardEvent)
 	{
 		if (ev.key == "Enter" || ev.key == "Escape")
 		{
@@ -56,6 +47,13 @@
 			theInline.blur(); // onblur fires → maybeDispatch
 			ev.stopPropagation();
 		}
+		if (ev.key == "ArrowDown" || ev.key == "ArrowUp")
+		{
+			dispatch("nudge", { value: ev.key == "ArrowUp" ? nudgeMagnitude : -nudgeMagnitude });
+			
+			ev.stopPropagation();
+			ev.preventDefault;
+		}
 	}
 	
 	function maybeDispatch()
@@ -69,7 +67,7 @@
 			dispatch("input",{value: value,prevValue: prevValue,inline: theInline});
 	}
 	
-	function blur(ev)
+	function blur()
 	{
 		if ((requireEnter && laskKey != "Enter") || !isValid)
 		{
@@ -103,7 +101,7 @@
 		return plusMinus * Math.round(Math.sqrt(w ** 2 + h ** 2));
 	}
 	
-	function mouseDown(ev)
+	function mouseDown(ev: MouseEvent)
 	{
 		ev.preventDefault();
 		ev.stopPropagation();
@@ -122,7 +120,7 @@
 		originY = ev.pageY;
 	}
 	
-	function cancelScrub(ev)
+	function cancelScrub(ev: KeyboardEvent)
 	{
 		if (ev.key == "Escape" && valueChangeAllowed)
 		{
@@ -131,7 +129,7 @@
 		}
 	}
 	
-	function maybeChangeValue(ev)
+	function maybeChangeValue(ev: MouseEvent)
 	{
 		if (!valueChangeEnaged) return;
 		
@@ -160,14 +158,14 @@
 		dispatch("scrubend");
 	}
 	
-	function click(ev)
+	function click()
 	{
 		//@ts-ignore
 		theInline.focus();
 		releaseValueChange();
 	}
 	
-	function focus(ev): boolean
+	function focus(ev: FocusEvent): boolean
 	{
 		laskKey = null;
 		
