@@ -137,7 +137,9 @@
 			background:none;
 			color:inherit;
 			border-radius: 1.5em;
-			padding: 1em; }
+			padding: 1em;
+			outline: 0;
+		}
 		dialog h3:first-child { margin-top:0; padding-top:0; }
 		dialog .modal-buttons button { width:10em; margin-top:1em; }
 		
