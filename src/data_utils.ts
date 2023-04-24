@@ -130,9 +130,14 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 		}
 	}
 	
-	if (isEmpty(currentPatch.settings)) delete currentPatch.settings;
+	if ("settings" in currentPatch)
+	{
+		if (isEmpty(currentPatch.settings))
+			delete currentPatch.settings;
+		else
+			cleanObject.settings = currentPatch.settings;
+	}
 	
-	if ("settings" in currentPatch) cleanObject.settings = currentPatch.settings;
 	if ("encoders" in currentPatch)
 	{
 		cleanObject.encoders = currentPatch.encoders;
