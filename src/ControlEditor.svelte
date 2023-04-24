@@ -45,7 +45,7 @@
 	let prevControlNumber: number = -1;
 	let prevHand: Hand = Hand.NONE;
 	let prevBank: number = -1;
-
+	let patchCanChange: Boolean = false;
 
 	export let globalChannel: DeviceOrBankValue;
 	export let globalColours: number[] = [ colourOff, colourOff ];
@@ -163,6 +163,7 @@
 		midiControlEditor.init();
 		keyboardEditor.update();
 		midiControlEditor.unlock();
+		patchCanChange = true;
 	}
 
 	// async function setDefaultMinMaxAfterTick()
@@ -180,10 +181,17 @@
 		dispatchEvent('close');
 	}
 	
+	function patchMaybeChanged()
+	{
+		if (patchCanChange) patchChanged();
+	}
+	
 	$:
 	{
 		if (currentHand != prevHand || controlKind != prevControlKind || controlNumber != prevControlNumber || currentBank != prevBank)
 		{
+			patchCanChange = false;
+			
 			if (controlKind == Control.Pad)
 			{
 				let noteData = getNoteInCurrentScale(controlNumber, currentPatch.padbanks[currentHand][currentBank]);
@@ -243,8 +251,6 @@
 			
 			encModePrev = editorData.encmode;
 		}
-		
-		console.warn(editorData.midi.min);
 	}
 	
 </script>
@@ -268,8 +274,8 @@
 		<fieldset id="ce-colours" class="capability-colour conditional cond-pad cond-joystick">
 			<legend>Colours <Overridable />
 			</legend>
-			<ColourWellsEditor on:input={patchChanged} bind:colours={editorData.colour} globalColours={globalColours} {isKeyOfScale} />
-			<button disabled={disableResetToBankColours} on:click={patchChanged} on:click="{()=>editorData.colour[0] = editorData.colour[1] = colourOff}" class="auxaction">Reset to bank colours</button>
+			<ColourWellsEditor on:input={patchMaybeChanged} bind:colours={editorData.colour} globalColours={globalColours} {isKeyOfScale} />
+			<button disabled={disableResetToBankColours} on:click={patchMaybeChanged} on:click="{()=>editorData.colour[0] = editorData.colour[1] = colourOff}" class="auxaction">Reset to bank colours</button>
 		</fieldset>
 		{/if}
 		
@@ -277,7 +283,7 @@
 		<fieldset id="ce-options">
 			<legend>Behaviour</legend>
 				<div>
-					<select on:input={patchChanged} bind:value={editorData.encmode}>
+					<select on:input={patchMaybeChanged} bind:value={editorData.encmode}>
 						<optgroup label="Control Change">
 							<option value={EncoderBehaviour.Absolute}>Absolute (normal)</option>
 							<option value={EncoderBehaviour.Relative64Zero}>Relative, 64 is zero</option>
@@ -310,17 +316,17 @@
 			<legend>Settings</legend>
 				<div class="">
 					<h4>Channel <Overridable /></h4>
-					<Channel on:input={patchChanged} bind:value={editorData.midi.ch} channelDefault={globalChannel.value & 0xf} channelDefaultName="{globalChannel.isDeviceLevel?'Device default':'Bank default'}" />
+					<Channel on:input={patchMaybeChanged} bind:value={editorData.midi.ch} channelDefault={globalChannel.value & 0xf} channelDefaultName="{globalChannel.isDeviceLevel?'Device default':'Bank default'}" />
 				</div>
 		</fieldset>
 		{#if !encoderIsScaleOrTempo}
 		<MidiControl bind:cc={editorData.midi.cc} bind:min={editorData.midi.min} bind:max={editorData.midi.max} bind:par={editorData.midi.par} bind:rampu={editorData.midi.rampu} bind:rampd={editorData.midi.rampd} isDiscrete={theControl.discrete} {encoderIsRelative} encmode={editorData.encmode} bind:this={midiControlEditor} />
 		{/if} <!-- if not encoderScaleOrTempo -->
-		<KeyboardEditor on:input={patchChanged} {controlKind} bind:value={editorData.combo} bind:this={keyboardEditor} />
+		<KeyboardEditor on:input={patchMaybeChanged} {controlKind} bind:value={editorData.combo} bind:this={keyboardEditor} />
 		<fieldset id="ce-reset">
 			<legend>Reset</legend>
 			<div class="ce-block">
-				<button class="dangerous" on:click={patchChanged} on:click={resetAll}>Reset all</button>
+				<button class="dangerous" on:click={patchMaybeChanged} on:click={resetAll}>Reset all</button>
 			</div>
 			<div class="explain">
 				This removes any settings and closes the editor.
