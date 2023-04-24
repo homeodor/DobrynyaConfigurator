@@ -6,6 +6,7 @@
 	import type { InvokeControlEventData } from './events'
 	import { createPadsIfAbsent } from './data_utils'
 	import { isAlt } from './stores'
+	import { defaultPatches } from './defaultpatches';
  	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
 	import { SysExCommand, currentKeyInfoToKey } from './midi_utils';
@@ -68,6 +69,7 @@
 	let newPatchName = "";
 	let useCleanSlate = "no";
 	let useCleanSlatePrev = "no";
+	let useTemplate = "fd";
 	let nameHasBeenChanged = false;
 	
 	let dispatch = createEventDispatcher();
@@ -202,13 +204,54 @@
 			}
 		);
 	}
+	
+	let alertJsonLoadFailed: Alert;
+	
+	const defaultNewPatchHandler = ()=>{ uploadButton.ok() };
+	
+	async function createNew()
+	{
+		if (useCleanSlate == "template")
+		{
+			// Block?
+			try
+			{
+				let patchData = await fetch(`defaultpatches/${device.model.code}-${useTemplate}.json`);
+				let patchJson = await patchData.json();
+				
+				console.log(patchJson);
+				
+				newPatch(
+					false, // not a clean slate
+					false, // random pattern
+					newPatchName,
+					true, // load patch afterwards
+					defaultNewPatchHandler, // default handler
+					patchJson
+				);
+				
+			} catch(e) {
+				console.log(e);
+				await alertJsonLoadFailed.confirm();
+				return;
+			}
+			
+			
+		} else {
+			newPatch(
+				useCleanSlate == 'yes',
+				useCleanSlate == 'yes',
+				newPatchName
+			);
+		}
+	}
 
 	export async function newPatch(
 		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
 		generateRandomPattern: boolean,							// generate random pattern (or just shift hues)
 		uploadPatchName: string, 								// the filename
 		loadPatchAfter: boolean = true,							// load the patch afterwards?
-		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedback on success
+		uiSuccessHandler: Function = defaultNewPatchHandler,	// function that gives the user feedback on success
 		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
 	)
 	{
@@ -479,6 +522,7 @@
 	function ondrawer(ev: CustomEvent) { setDrawer(ev.detail.drawer); }
 	
 	let alertPatchLock: Alert;
+
 	
 	async function alertAboutPatchLock() { await alertPatchLock.confirm(); }
 	
@@ -493,6 +537,8 @@
 			case SysExCommand.READPATCH: patchAction(midiResult.data, midiResult.filename); break;
 		}
 	}
+	
+	console.log("DEFAULT PA", defaultPatches);
 	
 	
 </script>
@@ -543,13 +589,24 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<p class="explain">Names may only contain English letters, numbers, symbols allowed in filenames, and spaces. The name may be
 				up to 50 characters long, and obviously shouldn’t be the same as existing patches.</p>
 			
-			<p>
+			<p class="checkboxblock">
 				<label><input type="radio" bind:group={useCleanSlate} value="no" /> Duplicate from current</label><br />
-				<label><input type="radio" bind:group={useCleanSlate} value="yes" /> Create an empty patch</label>
+				<label><input type="radio" bind:group={useCleanSlate} value="yes" /> Create an empty patch</label><br />
+
+				{#if device?.model?.code && defaultPatches[device.model.code] }
+				<label><input type="radio" bind:group={useCleanSlate} value="template" /> From template: 
+				<select disabled="{useCleanSlate != 'template'}" bind:value={useTemplate} style="width:auto">
+				{#each defaultPatches[device.model.code] as defpatch }
+					<option value="{defpatch.id}">{defpatch.name}</option>
+				{/each}
+				</select>
+				</label>
+				{/if}
+<!-- //				{/if} -->
 			</p>
 			
 			<p>
-				<button on:click="{()=>{newPatch(useCleanSlate == 'yes', true, newPatchName)}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
+				<button on:click={createNew} disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
 				<button on:click="{()=>{newInterfaceOpen = false}}">Close</button>
 			</p>
 			
@@ -642,4 +699,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
 	<p>You have unsaved changes. Patch switching is locked on the device.</p>
+</Alert>
+<Alert bind:this={alertJsonLoadFailed}>
+	<p>Failed loading template patch.</p>
 </Alert>
