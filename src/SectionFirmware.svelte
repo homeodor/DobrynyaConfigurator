@@ -4,6 +4,7 @@
 	import { onMount, onDestroy } from 'svelte'
 	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from './hid'
 	import { sysExBootloader } from './midi';
+	import { isAlt } from './stores';
 	import * as fl from './flasher'
 	
 	import dbrswitching from '../i/dbrswitching.svg'
@@ -426,7 +427,13 @@
 		to be used with the configurator.</div>
 	<div class="fw-updateavailablecl plashka plashkafw plashkagood hh">A new version of firmware is available for your device!</div>
 	<div class="fw-noupdates plashka plashkafw plashkagood hh">Your firmware is up to date!</div>
-	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(ev.altKey);}}">Restart in bootloader mode</button></p>
+	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(ev.altKey);}}">
+	{#if $isAlt}
+		Bootloader with virual disk
+	{:else}
+		Restart in bootloader mode
+	{/if}
+	</button></p>
 	{#if device.model.code}
 	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">download the firmware file</a> manually.</p>
 	{/if}
