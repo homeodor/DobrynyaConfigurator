@@ -50,7 +50,7 @@
 		value = defValue;
 	}
 	
-	function nudge(ev: any)
+	function nudge(ev: CustomEvent)
 	{
 		let nudgeValue = ev.detail.value;
 		value = value + nudgeValue;

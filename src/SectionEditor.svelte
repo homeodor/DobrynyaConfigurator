@@ -5,6 +5,7 @@
 	import { openPatternEditor } from './events'
 	import type { InvokeControlEventData } from './events'
 	import { createPadsIfAbsent } from './data_utils'
+	import { isAlt } from './stores'
  	
 	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
 	import { SysExCommand, currentKeyInfoToKey } from './midi_utils';
@@ -112,6 +113,7 @@
 	};
 	
 	let confirmDiscard: Confirm;
+	let confirmDiscardThis: Confirm;
 	
 	let patchSelector: HTMLSelectElement;
 	
@@ -122,7 +124,12 @@
 			// use the value directly if it is a string, otherwise either take the detail.name from CustomEvent or target.value from Select event
 		closeEditor();
 		
-		if (!isSaved && !await confirmDiscard.confirm())
+		let confirmationDialog = 
+			(typeof ev === "string" && (ev === currentPatchName)) ?
+				confirmDiscardThis :
+				confirmDiscard;
+		
+		if (!isSaved && !await confirmationDialog.confirm())
 		{
 			if (typeof ev !== "string") ev.preventDefault();
 			currentPatchValue = currentPatchName;
@@ -172,6 +179,14 @@
 			await sysExFileAndDo(sysExCommand, uploadPatchName, filedata, handler);
 			newInterfaceOpen = false;
 		});
+	}
+	
+	function uploadOrRevert(ev: MouseEvent)
+	{
+		if (ev.altKey)
+			selectPatch(currentPatchName);			
+		else
+			uploadThePatch();
 	}
 	
 	function uploadThePatch()
@@ -463,11 +478,6 @@
 	
 	function ondrawer(ev: CustomEvent) { setDrawer(ev.detail.drawer); }
 	
-	//@ts-ignore
-//	window.ms = markSaved;
-	//@ts-ignore
-	document.body.addEventListener("keydown", (ev)=>{if (ev.key === "a") markSaved()})
-	
 	let alertPatchLock: Alert;
 	
 	async function alertAboutPatchLock() { await alertPatchLock.confirm(); }
@@ -514,7 +524,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			<option value="{patch.name}">{patch.name.replace(".dbrpatch","")}</option>
 		{/each}
 		</select>
-		<ButtonUpload disabled={!isOnline} on:click="{()=>uploadThePatch()}" {isSaved} bind:this={uploadButton}>Upload to device</ButtonUpload>
+		<ButtonUpload disabled={!isOnline} on:click="{uploadOrRevert}" {isSaved} bind:this={uploadButton}>{#if $isAlt}Revert{:else}Upload to device{/if}</ButtonUpload>
 		<button disabled={!isOnline} on:click="{()=>openNewUI()}">New...</button>
 
 	</div>
@@ -626,6 +636,9 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 {/if} <!-- if openSection == editor -->
 <Confirm bind:this={confirmDiscard} okText="Discard">
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
+</Confirm>
+<Confirm bind:this={confirmDiscardThis} okText="Revert">
+	<p>You have unsaved changes. Do you want to revert to the last saved version?</p>
 </Confirm>
 <Alert bind:this={alertPatchLock} okText="Fine...">
 	<p>You have unsaved changes. Patch switching is locked on the device.</p>

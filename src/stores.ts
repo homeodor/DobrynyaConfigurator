@@ -12,3 +12,5 @@ export const lastColourPaintHex = writable(colourOff);
 export let ignoreChanges = false;
 
 export const persistentSettings = writable(null);
+
+export const isAlt = writable(false);

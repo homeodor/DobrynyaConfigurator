@@ -11,6 +11,7 @@
 	import { SysExCommand, SysExStatus } from './midi_utils';
 	import { fixSettings, getSettingsFromDevice, getFactorySettings } from './settings_utils'
 	import { WaitingBlock } from './waitingblock'
+	import { isAlt } from './stores';
 	
 	import GotIt from './widgets/GotIt.svelte';
 	import Confirm from './widgets/Confirm.svelte';
@@ -196,6 +197,12 @@
 		if (!sectionSwitchingAllowed && !(typeof ev === "string" && ev === "firmware")) return;
 		openSection = (typeof ev === "string") ? ev : ev.detail.section;
 	}
+	
+	//@ts-ignore
+	//	window.ms = markSaved;
+		//@ts-ignore
+		document.body.addEventListener("keydown", (ev)=>{if (ev.key === "Alt") isAlt.set(true); })
+		document.body.addEventListener("keyup", (ev)=>{if (ev.key === "Alt") isAlt.set(false); })
 	
 	console.log({data: openSection});
 	
