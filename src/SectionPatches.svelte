@@ -119,10 +119,9 @@
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDuplicateOfCurrent);
 		
-		console.log("PATCH DATA!!!", patchData);
-		
 		editor.newPatch(
 			false,								// not a clean slate
+			false,								// do not generate random pattern, shift hues
 			getNewPatchName(patchesInfo, name), // get a name + Copy n
 			false, 								// do not load afterwards
 			async (patchInfo: PatchInfoItem)=>	// fix UI

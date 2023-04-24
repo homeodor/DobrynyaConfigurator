@@ -27,14 +27,14 @@
 	import GotIt from './widgets/GotIt.svelte'
 	
 	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, extensionLength, getNewPatchName } from './editor';
+	import { NameFailsBecause, checkIfPatchNameIsValid, getNewPatchName } from './editor';
 	import { deepClone, isSame } from './basic';
 	import { getPatch, sortPatchList, fixAndExpandPatch } from './data_utils'
 	import { ExpanderSanizer } from './data_expandsanize'
 	
 	import type { DeviceOrBankValue, StatusResult } from './types'
 	import type { Patch, PatchInfoItem } from './types_patch'
-	import { ColourPaintLayer, randomPattern, hexToCSS } from './colour_utils'
+	import { ColourPaintLayer, randomPattern, hueShiftPattern, hexToCSS } from './colour_utils'
 	import { CaseColour } from './device';
 	
 	export let deviceLevelVelocity: number;
@@ -190,6 +190,7 @@
 
 	export async function newPatch(
 		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
+		generateRandomPattern: boolean,							// generate random pattern (or just shift hues)
 		uploadPatchName: string, 								// the filename
 		loadPatchAfter: boolean = true,							// load the patch afterwards?
 		uiSuccessHandler: Function = ()=>{ uploadButton.ok() },	// function that gives the user feedback on success
@@ -213,13 +214,17 @@
 		}
 		
 		uploadPatchName += ".dbrpatch";
-		randomPattern(patchData.info.pattern);
+		
+		if (generateRandomPattern)
+			randomPattern(patchData.info.pattern);
+		else
+			hueShiftPattern(patchData.info.pattern);
 		
 		let sysExCommand: SysExCommand = SysExCommand.WRITEPATCH;
 		
 		let handler: Function = () => //(data: any, filename: string) =>
 		{
-			isSaved = loadPatchAfter;
+//			isSaved = loadPatchAfter;
 			
 			if (loadPatchAfter)
 			{
@@ -534,7 +539,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			</p>
 			
 			<p>
-				<button on:click="{()=>{newPatch(useCleanSlate == 'yes', newPatchName)}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
+				<button on:click="{()=>{newPatch(useCleanSlate == 'yes', true, newPatchName)}}" disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
 				<button on:click="{()=>{newInterfaceOpen = false}}">Close</button>
 			</p>
 			

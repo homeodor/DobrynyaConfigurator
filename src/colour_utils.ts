@@ -237,3 +237,13 @@ export function randomPattern(currentPatchPattern: Pattern)
 	
 	copyPattern(arr, currentPatchPattern);
 }
+
+export function hueShiftPattern(currentPatchPattern: Pattern)
+{	
+	let hueOffset = getRandomIntInclusive(30,220);
+	
+	currentPatchPattern.forEach((v,k) => {
+		currentPatchPattern[k] = ((((v >> 8) + hueOffset) & 0xff) << 8) | (v & 0xff);
+		
+	});
+}
