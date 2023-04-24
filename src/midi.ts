@@ -47,6 +47,8 @@ function dobrynyaEvent(evKind: string, data: object = {})
 
 async function checkDobrynyaIsHere()
 {
+	if (!midi) return;
+	
 	dobrynyaIsHere = false;
 	
 	// @ts-ignore
