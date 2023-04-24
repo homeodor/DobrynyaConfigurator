@@ -87,9 +87,7 @@ export class ExpanderSanizer
 	static theMap = new Map();
 	static latchAll()
 	{
-		console.log("Sanizing all", ExpanderSanizer.theMap);
 		for (let expsan of ExpanderSanizer.theMap.values()) expsan.latch();
-		console.log("All data sanized!");
 	}
 	
 	#dataStorage: ExpanderSanizerData;
