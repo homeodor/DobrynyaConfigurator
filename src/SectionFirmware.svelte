@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { StatusResult } from './types';
-	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompareRaw, versionCompare } from './device'
+	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare } from './device'
 	import { onMount, onDestroy } from 'svelte'
 	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from './hid'
 	import { sysExBootloader } from './midi';
@@ -36,7 +36,6 @@
 	
 	let dragOverClass = false;
 	
-	let uploadBLAnyway = false;
 	let uploadFWAnyway = false;
 //	let newerBLAvailable = false;
 	let newerFWAvailable = false;
@@ -48,7 +47,6 @@
 		console.log(bootloader, remoteResponse);
 		if (!remoteResponse) return;
 		
-		uploadBLAnyway = false;
 		uploadFWAnyway = false;
 		progress = 0;
 		maxProgress = 0;
@@ -101,6 +99,15 @@
 		firmwareState = fl.textState(fl.getFirmwareDataState());
 		
 		uf2IsCustom = fl.getFirmwareDataState() == fl.UF2State.Custom;
+	}
+	
+	async function burnBootloaderUi()
+	{
+		probablySwitching = true;
+		let result = await fl.burnFirmware();
+		
+		if (result)
+			hasNewFirmware = FirmwareState.UpToDate;
 	}
 	
 	onMount(()=>
@@ -246,7 +253,7 @@
 				{/if}
 			
 				{#if newerFWAvailable || uploadFWAnyway || uf2IsCustom}
-				<button on:click="{()=>{probablySwitching = true;fl.burnFirmware()}}" disabled={maxProgress > 0}>{#if newerFWAvailable && !uf2IsCustom}Update{:else}Upload{/if}{#if uf2IsCustom}&nbsp;custom{/if} firmware</button>
+				<button on:click={burnBootloaderUi} disabled={maxProgress > 0}>{#if newerFWAvailable && !uf2IsCustom}Update{:else}Upload{/if}{#if uf2IsCustom}&nbsp;custom{/if} firmware</button>
 				<p class="explain" style="padding:0; margin-bottom:0">All of your other data will stay intact.</p>
 				{/if}
 			</fieldset>

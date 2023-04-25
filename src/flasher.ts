@@ -1,5 +1,3 @@
-import type { Model } from './device'
-import { getFullModelCode } from './device'
 import { writeUF2Data, exitBootloader } from './hid'
 import { markSettingsDirty } from './settings_utils';
 
@@ -123,7 +121,7 @@ async function getUF2Data(model: string, target: UF2StorageItem, isBootloader: b
 	uiUpdate();
 	
 	let maybeBootloader = (isBootloader) ? "/bootloader" : "";
-	let response;
+	let response: Response;
 	try
 	{
 		response = await fetch(`https://config.mididobrynya.com/firmware/${model}${maybeBootloader}/latest/`, {
@@ -190,10 +188,12 @@ async function burn(target: UF2StorageItem)
 	
 	exitBootloader();
 	resetUF2data();
+	
+	return true;
 }
 
-export async function burnBootloader() { burn(uf2Storage.bootloader); }
-export async function burnFirmware() { burn(uf2Storage.firmware); }
+export async function burnBootloader() { return burn(uf2Storage.bootloader); }
+export async function burnFirmware() { return burn(uf2Storage.firmware); }
 
 function parseUF2(arrayBuffer: ArrayBuffer, target: UF2StorageItem)
 {
