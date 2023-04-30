@@ -16,6 +16,8 @@
 	let doNotSend: boolean = false;
 	
 	let isValid = true;
+	
+	let laskKey: string | null = null;
 
 	// onMount(updateInline);
 	// 

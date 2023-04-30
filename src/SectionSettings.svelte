@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { StatusResult } from 'types'
-	
 	import RangeWithInline from './widgets/RangeWithInline.svelte';
 	import Channel from './widgets/Channel.svelte';
 	import PaletteCheckboxes from './widgets/PaletteCheckboxes.svelte'
@@ -10,7 +8,8 @@
 	
 	import { settings, saveSettings, isSaved, markSettingsUnsaved } from 'settings_utils'
 	
-	export let device: StatusResult;
+	import { deviceDefinition } from 'device';
+	
 	export let isOnline: boolean;
 	
 	const logtime: number[] =
@@ -22,7 +21,7 @@
 	
 	async function saveSettingsNow()
 	{
-		await saveSettings(device.model.settingsLength, uploadButton);
+		await saveSettings($deviceDefinition.model.settingsLength, uploadButton);
 		isSavedNow = isSaved; // make it reactive
 	}
 	
@@ -76,14 +75,14 @@
 				<RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.leds.brightness.value} max={255} defValue={112} />
 			</div>
 
-			{#if device.model.code != "prov2" && device.model.code != "promv2" && device.model.code != "promsharp" }
+			{#if $deviceDefinition.model.code != "prov2" && $deviceDefinition.model.code != "promv2" && $deviceDefinition.model.code != "promsharp" }
 			<h4>
 					<label><input type="checkbox" class="appleswitch" on:input={markSettingsUnsavedNow} bind:checked={settings.leds.flags.flag[0]}><mark></mark> Colourful encoder feedback</label><br />
 
 			</h4>
 			{/if}			
 			
-			{#if device.has.decolight }
+			{#if $deviceDefinition.has.decolight }
 			<h3>Decorative light</h3>
 			
 			<div class="ce-block">
@@ -159,11 +158,11 @@
 			
 			<div class="ce-block">
 				<h4>Output</h4>
-				<p class="explain">System Exclusive messages are always enabled and work only through USB MIDI. {#if device.has.ble}Classic MIDI is required for BLE MIDI to work.{/if}</p>
+				<p class="explain">System Exclusive messages are always enabled and work only through USB MIDI. {#if $deviceDefinition.has.ble}Classic MIDI is required for BLE MIDI to work.{/if}</p>
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[0]}> USB</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[1]}> Classic MIDI</label><br />
-					{#if device.has.ble}
+					{#if $deviceDefinition.has.ble}
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} disabled={!settings.midi.outputs.flag[1]} bind:checked={settings.midi.outputs.flag[2]}> BLE</label>
 					{/if}
 				</div>
@@ -175,7 +174,7 @@
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs.flag[0]}> USB</label><br />
 					<label style="display:none"><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs[1]}> Classic MIDI - no MIDI inputs on Dobrynyas, left as a placeholder</label><!--br  /-->
-					{#if device.has.ble}
+					{#if $deviceDefinition.has.ble}
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs.flag[2]}> BLE</label>
 					{/if}
 				</div>
@@ -186,12 +185,12 @@
 				<p class="explain">These settings work regardless of the Input/Output settings</p>
 				<!-- <nobr> -->
 				<div class="checkboxblock">
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI{#if device.has.ble}&nbsp;and BLE{/if})</label><!--/nobr--><br />
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI{#if $deviceDefinition.has.ble}&nbsp;and BLE{/if})</label><!--/nobr--><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Send active sensing</label>
 				</div>
 			</div>
 			
-			{#if device.model.code != "prov2" }
+			{#if $deviceDefinition.model.code != "prov2" }
 			<p class="explain">All MIDI Dobrynyas are capable of outputting classic MIDI, which can control older hardware such as synths or drum machines directly.
 				However, because it is a rarely needed feature, there is no connector available to the user except on <nobr>MIDI Dobrynya Pro V2</nobr>. 
 				Connection points are provided on the board, to which the output connector may be soldered. Contact support to find out more!</p>
@@ -225,7 +224,7 @@
 			</div> -->
 		</fieldset>
 		
-		{#if device.has.haptic}
+		{#if $deviceDefinition.has.haptic}
 		<fieldset id="se-haptic">
 			<legend for="se-haptic">Haptic</legend>
 			

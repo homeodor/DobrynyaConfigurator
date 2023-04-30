@@ -3,7 +3,7 @@ import { ExpanderSanizer } from 'data_expandsanize';
 
 import type { Model } from 'device';
 import type { Pattern } from 'types';
-import type { Patch, PatchInfoItem, BranchBank, BranchControl } from 'types_patch';
+import type { Patch, PatchLegacy, PatchInfoItem, BranchBank, BranchControl } from 'types_patch';
 
 export const numberOfPads = 16;
 
@@ -103,12 +103,12 @@ export function flagToArray(arr: boolean[], flag: number)
 	for (let i: number = 0; i < arr.length; i++) arr[i] = ((flag & (1 << i)) != 0);
 }
 
-export async function getPatch(currentPatch: Patch, model: Model, action: Function)
+export async function getPatch(thePatch: Patch, model: Model, action: Function)
 {
 	ExpanderSanizer.latchAll(); // sanize all data and re-expand on the next ineration
-	sanizePatch(currentPatch, model); // sanize the patch in general
+	sanizePatch(thePatch, model); // sanize the patch in general
 	await action(); // wait for the actual stuff to happen, i.e. upload the patch or download it as file
-	fixAndExpandPatch(currentPatch, model); // re-expand it
+	fixAndExpandPatch(thePatch, model); // re-expand it
 	// the data we sanized in the beginning is expanded automatically
 }
 
@@ -161,7 +161,7 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 export function createObjectIfAbsent(obj: object, name: string, what: any = {}): boolean { if (!(name in obj)) { obj[name] = what; return true; } return false; }
 export function createPadsIfAbsent(bank: BranchBank): boolean { return createObjectIfAbsent(bank, "pads", getEmptyPadDataArray()) }
 
-export function fixAndExpandPatch(currentPatch: any, model: Model)
+export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model)
 {
 // the question is: should we be marking as unsaved if we make changes within this routine?
 // fixing absent keys...

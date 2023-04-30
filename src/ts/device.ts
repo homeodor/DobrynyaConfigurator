@@ -1,4 +1,6 @@
 import { deepClone } from 'basic';
+import { writable, get } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 
 export interface VersionDataShort
 {
@@ -377,3 +379,8 @@ export async function getLatestVersion(model: Model | string)
 	
 	return result;
 }
+
+export let deviceDefinition: Writable<StatusResult> = writable(defaultStatusResult(true));
+
+export function getDevice() { return get(deviceDefinition); }
+export function setDevice(dev: StatusResult) { deviceDefinition.set(dev); }

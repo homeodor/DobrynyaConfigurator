@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { StatusResult } from 'types';
-	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare } from 'device'
+	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare, deviceDefinition } from 'device'
 	import { onMount, onDestroy } from 'svelte'
 	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from 'hid'
 	import { sysExBootloader } from 'midi_core';
@@ -12,7 +12,6 @@
 	import dbroffline from '../i/dbroffline.svg'
 	import dbrnormal from '../i/dbrnormal.svg'
 	
-	export let device: StatusResult;
 	export let isOnline: boolean;
 	export let isConnected: boolean;
 	export let flipDisconnectNow: Function;
@@ -323,7 +322,7 @@
 		</fieldset>
 	{/if}
 {:else}
-	{#if device.model.code}
+	{#if $deviceDefinition.model.code}
 	<fieldset class="modemanifest " id="sect-bootloader">
 		<p class="offline-switching"><img alt="Switching" src="{dbrbootloader}" class="dbrstate" /></p>
 		{#if probablySwitching}
@@ -335,7 +334,7 @@
 		<p>If the device is showing green light (and your OS has installed all the drivers), it is likely ready for firmware uploading.
 			A virtual drive called DBR_BOOT should appear on your system.</p>
 		<ol>
-			<li><a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">Download the latest firmware</a></li>
+			<li><a href="https://config.mididobrynya.com/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Download the latest firmware</a></li>
 			<li>Copy it to the drive called <code>DBR_BOOT</code></li>
 			<li>Your OS might complain about improper disk removal. It’s okay.</li>
 			<li>Your device reboots and has a new shiny firmware! Congrats!</li>
@@ -441,8 +440,8 @@
 		Restart in bootloader mode
 	{/if}
 	</button></p>
-	{#if device.model.code}
-	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode(device.model)}/latest/">download the firmware file</a> manually.</p>
+	{#if $deviceDefinition.model.code}
+	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">download the firmware file</a> manually.</p>
 	{/if}
 </fieldset>
 {/if}

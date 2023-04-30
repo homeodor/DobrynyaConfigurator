@@ -5,24 +5,26 @@
 	import type { StatusResult, NoPatchesObject } from 'types';
 	import { NewPatchDecision } from 'types';
 	import { defaultPatches } from 'defaultpatches';
-		
-	export let device: StatusResult;
+	import type { DefaultPatchDescriptor } from 'defaultpatches';
+	
+	import { deviceDefinition } from 'device';
 
 	let okText = "OK";
 	let cancelText = "Cancel";
 	
 	let dialog: HTMLDialogElement;
 	let resolveFunction: (value: NoPatchesObject) => void;
-	let useCleanSlate: NewPatchDecision;
-	let useTemplate: string;
+	let useCleanSlate: NewPatchDecision = NewPatchDecision.Template;
+	let useTemplate: DefaultPatchDescriptor;
 	
-	let cancelFunction = ()=>resolveFunction({ decision: NewPatchDecision.Cancel, template: "" });
+	let cancelFunction = ()=>resolveFunction({ decision: NewPatchDecision.Cancel, template: "", filename: "" });
 	let okayFunction = () => {
 		
 		resolveFunction(
 		{
 			decision: useCleanSlate,
-			template: useTemplate
+			template: useTemplate.id,
+			filename: useCleanSlate == NewPatchDecision.CleanSlate ? "New 1" : useTemplate.filename
 		});
 	}
 	
@@ -39,19 +41,19 @@
 	<p>This device has no patches. To use this configurator, you must have at least one patch. Which one do you want to upload?</p>
 	
 	<div class="checkboxblock">
-	{#if device?.model?.code && defaultPatches[device.model.code] }
-	<p>
+	{#if $deviceDefinition?.model?.code && defaultPatches[$deviceDefinition.model.code] }
+
 		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.Template} /> Default patch:<br />
 		<select disabled="{useCleanSlate != NewPatchDecision.Template}" bind:value={useTemplate} style="width:auto">
-		{#each defaultPatches[device.model.code] as defpatch }
-			<option value="{defpatch.id}">{defpatch.name}</option>
+		{#each defaultPatches[$deviceDefinition.model.code] as defpatch }
+			<option value={defpatch}>{defpatch.name}</option>
 		{/each}
 		</select>
-		</label>
-	</p>
+		</label><br />
+
 	{/if}
-		<p><label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.CleanSlate} /> Create an empty patch</label></p>
-		<p><label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.DiskMode} /> Go to Disk mode</label></p>
+		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.CleanSlate} /> Create an empty patch</label><br />
+		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.DiskMode} /> Go to Disk mode</label>
 	<!-- //				{/if} -->
 	</div>
 	<OkCancel theDialog={dialog} on:ok={okayFunction} on:cancel={cancelFunction} {okText} {cancelText} />

@@ -1,4 +1,6 @@
  <script lang="ts">
+ 	import { deviceDefinition } from 'device';
+ 
 	const realChips = 
 	{
 		microv2: 
@@ -24,8 +26,6 @@
 	import { CaseColour } from 'device'
 	
 	let imageURL = imageMiniV2;
-	
-	export let device: StatusResult;
 
 	// export let isOnline: boolean;
 	
@@ -34,18 +34,18 @@
 	let showOpenSource = false;
 	
 	$:{
-		if (realChips[device.model.code])
+		if (realChips[$deviceDefinition.model.code])
 		{
-			let chipObj = realChips[device.model.code][device.model.chipCode] ?? realChips[device.model.code];
+			let chipObj = realChips[$deviceDefinition.model.code][$deviceDefinition.model.chipCode] ?? realChips[$deviceDefinition.model.code];
 			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
 		}
-		console.log(device);
+		console.log($deviceDefinition);
 		
 		let isDark = importantFactorySettings.caseColour === CaseColour.Dark || importantFactorySettings.caseColour === CaseColour.Gray;
 		
-		if (device)
+		if ($deviceDefinition)
 		{
-			switch (device?.model?.code)
+			switch ($deviceDefinition?.model?.code)
 			{
 				case "miniv2": imageURL = imageMiniV2; break;
 				case "microv2": imageURL = isDark ? imageMicroV2Dark : imageMicroV2Light; break;					
@@ -75,17 +75,17 @@
 	<div id="infoholder">
 		<h4>Model</h4>
 		<div>
-			{#if device.model.webpage}
-			<a href="{device.model.webpage}">{device.model.name}</a>
+			{#if $deviceDefinition.model.webpage}
+			<a href="{$deviceDefinition.model.webpage}">{$deviceDefinition.model.name}</a>
 			{:else}
-			{device.model.name}
+			{$deviceDefinition.model.name}
 			{/if}</div>
 		<h4>Revision</h4>
-		<div>Rev. {device.revision}</div>
+		<div>Rev. {$deviceDefinition.revision}</div>
 		<h4>Firmware</h4>
-		<div>{device.version}</div>
+		<div>{$deviceDefinition.version}</div>
 		<h4>Serial No.</h4>
-		<div>{device.serial}</div>
+		<div>{$deviceDefinition.serial}</div>
 		<h4>Processor</h4>
 		<div>{chipName}</div>
 	</div>

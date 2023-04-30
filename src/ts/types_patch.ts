@@ -61,6 +61,12 @@ export interface BranchSettings
 	desc: string,
 }
 
+export interface BranchSettingsLegacy extends BranchSettings
+{
+	secbankdbl?: boolean,
+	secbankhold?: boolean,
+}
+
 export interface BranchJoystickBank
 {
 	colour?: ColourArray,
@@ -80,6 +86,11 @@ export interface Patch
 	joystick: BranchJoystickBank[],
 	auxbuttons: PadOrButton[],
 	imu: any, // tbd
+};
+
+export interface PatchLegacy extends Patch
+{
+	settings: BranchSettingsLegacy
 };
 
 export interface PatchInfoItem

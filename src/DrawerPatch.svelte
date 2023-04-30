@@ -55,14 +55,6 @@
 			patchAsFileFromData(filedata, currentPatch.name, json);
 			return true;
 		});
-		// sanizeData(patchSettingsModel, currentPatch.data.settings);
-		// 
-		// currentPatch.data = sanizePatch(currentPatch.data, model);
-		// 
-		// 
-		// fixAndExpandPatch(currentPatch.data, model);
-		// 
-		// expandData(patchSettingsModel, currentPatch.data.settings);
 	}
 	
 	$:

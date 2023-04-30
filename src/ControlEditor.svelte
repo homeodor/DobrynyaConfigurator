@@ -16,6 +16,8 @@
 	
 	import { patchChanged, quickCustom } from 'event_helpers';
 	
+	import type { CurrentEditorState } from 'patch'
+	
 	import NoteEditor from './NoteEditor.svelte'
 	import MidiControl from './editor/MidiControl.svelte'
 	import EncoderShadowCC from './editor/EncoderShadowCC.svelte';
@@ -39,8 +41,7 @@
 	
 	export let controlKind: Control = Control.Pad;
 	export let controlNumber: number = 0;
-	export let currentHand: Hand = Hand.LEFT;
-	export let currentBank: number = -1;
+	export let editorState: CurrentEditorState;
 	
 	let prevControlKind: Control = Control.Generic;
 	let prevControlNumber: number = -1;
@@ -115,8 +116,8 @@
 			case Control.EncRotate: editorData = currentPatch.encoders[controlNumber]; break;
 			case Control.Pad:
 			{
-				createPadsIfAbsent(currentPatch.padbanks[currentHand][currentBank]);
-				editorData = currentPatch.padbanks[currentHand][currentBank].pads[controlNumber];
+				createPadsIfAbsent(currentPatch.padbanks[editorState.hand][editorState.bank]);
+				editorData = currentPatch.padbanks[editorState.hand][editorState.bank].pads[controlNumber];
 				break;
 			}
 		}
@@ -127,14 +128,14 @@
 	function resetAll()
 	{
 		let setTo = 
-			currentPatch.padbanks[currentHand][currentBank].bank?.keyinfo !== undefined ?
+			currentPatch.padbanks[editorState.hand][editorState.bank].bank?.keyinfo !== undefined ?
 			{ midi: { note: fakeNoteUseScale }} :		// if scale is set, reset to scale
 			{};
 		
 		switch (controlKind)
 		{
 			case Control.EncRotate: currentPatch.encoders[controlNumber] = {}; break;
-			case Control.Pad: currentPatch.padbanks[currentHand][currentBank].pads[controlNumber] = setTo; break;
+			case Control.Pad: currentPatch.padbanks[editorState.hand][editorState.bank].pads[controlNumber] = setTo; break;
 		}
 		
 		dispatchEditorClose();
@@ -147,17 +148,13 @@
 		switch (controlKind)
 		{
 			case Control.EncRotate: currentPatch.encoders[controlNumber] = editorData; break;
-			case Control.Pad: currentPatch.padbanks[currentHand][currentBank].pads[controlNumber] = editorData; break;
+			case Control.Pad: currentPatch.padbanks[editorState.hand][editorState.bank].pads[controlNumber] = editorData; break;
 		}
 	}
 
 	async function initEditorAfterTick()
 	{
 		midiControlEditor?.lock();
-		if (!midiControlEditor)
-		{
-			console.warn("Waiting for a tick");
-		}
 		await tick();
 		midiControlEditor.init();
 		keyboardEditor.update();
@@ -187,13 +184,13 @@
 	
 	$:
 	{
-		if (currentHand != prevHand || controlKind != prevControlKind || controlNumber != prevControlNumber || currentBank != prevBank)
+		if (editorState.hand != prevHand || controlKind != prevControlKind || controlNumber != prevControlNumber || editorState.bank != prevBank)
 		{
 			patchCanChange = false;
 			
 			if (controlKind == Control.Pad)
 			{
-				let noteData = getNoteInCurrentScale(controlNumber, currentPatch.padbanks[currentHand][currentBank]);
+				let noteData = getNoteInCurrentScale(controlNumber, currentPatch.padbanks[editorState.hand][editorState.bank]);
 				isKeyOfScale = noteData.isKeyOfScale; // will return false if no scale set
 				scaleNote = noteData.key; // will return -1 if no scale is set
 			} else {
@@ -209,7 +206,7 @@
 			expanderSanizer.expand(editorData);
 			console.warn(editorData.midi.min);
 //			console.log("Expadning data?", editorData.midi);
-			prevHand = currentHand; prevControlKind = controlKind; prevControlNumber = controlNumber; prevBank = currentBank;
+			prevHand = editorState.hand; prevControlKind = controlKind; prevControlNumber = controlNumber; prevBank = editorState.bank;
 			encModePrev = -1;
 			
 			console.warn(editorData.midi.min);

@@ -2,7 +2,7 @@
 	import { tick } from 'svelte';
 	import * as BSON from 'bson'
 	
-	import { isMacLike } from 'stores';
+	import { isMacLike, isAlt } from 'stores';
 	
 	import { models } from 'device';
 	import { quickCustom } from 'event_helpers'
@@ -31,11 +31,12 @@
 	
 	import { newPatch, getCurrentPatch, setCurrentPatchName, patchListHasBeenLoaded } from 'patch'
 	import { hueShiftPattern } from 'colour_utils'
+	
+	import { deviceDefinition } from 'device';
 
 	export let patchesInfo: PatchInfoItem[];
 	export let editor: SectionEditor;
 	export let changeSection: Function;
-	export let device: StatusResult;
 	export let isOnline: boolean;
 	
 	console.log(patchesInfo);
@@ -111,10 +112,15 @@
 	
 	async function getWithChangesOrNot(name: string, isThePatch: boolean, confirmDialog: Confirm): Promise<{ patchData: Patch, isCurrent: boolean }>
 	{
-		if (!(isThePatch && (editor.getIsSaved() || await confirmDialog.confirm())))
-			return { patchData: await getPatchData(name), isCurrent: false };
-		else
+		if (isThePatch && (editor.getIsSaved() || await confirmDialog.confirm()))
+		{
+			console.warn("Getting current patch!");
 			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
+		}
+		else {
+			console.warn("Getting REMOTE patch!");
+			return { patchData: await getPatchData(name), isCurrent: false };
+		}
 	}
 	
 	async function duplicate(name: string, isThePatch: boolean)
@@ -122,7 +128,6 @@
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDuplicateOfCurrent);
 		
 		newPatch(
-			device.model,
 			false,								// not a clean slate
 			hueShiftPattern,					// do not generate random pattern, shift hues
 			getNewPatchName(patchesInfo, name), // get a name + Copy n
@@ -145,6 +150,8 @@
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDownloadOfCurrent);
 		
+		console.log(name, patchData);
+		
 		if (patchData === null && isThePatch) patchData = getCurrentPatch();
 		
 		let downloadAction = async ()=>
@@ -156,7 +163,7 @@
 			);
 		};
 		
-		getPatch(patchData, device.model, downloadAction);
+		getPatch(patchData, $deviceDefinition.model, downloadAction);
 	}
 	
 	let confirmDeletePatch: Confirm;
@@ -215,7 +222,7 @@
 		
 		if (models?.[dbrClassID]?.[dbrModelID])
 		{
-			if (models[dbrClassID][dbrModelID].code == device.model.code)
+			if (models[dbrClassID][dbrModelID].code == $deviceDefinition.model.code)
 				return "This is a legacy patch, but it still works fine."
 			else
 				return `This patch has been designed for MIDI Dobrynya ${models[dbrClassID][dbrModelID]}.`;
@@ -253,9 +260,9 @@
 			to safely disconnect the disk after you’re done (it is actually important).</Halp></button>
 	</div>
 	
-	{#if $patchListHasBeenLoaded }
+	<!-- {#if $patchListHasBeenLoaded }
 	<p>Patches are still loading...</p>
-	{/if}
+	{/if} -->
 
 	<div id="patchlist-patchlist" bind:this={patchList}>
 	{#each patchesInfo as patch}
@@ -273,7 +280,7 @@
   		<div>
 			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>
 			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
-			{#if patch.info.device != device.modelID}
+			{#if patch.info.device != $deviceDefinition.modelID}
 				<div class="warn">{getThisDobrynyaModel(patch.info.device)} </div>
 			{/if}
   		</div>
@@ -281,7 +288,7 @@
 			<button disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch, true)}"><img alt="Tune" src="{iconTune}" ></button>
 			<button disabled={!isOnline} on:click="{()=>duplicate(patch.name, patch.isThePatch)}"><img alt="Duplicate" src="{iconDuplicate}" /></button>
 			<button disabled={!isOnline} on:click="{(ev)=>download(patch.name, patch.isThePatch, ev.altKey)}"><img alt="Download" src="{iconDownload}" /></button>
-			<button disabled={!isOnline || patchesInfo.length <= 1} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
+			<button disabled={!isOnline || (!$isAlt && patchesInfo.length <= 1)} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
   		</div>
 		</div>
 	{/if}

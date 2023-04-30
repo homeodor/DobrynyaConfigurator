@@ -1,5 +1,5 @@
 
-interface DefaultPatchDescriptor
+export interface DefaultPatchDescriptor
 {
 	id: string;
 	name: string;
@@ -14,11 +14,11 @@ interface DefaultPatchObject
 export const defaultPatches: DefaultPatchObject =
 {
 	miniv2: [
-		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetal.dbrpatch" },
-		{ id: "scales", name: "Scales", filename: "Scales.dbrpatch" },
+		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetal" },
+		{ id: "scales", name: "Scales", filename: "Scales" },
 	],
 	microv2: [
-		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetalMicro.dbrpatch" },
-		{ id: "scales", name: "Scales", filename: "ScalesMicro.dbrpatch" },
+		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetalMicro" },
+		{ id: "scales", name: "Scales", filename: "ScalesMicro" },
 	]
 };

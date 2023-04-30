@@ -82,6 +82,7 @@ export interface NoPatchesObject
 {
 	decision: NewPatchDecision;
 	template: string | null;
+	filename: string;
 };
 
 export interface DeviceOrBankValue { value: number, isDeviceLevel: boolean};

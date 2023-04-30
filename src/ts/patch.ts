@@ -12,6 +12,7 @@ import { Hand } from './types';
 import type { PatchInfoItem } from 'types_patch';
 import { sysExFilenameAndDo, sysExAndDo } from 'midi_core';
 import { get, writable } from 'svelte/store';
+import { getDevice } from 'device';
 
 import Confirm from '../widgets/Confirm.svelte'
 
@@ -27,6 +28,12 @@ export interface CurrentPatchInfo
 	isSaved: boolean,
 };
 
+export interface CurrentEditorState
+{
+	hand: Hand,
+	bank: number,
+};
+
 export const currentPatch: CurrentPatchInfo = 
 {
 	data: undefined,
@@ -36,12 +43,52 @@ export const currentPatch: CurrentPatchInfo =
 	isSaved: true,
 };
 
+export const editorState: CurrentEditorState =
+{
+	hand: Hand.LEFT,
+	bank: 0,
+};
+
 export function getCurrentPatch(): Patch { return currentPatch.data; }
 export function setCurrentPatchName(v: string) { currentPatch.value = currentPatch.name = v; console.log("Current patch name set to ", currentPatch.name) }
 
-export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch, model: Model)
+export function patchAction (data: Patch, filename: string)
 {
-	getPatch(patchData, model, async ()=>
+	console.log(data, filename);
+	currentPatch.data = data; // new Proxy (data, markUnsaved);
+
+	currentPatch.originalState = deepClone(currentPatch.data);
+	fixAndExpandPatch(currentPatch.data, getDevice().model);
+	
+	currentPatch.name = filename;
+	editorState.hand = Hand.LEFT;
+	currentPatch.isSaved = true;
+	
+	let patchListNow: PatchInfoItem[] = get(patchList);
+	patchListNow.forEach((v,k,a)=>{a[k].isThePatch = (v.name === currentPatch.name)});
+	patchList.set(patchListNow);
+};
+
+export async function loadCurrentPatch()
+{
+	let patchListNow: PatchInfoItem[] = get(patchList);
+	
+	for (let patch of patchListNow)
+	{
+		if (patch.isThePatch)
+		{
+			await sysExFilenameAndDo(SysExCommand.READPATCH, patch.name, patchAction);	
+			return;
+		}
+	}
+
+	console.warn("No patch has been selected, so the first was loaded");
+	await sysExFilenameAndDo(SysExCommand.READPATCH, patchListNow[0].name, patchAction); // default	
+}
+
+export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch)
+{
+	await getPatch(patchData, getDevice().model, async ()=>
 	{
 		let filedata = BSON.serialize(patchData); // Uint8Array
 		await sysExFileAndDo(sysExCommand, uploadPatchName, filedata, handler);
@@ -51,7 +98,6 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 
 
 	export async function newPatch(
-		model: Model,											// device model
 		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
 		patternFunction: Function | null,							// generate random pattern (or just shift hues)
 		uploadPatchName: string, 								// the filename
@@ -67,12 +113,14 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 		  props: { html: 'You have unsaved changes. Do you want to discard them and open another patch?', okText: "Discard" },
 		});
 		
-		if (patchData === currentPatch.data && !currentPatch.isSaved && !await confirmDiscard.confirm())
+		console.log(confirmDiscard);
+		
+		if (patchData === currentPatch.data && !currentPatch.isSaved && !await confirmDiscard.props.confirm())
 			return;
 		
 		if (cleanSlate)
 		{
-			patchData = deepClone(patchTemplates[model.code]);
+			patchData = deepClone(patchTemplates[getDevice().model.code]);
 			createPadsIfAbsent(patchData.padbanks[0][0]);
 		} else {
 			if (patchData === null)
@@ -109,7 +157,7 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 			patchList.set(patchListNow);		
 		}
 		
-		patchToDevice(sysExCommand, uploadPatchName, handler, patchData, model);
+		await patchToDevice(sysExCommand, uploadPatchName, handler, patchData);
 	}
 	
 	export async function fillPatchList()
