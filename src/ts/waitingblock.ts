@@ -1,5 +1,5 @@
-import { SysExStatus, SysExCommand } from './midi_utils'
-import WaitingBlockDialog from './WaitingBlock.svelte'
+import { SysExStatus, SysExCommand } from 'midi_utils'
+import WaitingBlockDialog from '../WaitingBlock.svelte'
 
 let dialog = new WaitingBlockDialog(
 	{ target: document.getElementById("waitingblockholder") }

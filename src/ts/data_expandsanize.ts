@@ -1,4 +1,4 @@
-import { deepClone } from "./basic";
+import { deepClone } from 'basic';
 
 export function expandData(model: any, data: any)
 {

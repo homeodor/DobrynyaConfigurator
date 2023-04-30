@@ -1,4 +1,4 @@
-import { deepClone } from "./basic";
+import { deepClone } from 'basic';
 
 export interface VersionDataShort
 {
@@ -83,7 +83,7 @@ export enum OnlineStatus
 	Disconnect = -1, Offline = 0, Online = 1
 };
 
-import type { StatusResult } from "./types";
+import type { StatusResult } from 'types';
 
 export function defaultStatusResult(isC: boolean = false): StatusResult
 {

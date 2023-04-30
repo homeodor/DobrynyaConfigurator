@@ -1,4 +1,4 @@
-import type { Capabilities, Model } from "./device";
+import type { Capabilities, Model } from "device";
 
 export type HexColour = number;
 export interface HexObject { h: number, s: number, v: number };
@@ -66,6 +66,22 @@ export enum EncoderBehaviour
 	ScaleKind,
 	InternalTempo,
 	Off = 0xff,
+};
+
+export enum NewPatchDecision 
+{
+	CleanSlate,
+	Duplicate,
+	Template,
+	DiskMode,
+	Cancel,
+	Invalid,
+};
+
+export interface NoPatchesObject
+{
+	decision: NewPatchDecision;
+	template: string | null;
 };
 
 export interface DeviceOrBankValue { value: number, isDeviceLevel: boolean};

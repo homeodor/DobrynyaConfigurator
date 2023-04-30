@@ -1,6 +1,6 @@
-import { fakeNoteUseScale } from "./midi_utils";
-import { createObjectIfAbsent, numberOfPads } from "./data_utils";
-import type { BranchBank, PatchInfoItem } from "./types_patch";
+import { fakeNoteUseScale } from "midi_utils";
+import { createObjectIfAbsent, numberOfPads } from "data_utils";
+import type { BranchBank, PatchInfoItem } from "types_patch";
 
 export const longestFilename = 64;
 export const extensionLength = ".dbrpatch".length;

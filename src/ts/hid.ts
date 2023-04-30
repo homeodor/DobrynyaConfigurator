@@ -1,5 +1,5 @@
-import { downloadData } from './data_utils'
-import { sleep } from './basic'
+import { downloadData } from 'data_utils'
+import { sleep } from 'basic'
 
 interface HIDEventShim extends Event
 {

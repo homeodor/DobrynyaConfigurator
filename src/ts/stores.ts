@@ -1,5 +1,5 @@
 import { readable, writable } from 'svelte/store';
-import { colourOff } from './colour_utils';
+import { colourOff } from 'colour_utils';
 
 export const isMacLike = readable(/(Mac|iPhone|iPod|iPad|Apple)/i.test(navigator.platform));
 

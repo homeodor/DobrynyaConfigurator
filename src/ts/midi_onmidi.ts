@@ -1,11 +1,11 @@
-import { isConnected, sysExableStringToUTF8 } from './midi'
-import { sortPatchList } from './data_utils'
-import { SysExCommand, SysExStatus } from './midi_utils'
-import type { MidiResult } from './midi_utils'
-import { capabilityFlags, models, ChipIDs, defaultStatusResult } from './device'
-import type { StatusResult } from './types'
+import { isConnected, sysExableStringToUTF8 } from 'midi_core'
+import { sortPatchList } from 'data_utils'
+import { SysExCommand, SysExStatus } from 'midi_utils'
+import type { MidiResult } from 'midi_utils'
+import { capabilityFlags, models, ChipIDs, defaultStatusResult } from 'device'
+import type { StatusResult } from 'types'
 import * as BSON from 'bson'
-import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank } from './events'
+import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank } from 'event_helpers'
 
 const headerLength: number = 12;
 

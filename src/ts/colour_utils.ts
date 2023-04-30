@@ -1,5 +1,5 @@
-import type { HexColour, ColourArray, Pattern, HexObject } from './types'
-import { deepClone, getRandomIntInclusive, map } from './basic'
+import type { HexColour, ColourArray, Pattern, HexObject } from 'types'
+import { deepClone, getRandomIntInclusive, map } from 'basic'
 
 export const colourOff = 0xff00;
 
@@ -243,7 +243,9 @@ export function hueShiftPattern(currentPatchPattern: Pattern)
 	let hueOffset = getRandomIntInclusive(30,220);
 	
 	currentPatchPattern.forEach((v,k) => {
-		currentPatchPattern[k] = ((((v >> 8) + hueOffset) & 0xff) << 8) | (v & 0xff);
-		
+		if ((v & 0xf) != 0) // not black
+			currentPatchPattern[k] = ((((v >> 8) + hueOffset) & 0xff) << 8) | (v & 0xff);
+		else
+			currentPatchPattern[k] = 0; // if it is black, just make it zero
 	});
 }

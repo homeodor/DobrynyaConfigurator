@@ -1,4 +1,4 @@
-import { Control } from "./types"
+import { Control } from 'types'
 
 export enum KeyboardAvailable
 {

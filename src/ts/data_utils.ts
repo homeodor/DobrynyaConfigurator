@@ -1,9 +1,9 @@
-import { isEmpty } from './basic';
-import { ExpanderSanizer } from './data_expandsanize';
+import { isEmpty } from 'basic';
+import { ExpanderSanizer } from 'data_expandsanize';
 
-import type { Model } from './device';
-import type { Pattern } from './types';
-import type { Patch, PatchInfoItem, BranchBank, BranchControl } from './types_patch';
+import type { Model } from 'device';
+import type { Pattern } from 'types';
+import type { Patch, PatchInfoItem, BranchBank, BranchControl } from 'types_patch';
 
 export const numberOfPads = 16;
 

@@ -1,4 +1,4 @@
-import type { ColourArray, Palette, EncoderBehaviour } from "./types"
+import type { ColourArray, Palette, EncoderBehaviour } from 'types'
 
 export interface BranchMidi
 {

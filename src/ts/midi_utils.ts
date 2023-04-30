@@ -1,6 +1,6 @@
 "use strict";
 
-import type { BranchBank } from "./types_patch";
+import type { BranchBank } from 'types_patch';
 
 export const fakeNoteUseScale = 0xfe;
 export const fakeNoteOff = 0xff;

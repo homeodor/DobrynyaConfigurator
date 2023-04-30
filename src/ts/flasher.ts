@@ -1,5 +1,5 @@
-import { writeUF2Data, exitBootloader } from './hid'
-import { markSettingsDirty } from './settings_utils';
+import { writeUF2Data, exitBootloader } from 'hid'
+import { markSettingsDirty } from 'settings_utils';
 
 export enum UF2State
 {

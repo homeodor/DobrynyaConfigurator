@@ -1,9 +1,9 @@
-import { WaitingBlock } from './waitingblock'
-import { sysExAndDo } from './midi';
-import { CaseColour } from './device'
-import { eightToSeven, SysExCommand } from './midi_utils';
+import { WaitingBlock } from 'waitingblock'
+import { sysExAndDo } from 'midi_core';
+import { CaseColour } from 'device'
+import { eightToSeven, SysExCommand } from 'midi_utils';
 
-import type ButtonUpload from './widgets/ButtonUpload.svelte'
+import type ButtonUpload from '../widgets/ButtonUpload.svelte'
 
 interface SettingsObjectItem
 {

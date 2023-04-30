@@ -1,8 +1,8 @@
-import { WaitingBlock } from './waitingblock'
-import { SysExCommand, SysExStatus } from './midi_utils'
-import type { MidiResult } from './midi_utils'
-import { interpretMidiEvent, onMIDIMessage } from './midi_onmidi'
-import type { HexColour, ColourArray, Hand } from './types'
+import { WaitingBlock } from 'waitingblock'
+import { SysExCommand, SysExStatus } from 'midi_utils'
+import type { MidiResult } from 'midi_utils'
+import { interpretMidiEvent, onMIDIMessage } from 'midi_onmidi'
+import type { HexColour, ColourArray, Hand } from 'types'
 
 let midi: MIDIAccess | null = null;
 let portOut: MIDIOutput | null = null;
