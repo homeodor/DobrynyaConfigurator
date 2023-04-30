@@ -104,11 +104,11 @@ S - 4 bits, or 16 values of saturation
 V - 4 bits, or 16 values of, erm, value (brightness, that is)
 ```
 
-Which gives 65k colours, a plenty for a MIDI controller and saves tons of memory. Internally all LEDs are fully 24 bit RGB though.
+Which gives roughly 61.5k colours, a plenty for a MIDI controller and saves tons of memory. Internally all LEDs are fully 24 bit RGB though.
 
 ### Colour off
 
-Actually, all colours that have a value of 0 will be black, no matter the hue.
+Actually, all colours that have a value of 0 will be black, no matter the hue. This is why we get less than 65k colours.
 
 There is a magic value ```0xff00``` that means “colour off”.
 
