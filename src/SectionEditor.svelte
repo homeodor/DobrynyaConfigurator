@@ -2,17 +2,17 @@
 	import { onMount, createEventDispatcher, tick } from 'svelte';
 	import * as BSON from 'bson'
 	
-	import { openPatternEditor } from './events'
-	import type { InvokeControlEventData } from './events'
-	import { createPadsIfAbsent } from './data_utils'
-	import { isAlt } from './stores'
-	import { defaultPatches } from './defaultpatches';
+	import { openPatternEditor } from 'event_helpers'
+	import type { InvokeControlEventData } from 'event_helpers'
+	import { createPadsIfAbsent } from 'data_utils'
+	import { isAlt } from 'stores'
+	import { defaultPatches } from 'defaultpatches';
  	
-	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from './midi'
-	import { SysExCommand, currentKeyInfoToKey } from './midi_utils';
-	import { importantFactorySettings } from './settings_utils'
-	import type { MidiResult } from './midi_utils';
-	import { patchTemplates } from './patchtemplates';
+	import { sysExFilenameAndDo, sysExFileAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from 'midi_core'
+	import { SysExCommand, currentKeyInfoToKey } from 'midi_utils';
+	import { importantFactorySettings } from 'settings_utils'
+	import type { MidiResult } from 'midi_utils';
+	import { patchTemplates } from 'patchtemplates';
 	import ControlEditor from './ControlEditor.svelte'
 	
 	import Pads from './editor/Pads.svelte'
@@ -28,47 +28,54 @@
 	import Alert from './widgets/Alert.svelte';
 	import GotIt from './widgets/GotIt.svelte'
 	
-	import { Control, Hand } from './types';
-	import { NameFailsBecause, checkIfPatchNameIsValid, getNewPatchName } from './editor';
-	import { deepClone, isSame } from './basic';
-	import { getPatch, sortPatchList, fixAndExpandPatch } from './data_utils'
-	import { ExpanderSanizer } from './data_expandsanize'
+	import { Control, Hand, NewPatchDecision } from 'types';
+	import { NameFailsBecause, checkIfPatchNameIsValid, getNewPatchName } from 'editor';
+	import { deepClone, isSame } from 'basic';
+	import { getPatch, sortPatchList, fixAndExpandPatch } from 'data_utils'
+	import { ExpanderSanizer } from 'data_expandsanize'
 	
-	import type { DeviceOrBankValue, StatusResult } from './types'
-	import type { Patch, PatchInfoItem } from './types_patch'
-	import { ColourPaintLayer, randomPattern, hueShiftPattern, hexToCSS } from './colour_utils'
-	import { CaseColour } from './device';
+	import type { DeviceOrBankValue, StatusResult } from 'types'
+	import type { Patch, PatchInfoItem } from 'types_patch'
+	import { ColourPaintLayer, randomPattern, hueShiftPattern, hexToCSS } from 'colour_utils'
+	import { CaseColour } from 'device';
+	
+	import { patchToDevice, patchList } from 'patch';
 	
 	export let deviceLevelVelocity: number;
 	export let deviceLevelChannel: number;
 	export let openSection: string;
 //	export let patchList: PatchListItem[];
-	export let patchesInfo: PatchInfoItem[];
+//	export let $patchList: PatchInfoItem[];
 	export let device: StatusResult;
 	export let isOnline: boolean;
-	export function getIsSaved(): boolean { return isSaved }
-	export function setCurrentPatchName(v: string) { currentPatchValue = currentPatchName = v; console.log("Current patch name set to ", currentPatchName) }
+	export function getIsSaved(): boolean { return currentPatch.isSaved }
 	
-	let isSaved: boolean = true;
+	// let isSaved: boolean = true;
 	
-	let currentPatch: Patch;
-	export function getCurrentPatch() { return currentPatch; }
-	let currentPatchOriginalState: Patch;
-	let currentPatchName: string;
-	let currentHand: Hand = Hand.LEFT;
-	let currentBank: number = 0;
+	// let currentPatch: Patch;
+	// export function getCurrentPatch() { return currentPatch; }
+	// let currentPatch.originalState: Patch;
+	// let currentPatch.name: string;
+	// let currentHand: Hand = Hand.LEFT;
+	// let currentBank: number = 0;
+	// let currentPatch.value: string;
+	
+//	import type { CurrentPatchInfo } from 'patch'
+	import { currentPatch, newPatch } from 'patch'
+	
+	export let currentHand: Hand = Hand.LEFT;
+	export let currentBank: number = 0;
 
 	let numberOfActiveBanks = 0;
 
 	let controlEditor: ControlEditor;
 	
-	let currentPatchValue: string;
 	
 	let newInterfaceOpen: boolean;
 	let newPatchNameIsValid: NameFailsBecause = NameFailsBecause.Empty;
 	let newPatchName = "";
-	let useCleanSlate = "no";
-	let useCleanSlatePrev = "no";
+	let useCleanSlate: NewPatchDecision = NewPatchDecision.Duplicate;
+	let useCleanSlatePrev: NewPatchDecision = NewPatchDecision.Invalid;
 	let useTemplate = "fd";
 	let nameHasBeenChanged = false;
 	
@@ -98,20 +105,20 @@
 	function patchAction (data: Patch, filename: string)
 	{
 		console.log(data, filename);
-		currentPatch = data; // new Proxy (data, markUnsaved);
+		currentPatch.data = data; // new Proxy (data, markUnsaved);
 	// @ts-ignore
-		window.currentPatch = currentPatch;
-		currentPatchOriginalState = deepClone(currentPatch);
+		window.currentPatch = currentPatch.data;
+		currentPatch.originalState = deepClone(currentPatch.data);
 		
-		fixAndExpandPatch(currentPatch, device.model);
+		fixAndExpandPatch(currentPatch.data, device.model);
 		
-		currentPatchName = filename;
+		currentPatch.name = filename;
 		currentHand = Hand.LEFT;
-		isSaved = true;
+		currentPatch.isSaved = true;
 		
 		
-		patchesInfo.forEach((v,k,a)=>{a[k].isThePatch = (v.name === currentPatchName)});
-		patchesInfo = patchesInfo; // svelte
+		$patchList.forEach((v,k,a)=>{a[k].isThePatch = (v.name === currentPatch.name)});
+		$patchList = $patchList; // svelte
 	};
 	
 	let confirmDiscard: Confirm;
@@ -127,17 +134,17 @@
 		closeEditor();
 		
 		let confirmationDialog = 
-			(typeof ev === "string" && (ev === currentPatchName)) ?
+			(typeof ev === "string" && (ev === currentPatch.name)) ?
 				confirmDiscardThis :
 				confirmDiscard;
 		
-		if (!isSaved && !await confirmationDialog.confirm())
+		if (!currentPatch.isSaved && !await confirmationDialog.confirm())
 		{
 			if (typeof ev !== "string") ev.preventDefault();
-			currentPatchValue = currentPatchName;
+			currentPatch.value = currentPatch.name;
 			return false;
 		} else {
-			currentPatchValue = patchNameRequested;
+			currentPatch.value = patchNameRequested;
 		}
 		
 		if (patchSelector) patchSelector.value = patchNameRequested;
@@ -150,8 +157,8 @@
 	}
 	
 	export async function loadCurrentPatch()
-	{
-		for (let patch of patchesInfo)
+	{		
+		for (let patch of $patchList)
 		{
 			if (patch.isThePatch)
 			{
@@ -159,34 +166,34 @@
 				return;
 			}
 		}
-		
+
 		console.warn("No patch has been selected, so the first was loaded");
-		await sysExFilenameAndDo(SysExCommand.READPATCH, patchesInfo[0].name, patchAction); // default	
+		await sysExFilenameAndDo(SysExCommand.READPATCH, $patchList[0].name, patchAction); // default	
 	}
 	
 	let uploadButton: ButtonUpload;
 	
 	function openNewUI(force: boolean = false)
 	{
-		newPatchNameIsValid = checkIfPatchNameIsValid(newPatchName,patchesInfo);
+		newPatchNameIsValid = checkIfPatchNameIsValid(newPatchName,$patchList);
 		newInterfaceOpen = force ? true : !newInterfaceOpen;
 	}
 	
-	async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
-	{
-		// currentPatch = sanizePatch(currentPatch, device.model);
-		getPatch(patchData, device.model, async ()=>
-		{
-			let filedata = BSON.serialize(patchData); // Uint8Array
-			await sysExFileAndDo(sysExCommand, uploadPatchName, filedata, handler);
-			newInterfaceOpen = false;
-		});
-	}
+	// async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName: string, handler: Function, patchData: Patch = currentPatch)
+	// {
+	// 	// currentPatch = sanizePatch(currentPatch, device.model);
+	// 	getPatch(patchData, device.model, async ()=>
+	// 	{
+	// 		let filedata = BSON.serialize(patchData); // Uint8Array
+	// 		await sysExFileAndDo(sysExCommand, uploadPatchName, filedata, handler);
+	// 		newInterfaceOpen = false;
+	// 	});
+	// }
 	
 	function uploadOrRevert(ev: MouseEvent)
 	{
 		if (ev.altKey)
-			selectPatch(currentPatchName);			
+			selectPatch(currentPatch.name);			
 		else
 			uploadThePatch();
 	}
@@ -195,13 +202,15 @@
 	{
 		patchToDevice(
 			SysExCommand.OVERWRITEPATCH,
-			currentPatchName,
+			currentPatch.name,
 			() => //(data: any, filename: string) =>
 			{
 				if (drawer === "colourpaint") colourPaintDrawer.updateDevicePreview(true); // force device to redraw
 				uploadButton.ok();
-				isSaved = true;
-			}
+				currentPatch.isSaved = true;
+			},
+			currentPatch.data,
+			device.model
 		);
 	}
 	
@@ -209,21 +218,27 @@
 	
 	const defaultNewPatchHandler = ()=>{ uploadButton.ok() };
 	
-	async function createNew()
+	function createNewLocal()
 	{
-		if (useCleanSlate == "template")
+		createNew(useCleanSlate, useTemplate, )
+	}
+	
+	export async function createNew(useCleanSlateNow: NewPatchDecision, template: string, useHueShiftIfDuplicating: boolean = true)
+	{
+		if (useCleanSlateNow == NewPatchDecision.Template)
 		{
 			// Block?
 			try
 			{
-				let patchData = await fetch(`defaultpatches/${device.model.code}-${useTemplate}.json`);
+				let patchData = await fetch(`defaultpatches/${device.model.code}-${template}.json`);
 				let patchJson = await patchData.json();
 				
 				console.log(patchJson);
 				
 				newPatch(
+					device.model,
 					false, // not a clean slate
-					false, // random pattern
+					useHueShiftIfDuplicating ? hueShiftPattern : null, // shift hue
 					newPatchName,
 					true, // load patch afterwards
 					defaultNewPatchHandler, // default handler
@@ -239,80 +254,81 @@
 			
 		} else {
 			newPatch(
-				useCleanSlate == 'yes',
-				useCleanSlate == 'yes',
-				newPatchName
+				device.model,
+				useCleanSlateNow == NewPatchDecision.CleanSlate,
+				useCleanSlateNow == NewPatchDecision.CleanSlate ? randomPattern : (useHueShiftIfDuplicating ? hueShiftPattern : null),
+				newPatchName,
+				true,
+				defaultNewPatchHandler,
 			);
 		}
 	}
 
-	export async function newPatch(
-		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
-		generateRandomPattern: boolean,							// generate random pattern (or just shift hues)
-		uploadPatchName: string, 								// the filename
-		loadPatchAfter: boolean = true,							// load the patch afterwards?
-		uiSuccessHandler: Function = defaultNewPatchHandler,	// function that gives the user feedback on success
-		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
-	)
-	{
-		closeEditor();
-		
-		if (patchData === currentPatch && !isSaved && !await confirmDiscard.confirm())
-			return;
-		
-		if (cleanSlate)
-		{
-			patchData = deepClone(patchTemplates[device.model.code]);
-			createPadsIfAbsent(patchData.padbanks[0][0]);
-		} else {
-			if (patchData === null)
-			{
-				patchData = deepClone(currentPatch);
-			}
-		}
-		
-		uploadPatchName += ".dbrpatch";
-		
-		if (generateRandomPattern)
-			randomPattern(patchData.info.pattern);
-		else
-			hueShiftPattern(patchData.info.pattern);
-		
-		let sysExCommand: SysExCommand = SysExCommand.WRITEPATCH;
-		
-		let handler: Function = () => //(data: any, filename: string) =>
-		{
-//			isSaved = loadPatchAfter;
-			
-			if (loadPatchAfter)
-			{
-				currentPatch = patchData;
-				currentPatchValue = currentPatchName = uploadPatchName;
-				patchesInfo.forEach((_,k,a)=>{a[k].isThePatch = false});
-			}
-			
-			patchesInfo.push({name: uploadPatchName, isThePatch: loadPatchAfter, info: deepClone(patchData.info)});
-			
-			uiSuccessHandler(patchesInfo[patchesInfo.length - 1]); // maybe do something in the UI, pass the variable then
-			
-			patchesInfo.sort(sortPatchList);
-			
-			patchesInfo = patchesInfo;			
-		}
-		
-		patchToDevice(sysExCommand, uploadPatchName, handler, patchData);
-	}
+// 	export async function newPatch(
+// 		model: Model,											// device model
+// 		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
+// 		patternFunction: Function | null,							// generate random pattern (or just shift hues)
+// 		uploadPatchName: string, 								// the filename
+// 		loadPatchAfter: boolean = true,							// load the patch afterwards?
+// 		uiSuccessHandler: Function = defaultNewPatchHandler,	// function that gives the user feedback on success
+// 		patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
+// 	)
+// 	{
+// 		closeEditor();
+// 		
+// 		if (patchData === currentPatch && !currentPatch.isSaved && !await confirmDiscard.confirm())
+// 			return;
+// 		
+// 		if (cleanSlate)
+// 		{
+// 			patchData = deepClone(patchTemplates[device.model.code]);
+// 			createPadsIfAbsent(patchData.padbanks[0][0]);
+// 		} else {
+// 			if (patchData === null)
+// 			{
+// 				patchData = deepClone(currentPatch);
+// 			}
+// 		}
+// 		
+// 		uploadPatchName += ".dbrpatch";
+// 		
+// 		if (patternFunction !== null) patternFunction(patchData.info.pattern);
+// 		
+// 		let sysExCommand: SysExCommand = SysExCommand.WRITEPATCH;
+// 		
+// 		let handler: Function = () => //(data: any, filename: string) =>
+// 		{
+// //			currentPatch.isSaved = loadPatchAfter;
+// 			
+// 			if (loadPatchAfter)
+// 			{
+// 				currentPatch = patchData;
+// 				currentPatch.value = currentPatch.name = uploadPatchName;
+// 				$patchList.forEach((_,k,a)=>{a[k].isThePatch = false});
+// 			}
+// 			
+// 			$patchList.push({name: uploadPatchName, isThePatch: loadPatchAfter, info: deepClone(patchData.info)});
+// 			
+// 			uiSuccessHandler($patchList[$patchList.length - 1]); // maybe do something in the UI, pass the variable then
+// 			
+// 			$patchList.sort(sortPatchList);
+// 			
+// 			$patchList = $patchList;			
+// 		}
+// 		
+// 		patchToDevice(sysExCommand, uploadPatchName, handler, patchData, model);
+// 	}
 	
 	function checkIfNewPatchNameIsValid(ev: any)
 	{
 		nameHasBeenChanged = true;
-		newPatchNameIsValid = checkIfPatchNameIsValid(ev.currentTarget.value.trim(), patchesInfo);
+		newPatchNameIsValid = checkIfPatchNameIsValid(ev.currentTarget.value.trim(), $patchList);
 	}
 	
 	async function updateNewPatchName()
 	{
 		if (nameHasBeenChanged) return;
-		newPatchName = getNewPatchName(patchesInfo, useCleanSlate === "no" ? currentPatchName : null);
+		newPatchName = getNewPatchName($patchList, useCleanSlate === NewPatchDecision.Duplicate ? currentPatch.name : null);
 		nameHasBeenChanged = false;
 	}
 	
@@ -324,15 +340,6 @@
 	
 	let theOutline: HTMLDivElement;
 	let editorBigRadius = 0;
-	
-	// function waitForControlEditor()
-	// {
-	// 	return new Promise((resolve) =>
-	// 	{
-	// 		while (controlEditor?.$set === undefined);
-	// 		resolve(true);
-	// 	});
-	// }
 	
 	function selectBankFromEvent(ev: CustomEvent)
 	{
@@ -357,7 +364,7 @@
 		
 		editorEl.style.clipPath = editorEl.style.clipPath.replace(`${editorBigRadius}px`,`1px`);
 		setTimeout(() => {
-			currentPatch = currentPatch; // uh, svelte
+			currentPatch.data = currentPatch.data; // uh, svelte
 			editorAlive = false;
 			editorBigRadius = 0;
 			editorData = null;
@@ -422,15 +429,15 @@
 	{		
 		numberOfActiveBanks = 0;
 
-		if (currentPatch)
+		if (currentPatch?.data)
 		{
-			for (let bank of currentPatch?.padbanks[currentHand])
+			for (let bank of currentPatch?.data?.padbanks[currentHand])
 			{
 				if (!isSame(bank, {})) numberOfActiveBanks++;
 			}
 		}
 		
-		if (patchesInfo && currentPatch) patchesInfo.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.info);
+		if ($patchList && currentPatch.data) $patchList.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.data.info);
 		
 		if (
 			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
@@ -441,14 +448,14 @@
 			useCleanSlatePrev = useCleanSlate;
 		}
 		
-		currentPatchValue = currentPatchName;
+		currentPatch.value = currentPatch.name;
 		
-		if (currentPatch)
+		if (currentPatch?.data)
 		{
 //			deviceLevelVelocity
-			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.vel !== undefined)
+			if (currentPatch?.data?.padbanks?.[currentHand][currentBank]?.bank?.vel !== undefined)
 			{
-				globalVelocity.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.vel;
+				globalVelocity.value = currentPatch?.data?.padbanks?.[currentHand][currentBank].bank.vel;
 				globalVelocity.isDeviceLevel = false;
 			} else {
 				globalVelocity.value = deviceLevelVelocity;
@@ -456,19 +463,19 @@
 			}
 
 			
-			if (currentPatch?.padbanks?.[currentHand][currentBank]?.bank?.ch !== undefined && currentPatch?.padbanks?.[currentHand][currentBank].bank.ch !== -1)
+			if (currentPatch?.data?.padbanks?.[currentHand][currentBank]?.bank?.ch !== undefined && currentPatch?.data?.padbanks?.[currentHand][currentBank].bank.ch !== -1)
 			{
-				globalChannel.value = currentPatch?.padbanks?.[currentHand][currentBank].bank.ch;
+				globalChannel.value = currentPatch?.data?.padbanks?.[currentHand][currentBank].bank.ch;
 				globalChannel.isDeviceLevel = false;
 			} else {
 				globalChannel.value = deviceLevelChannel;
 				globalChannel.isDeviceLevel = true;
 			}
 			
-			if (!("encoders" in currentPatch))
+			if (!("encoders" in currentPatch?.data))
 			{
-				currentPatch.encoders = [];
-				for (let i=0; i<device.model.encoders; i++) currentPatch.encoders.push({});
+				currentPatch.data.encoders = [];
+				for (let i=0; i<device.model.encoders; i++) currentPatch?.data?.encoders.push({});
 			}
 		}
 	}
@@ -495,7 +502,7 @@
 	
 	export function markSaved()
 	{
-		isSaved = true;
+		currentPatch.isSaved = true;
 		sysExLockPatchSwitching(false);
 	}
 	
@@ -504,11 +511,11 @@
 		clearCheckPatchEqualTimeout()
 		checkPatchEqualTimeout = setTimeout(()=>
 		{
-			if (isSame(currentPatch, currentPatchOriginalState)) markUnsaved();
+			if (isSame(currentPatch.data, currentPatch.originalState)) markUnsaved();
 			clearCheckPatchEqualTimeout();
 		}, 300);
 		
-		isSaved = false;
+		currentPatch.isSaved = false;
 		sysExLockPatchSwitching(true);
 	}
 	
@@ -543,13 +550,13 @@
 	
 </script>
 
-<svelte:body on:click={bodyClick} on:patchchange={markUnsaved} on:patchlock={alertAboutPatchLock} on:sysexpush={handleSysExPush} on:drawer="{ondrawer}" on:invokebank={selectBankFromEvent} on:selectpatch={selectPatch} on:opennewui={()=>openNewUI(true)}></svelte:body>
+<svelte:body on:click={bodyClick} on:patchchange={markUnsaved} on:patchlock={alertAboutPatchLock} on:sysexpush={handleSysExPush} on:drawer="{ondrawer}" on:invokebank={selectBankFromEvent} on:closeeditor={closeEditor} on:opennewui="{()=>openNewUI(true)}" on:closenewui="{()=>{newInterfaceOpen = false}}"></svelte:body>
 
 <!-- export function deviceRefusedToChangePatches() { quickNormal("patchlock"); }
 export function invokeControl(kind: number, no: number) { quickCustom("invoke", {controlKind: kind, controlNo: no}); }
 export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { data: data }) } -->
 
-{#if currentPatch && openSection == "editor"}
+{#if currentPatch?.data && openSection == "editor"}
 <section id="tab-config">
 	
 	<GotIt cookieName="editorworks">
@@ -559,18 +566,18 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 				
 	<div id="toolbar-top" class="donotcloseeditor">
 		<div class="patchlist-pattern patternpreview" style="display: inline-flex; width: 2.5rem; height: 2.5rem; vertical-align: middle; position: relative; top: -0.11rem;">
-		{#if currentPatch.info.pattern}
-		{#each currentPatch.info.pattern as colour}
+		{#if currentPatch.data.info.pattern}
+		{#each currentPatch.data.info.pattern as colour}
 			<span data-colour="0" style="background-color: {hexToCSS(colour)}" on:click={openPatternEditor}></span>
 		{/each}
 		{/if}
 		</div>
-		<select bind:this={patchSelector} disabled={!isOnline } id="patchselector" on:input={selectPatch} value={currentPatchValue} style="height:2.5rem">
-		{#each patchesInfo as patch}
+		<select bind:this={patchSelector} disabled={!isOnline } id="patchselector" on:input={selectPatch} value={currentPatch.value} style="height:2.5rem">
+		{#each $patchList as patch}
 			<option value="{patch.name}">{patch.name.replace(".dbrpatch","")}</option>
 		{/each}
 		</select>
-		<ButtonUpload disabled={!isOnline} on:click="{uploadOrRevert}" {isSaved} bind:this={uploadButton}>{#if $isAlt}Revert{:else}Upload to device{/if}</ButtonUpload>
+		<ButtonUpload disabled={!isOnline} on:click="{uploadOrRevert}" isSaved={currentPatch.isSaved} bind:this={uploadButton}>{#if $isAlt}Revert{:else}Upload to device{/if}</ButtonUpload>
 		<button disabled={!isOnline} on:click="{()=>openNewUI()}">New...</button>
 
 	</div>
@@ -590,12 +597,12 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 				up to 50 characters long, and obviously shouldn’t be the same as existing patches.</p>
 			
 			<p class="checkboxblock">
-				<label><input type="radio" bind:group={useCleanSlate} value="no" /> Duplicate from current</label><br />
-				<label><input type="radio" bind:group={useCleanSlate} value="yes" /> Create an empty patch</label><br />
+				<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.Duplicate} /> Duplicate from current</label><br />
+				<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.CleanSlate} /> Create an empty patch</label><br />
 
 				{#if device?.model?.code && defaultPatches[device.model.code] }
-				<label><input type="radio" bind:group={useCleanSlate} value="template" /> From template: 
-				<select disabled="{useCleanSlate != 'template'}" bind:value={useTemplate} style="width:auto">
+				<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.Template} /> From template: 
+				<select disabled="{useCleanSlate != NewPatchDecision.Template}" bind:value={useTemplate} style="width:auto">
 				{#each defaultPatches[device.model.code] as defpatch }
 					<option value="{defpatch.id}">{defpatch.name}</option>
 				{/each}
@@ -606,7 +613,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			</p>
 			
 			<p>
-				<button on:click={createNew} disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
+				<button on:click={createNewLocal} disabled={!isOnline || newPatchNameIsValid != NameFailsBecause.Nothing}>New</button>
 				<button on:click="{()=>{newInterfaceOpen = false}}">Close</button>
 			</p>
 			
@@ -618,16 +625,16 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		<div class="bsw-holder">
 <!-- 					<p class="b">Banks</p> -->
 			<ul class="bankswitcher" id="bsw-left">
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][0]?.pads?.length)}" class:sel="{currentBank == 0}" on:click="{()=>selectBank(0)}">1</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][1]?.pads?.length)}" class:sel="{currentBank == 1}" on:click="{()=>selectBank(1)}">2</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][2]?.pads?.length)}" class:sel="{currentBank == 2}" on:click="{()=>selectBank(2)}">3</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][3]?.pads?.length)}" class:sel="{currentBank == 3}" on:click="{()=>selectBank(3)}">4</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][0]?.pads?.length)}" class:sel="{currentBank == 0}" on:click="{()=>selectBank(0)}">1</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][1]?.pads?.length)}" class:sel="{currentBank == 1}" on:click="{()=>selectBank(1)}">2</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][2]?.pads?.length)}" class:sel="{currentBank == 2}" on:click="{()=>selectBank(2)}">3</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][3]?.pads?.length)}" class:sel="{currentBank == 3}" on:click="{()=>selectBank(3)}">4</li>
 			</ul>
 			<ul class="bankswitcher" id="bsw-shift">
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][4]?.pads?.length)}" class:sel="{currentBank == 4}" on:click="{()=>selectBank(4)}">-1</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][5]?.pads?.length)}" class:sel="{currentBank == 5}" on:click="{()=>selectBank(5)}">-2</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][6]?.pads?.length)}" class:sel="{currentBank == 6}" on:click="{()=>selectBank(6)}">-3</li>
-				<li class:bsw-empty="{!(currentPatch.padbanks[0][7]?.pads?.length)}" class:sel="{currentBank == 7}" on:click="{()=>selectBank(7)}">-4</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][4]?.pads?.length)}" class:sel="{currentBank == 4}" on:click="{()=>selectBank(4)}">-1</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][5]?.pads?.length)}" class:sel="{currentBank == 5}" on:click="{()=>selectBank(5)}">-2</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][6]?.pads?.length)}" class:sel="{currentBank == 6}" on:click="{()=>selectBank(6)}">-3</li>
+				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][7]?.pads?.length)}" class:sel="{currentBank == 7}" on:click="{()=>selectBank(7)}">-4</li>
 			</ul>
 			<!-- <ul class="bankswitcher hh" id="bsw-right">
 				<li>1</li>
@@ -646,16 +653,16 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		</div>
 		
 		{#if drawer == "patchsettings"}
-			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPatch {currentPatch} {currentPatchName} model={device.model} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPatch {currentPatch} model={device.model} /></div>
 		{/if}
 		{#if drawer == "banksettings"}
-			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {deviceLevelChannel} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.data.padbanks[currentHand][currentBank]} {deviceLevelChannel} /></div>
 		{/if}
 		{#if drawer == "colourpaint"}
-			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.info.pattern} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-colourpaint"><DrawerColour bind:this={colourPaintDrawer} bind:colourPaintMode bind:colourPaintShowBank {paintData} bind:bank={currentPatch.data.padbanks[currentHand][currentBank]} bind:pattern={currentPatch.data.info.pattern} /></div>
 		{/if}
 		{#if drawer == "banktemplates"}
-			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.padbanks[currentHand][currentBank]} {numberOfActiveBanks} /></div>
+			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.data.padbanks[currentHand][currentBank]} {numberOfActiveBanks} /></div>
 		{/if}
 		
 		
@@ -668,32 +675,32 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{#if drawer == "colourpaint"}
 		<i>Device is in colour preview mode</i>
 		{:else}
-		{#if !(currentPatch?.padbanks[currentHand][currentBank]?.pads?.length)}Bank is off.{/if}
+		{#if !(currentPatch?.data?.padbanks[currentHand][currentBank]?.pads?.length)}Bank is off.{/if}
 		{/if}
 	</div>
 
 	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:gray={importantFactorySettings.caseColour == CaseColour.Gray} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.encoders} />
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.encoders} />
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" controlNo={2} dataAll={currentPatch.encoders} />
-			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.encoders}  />{/if}
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.data.encoders} />
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.data.encoders} />
+			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" controlNo={2} dataAll={currentPatch.data.encoders} />
+			{#if device.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.data.encoders}  />{/if}
 		</div>
 	
-		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch?.padbanks?.[currentHand][currentBank]} pattern={currentPatch.info.pattern} {colourPaintMode} {colourPaintShowBank} />
+		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch?.data?.padbanks?.[currentHand][currentBank]} pattern={currentPatch.data.info.pattern} {colourPaintMode} {colourPaintShowBank} />
 
 		{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 
-			<ControlEditor on:close={closeEditor} {currentPatch} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.padbanks?.[currentHand][currentBank]) !== false} />
+			<ControlEditor on:closeeditor currentPatch={currentPatch.data} {currentBank} {currentHand} controlKind={editorControlKind} controlNumber={editorControlNumber} bind:this={controlEditor} {globalVelocity} {globalChannel} globalColours={currentPatch?.data?.padbanks?.[currentHand][currentBank].bank?.colour} scaleIsOn={currentKeyInfoToKey(currentPatch?.data?.padbanks?.[currentHand][currentBank]) !== false} />
 		</div>
 		{/if}
 	</div>
 </section>
 {/if} <!-- if openSection == editor -->
-<Confirm bind:this={confirmDiscard} okText="Discard">
+<!-- <Confirm bind:this={confirmDiscard} okText="Discard">
 	<p>You have unsaved changes. Do you want to discard them and open another patch?</p>
-</Confirm>
+</Confirm> -->
 <Confirm bind:this={confirmDiscardThis} okText="Revert">
 	<p>You have unsaved changes. Do you want to revert to the last saved version?</p>
 </Confirm>

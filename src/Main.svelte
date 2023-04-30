@@ -1,26 +1,27 @@
-<script lang="ts">
-	import type { BranchInfo, PatchInfoItem } from './types_patch';
+<script lang="ts">	
+	import { build, version } from 'version';
 	
-	import { build, version } from './version';
-	
-	import * as BSON from 'bson'
-	
-	import type { StatusResult } from './types'
-	import { defaultStatusResult, getDefaultPatch, isMinimumVersion, FirmwareState } from './device'
-	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, sysExFileAndDo, flipConnected, sysExLockPatchSwitching, sysExBootloader } from './midi'
-	import { SysExCommand, SysExStatus } from './midi_utils';
-	import { fixSettings, getSettingsFromDevice, getFactorySettings } from './settings_utils'
-	import { WaitingBlock } from './waitingblock'
-	import { isAlt } from './stores';
+	import type { StatusResult, NoPatchesObject } from 'types'
+	import { NewPatchDecision } from 'types'
+	import { defaultStatusResult, isMinimumVersion, FirmwareState } from 'device'
+	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, flipConnected, sysExLockPatchSwitching, sysExBootloader } from 'midi_core'
+	import { SysExStatus } from 'midi_utils';
+	import { fixSettings, getSettingsFromDevice, getFactorySettings } from 'settings_utils'
+	import { WaitingBlock } from 'waitingblock'
+	import { isAlt } from 'stores';
+	import { loadPatchInfo, fillPatchList, patchList } from 'patch';
 	
 	import GotIt from './widgets/GotIt.svelte';
-	import Confirm from './widgets/Confirm.svelte';
+	import NoPatches from './widgets/NoPatches.svelte';
 		
 	import SectionEditor from './SectionEditor.svelte'
 	import SectionPatches from './SectionPatches.svelte'
 	import SectionSettings from './SectionSettings.svelte'
 	import SectionDevice from './SectionDevice.svelte'
 	import SectionFirmware from './SectionFirmware.svelte'
+	
+	
+	
 	
 	const sections: string[] = ['editor','patches','settings','firmware','device'];
 	
@@ -36,9 +37,9 @@
 	
 	let editor: SectionEditor;
 	
-	let patchesInfo: PatchInfoItem[];
+//	let patchesInfo: PatchInfoItem[];
 	
-	let alertNoPatches: Confirm;
+	let alertNoPatches: NoPatches;
 	
 	function romanize (num: number)
 	{
@@ -58,47 +59,47 @@
 		return Array(+digits.join("") + 1).join("M") + roman;
 	}
 	
-	async function loadPatchInfo()
-	{
-
-		patchesInfoHasBeenLoaded = false;
-		
-		let recoverFromError = false;
-		
-		do
-		{
-			recoverFromError = false;
-			
-			for (let patch of patchesInfo)
-			{
-				try
-				{
-					if (patch.name == "__tmpupl.dbrpatch" || patch.name == "__tmpcpy.dbrpatch")
-					{
-						console.warn(`Cleaning up the mess: deleting ${patch.name}`);
-						await sysExFilenameAndDo(SysExCommand.DELETEPATCH, patch.name, ()=>{});
-						patchesInfo = patchesInfo.filter(v=>{return v.name != patch.name});
-						recoverFromError = true;
-						break;
-					} else
-						await sysExFilenameAndDo(SysExCommand.GETPATCHINFO, patch.name, (pinfo: BranchInfo /*, pname: string*/)=>patch.info = pinfo, 700);
-				} catch(e) {
-					if (e.status == SysExStatus.NO_ENTITY)
-					{
-						console.error(`File ${patch.name} failed miserably with unreachable data. Will try to recover...`);
-						patchesInfo = patchesInfo.filter(v=>{return v.name != patch.name});
-						recoverFromError = true;
-						break;					
-					} else throw e;
-				}
-			}
-		} while (recoverFromError)
-			
-		patchesInfoHasBeenLoaded = true;
-	}
+// 	async function loadPatchInfo()
+// 	{
+// 
+// 		patchesInfoHasBeenLoaded = false;
+// 		
+// 		let recoverFromError = false;
+// 		
+// 		do
+// 		{
+// 			recoverFromError = false;
+// 			
+// 			for (let patch of patchesInfo)
+// 			{
+// 				try
+// 				{
+// 					if (patch.name == "__tmpupl.dbrpatch" || patch.name == "__tmpcpy.dbrpatch")
+// 					{
+// 						console.warn(`Cleaning up the mess: deleting ${patch.name}`);
+// 						await sysExFilenameAndDo(SysExCommand.DELETEPATCH, patch.name, ()=>{});
+// 						patchesInfo = patchesInfo.filter(v=>{return v.name != patch.name});
+// 						recoverFromError = true;
+// 						break;
+// 					} else
+// 						await sysExFilenameAndDo(SysExCommand.GETPATCHINFO, patch.name, (pinfo: BranchInfo /*, pname: string*/)=>patch.info = pinfo, 700);
+// 				} catch(e) {
+// 					if (e.status == SysExStatus.NO_ENTITY)
+// 					{
+// 						console.error(`File ${patch.name} failed miserably with unreachable data. Will try to recover...`);
+// 						patchesInfo = patchesInfo.filter(v=>{return v.name != patch.name});
+// 						recoverFromError = true;
+// 						break;					
+// 					} else throw e;
+// 				}
+// 			}
+// 		} while (recoverFromError)
+// 			
+// 		patchesInfoHasBeenLoaded = true;
+// 	}
 	
-	import type { VersionData } from './device'
-	import { getLatestVersion, versionCompare } from './device'
+	import type { VersionData } from 'device'
+	import { getLatestVersion, versionCompare } from 'device'
 	
 	let versionInfo: VersionData;
 	let hasNewFirmware = FirmwareState.Unknown;
@@ -149,20 +150,37 @@
 		{
 			try
 			{
-				await sysExAndDo(SysExCommand.PATCHLIST,   (d: PatchInfoItem[])=>patchesInfo=d);
+				await fillPatchList();
 				break;
 			} catch(e) {
 				if (e.status != SysExStatus.NO_FILE) throw(e);
 				WaitingBlock.unblock();
-				if (!(await alertNoPatches.confirm())) // cancel === "Disk mode" in this case 
+				
+				let noPatchesObject: NoPatchesObject = await alertNoPatches.confirm();
+				
+				if (noPatchesObject.decision == NewPatchDecision.DiskMode || noPatchesObject.decision == NewPatchDecision.Cancel) // cancel === "Disk mode" in this case 
 				{
-					sysExDiskMode();
+					if (noPatchesObject.decision == NewPatchDecision.DiskMode) sysExDiskMode();
 					throw("No patches on this device");
 				}
 				
-				let filedata = BSON.serialize(await getDefaultPatch(device.model)); // Uint8Array
-				let maxDetalCode = device.model.name.replaceAll(" ","").replaceAll("#","Sharp");
-				await sysExFileAndDo(SysExCommand.WRITEPATCH, `MaxDetal${maxDetalCode}.dbrpatch`, filedata, ()=>{});				
+				await editor.createNew(
+					noPatchesObject.decision,
+					noPatchesObject.template
+				);
+				
+				// export async function newPatch(
+				// 	cleanSlate: boolean, 									// use an empty template for patch, or the current data?
+				// 	patternFunction: Function | null,							// generate random pattern (or just shift hues)
+				// 	uploadPatchName: string, 								// the filename
+				// 	loadPatchAfter: boolean = true,							// load the patch afterwards?
+				// 	uiSuccessHandler: Function = defaultNewPatchHandler,	// function that gives the user feedback on success
+				// 	patchData: Patch | null = null							// the patch data. Null will make it clone the currentPatch
+				// )
+				
+				// let filedata = BSON.serialize(await getDefaultPatch(device.model)); // Uint8Array
+				// let maxDetalCode = device.model.name.replaceAll(" ","").replaceAll("#","Sharp");
+				// await sysExFileAndDo(SysExCommand.WRITEPATCH, `MaxDetal${maxDetalCode}.dbrpatch`, filedata, ()=>{});				
 				continue;
 			}
 		}
@@ -239,14 +257,15 @@
 	{/if}
 
 	<!-- {#if openSection=="editor"} -->
-	{#if patchesInfo}
+	{#if $patchList != undefined}
+	
 	<!-- NB settingsRawData[32] is a rather ugly solution to a necessity of sending device-level channel downward. If more settings will be needed to be acknowledged in the editor,
 		I may do something else here, i.e. decode settings in Main, but for now I think there are more cons to this -->
-	<SectionEditor bind:this={editor} on:section={section} bind:patchesInfo isOnline={isOnline&&isConnected} deviceLevelVelocity={window.settings?.midi.vel.value ?? 0x7f} deviceLevelChannel={window.settings?.midi.channel.value ?? 0} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
+	<SectionEditor bind:this={editor} on:section={section} isOnline={isOnline&&isConnected} deviceLevelVelocity={window.settings?.midi.vel.value ?? 0x7f} deviceLevelChannel={window.settings?.midi.channel.value ?? 0} {device} on:section="{(ev)=>{console.log(ev.detail.section);openSection = ev.detail.section}}" {openSection} />
 	{/if}
 	<!-- {/if} -->
 	{#if openSection=="patches"}
-	<SectionPatches changeSection={section} {editor} {device} on:section={section} bind:patchesInfo {patchesInfoHasBeenLoaded} isOnline={isOnline&&isConnected} />
+	<SectionPatches changeSection={section} {editor} {device} on:section={section} patchesInfo={$patchList} {patchesInfoHasBeenLoaded} isOnline={isOnline&&isConnected} />
 	{/if}
 	{#if openSection=="settings"}
 	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} {device} />
@@ -259,9 +278,7 @@
 	{/if}
 </main>
 
-<Confirm bind:this={alertNoPatches} cancelText="Disk mode">
-	<p>This device has no patches. The default patch will be uploaded.</p>
-</Confirm>
+<NoPatches bind:this={alertNoPatches} device={device} />
 
 	<p>
 <!-- {#if device.model.code}

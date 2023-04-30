@@ -1,19 +1,20 @@
 <script lang="ts">
 	import * as BSON from 'bson'
-	import { onDestroy, createEventDispatcher } from 'svelte'
+	import { onDestroy } from 'svelte'
 	
-	import { patchChanged, openPatternEditor } from './events';
-	import { patchAsFileFromData, getPatch, arrayToFlag, flagToArray } from './data_utils'
-	import { ExpanderSanizer } from './data_expandsanize'
+	import { patchChanged, openPatternEditor } from 'event_helpers';
+	import { patchAsFileFromData, getPatch, arrayToFlag, flagToArray } from 'data_utils'
+	import { ExpanderSanizer } from 'data_expandsanize'
 	
-	import type { Model } from './device';
-	import type { Patch, BranchSettings } from './types_patch'
+	import type { Model } from 'device';
+	import type { Patch, BranchSettings } from 'types_patch'
 	
 	import Halp from './widgets/Halp.svelte';
 	import PaletteCheckboxes from './widgets/PaletteCheckboxes.svelte';
+	
+	import type { CurrentPatchInfo } from 'patch'
 			
-	export let currentPatch: Patch;
-	export let currentPatchName: string;
+	export let currentPatch: CurrentPatchInfo;
 	export let model: Model;
 	
 	let burstPrev = -1;
@@ -39,7 +40,7 @@
 		},
 		() =>
 		{
-			if (currentPatch.info.desc && currentPatch.info.desc.trim() == "") delete currentPatch.info.desc;
+			if (currentPatch.data.info.desc && currentPatch.data.info.desc.trim() == "") delete currentPatch.data.info.desc;
 		} // cleanup function
 	);
 	
@@ -47,26 +48,26 @@
 	
 	function patchAsFile(json: boolean = false)
 	{
-		getPatch(currentPatch, model, async ()=>
+		getPatch(currentPatch.data, model, async ()=>
 		{
-//			console.log("Getting the patch", currentPatch);
-			let filedata: string | Buffer = json ? JSON.stringify(currentPatch, null, 2) : BSON.serialize(currentPatch);		
-			patchAsFileFromData(filedata, currentPatchName, json);
+//			console.log("Getting the patch", currentPatch.data);
+			let filedata: string | Buffer = json ? JSON.stringify(currentPatch.data, null, 2) : BSON.serialize(currentPatch.data);		
+			patchAsFileFromData(filedata, currentPatch.name, json);
 			return true;
 		});
-		// sanizeData(patchSettingsModel, currentPatch.settings);
+		// sanizeData(patchSettingsModel, currentPatch.data.settings);
 		// 
-		// currentPatch = sanizePatch(currentPatch, model);
+		// currentPatch.data = sanizePatch(currentPatch.data, model);
 		// 
 		// 
-		// fixAndExpandPatch(currentPatch, model);
+		// fixAndExpandPatch(currentPatch.data, model);
 		// 
-		// expandData(patchSettingsModel, currentPatch.settings);
+		// expandData(patchSettingsModel, currentPatch.data.settings);
 	}
 	
 	$:
 	{
-		if (expanderSanizer.check(currentPatch.settings))
+		if (expanderSanizer.check(currentPatch.data.settings))
 		{
 			// prevChannel = -2;
 			// lightshowPrev = -1;
@@ -74,18 +75,18 @@
 			// console.log("Housekeeping done");
 		}
 		
-		console.log(currentPatch.settings);
+		console.log(currentPatch.data.settings);
 		
-		if (burstPrev != currentPatch.settings.burst) // external change... probably in the beginning
+		if (burstPrev != currentPatch.data.settings.burst) // external change... probably in the beginning
 		{
-			burstPrev = currentPatch.settings.burst;
+			burstPrev = currentPatch.data.settings.burst;
 			burstMode = burstPrev & 0xff;
 			flagToArray(burstFlagKind,    ((burstPrev >> 16) & 0xff));
 			flagToArray(burstFlagPalette, ((burstPrev >> 8)  & 0xff));
 		} else {
 			if (burstMode == 0)
 			{
-				currentPatch.settings.burst = 0;
+				currentPatch.data.settings.burst = 0;
 			} else {
 				if (burstPrev == 0) // has been set to zero
 				{
@@ -94,16 +95,16 @@
 					if (!burstFlagKind.includes(true)) burstFlagKind[0] = true;
 				}
 				
-				currentPatch.settings.burst = (
+				currentPatch.data.settings.burst = (
 					(arrayToFlag(burstFlagKind) << 16) |
 					(arrayToFlag(burstFlagPalette) << 8) |
 					burstMode
 				);
 			}
 			
-			if (burstPrev != currentPatch.settings.burst) patchChanged();
+			if (burstPrev != currentPatch.data.settings.burst) patchChanged();
 			
-			burstPrev = currentPatch.settings.burst;
+			burstPrev = currentPatch.data.settings.burst;
 		}
 	}
 </script>
@@ -195,20 +196,20 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.encreset} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
 				<mark>Long press resets encoders
 					<Halp>
 						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
 					</Halp>
 				</mark>
 				</label>
-				{#if currentPatch.settings.shdblsubbank}
+				{#if currentPatch.data.settings.shdblsubbank}
 				<p class="warn">Access to sub-bank 4 while holding down Shift is enabled, too. If you press any pads in 3 seconds after
 					you press down Shift, the encoder will not be reset.</p>
-				{:else if currentPatch.settings.subhold}
+				{:else if currentPatch.data.settings.subhold}
 				<p class="warn">Access to sub-banks while holding down encoders 1, 2 and 3 is enabled. If you press any pads in 3 seconds after
 					you press these encoders, the encoders will not be reset.</p>
-				{:else if currentPatch.settings.shdblsubbank && currentPatch.settings.subhold}
+				{:else if currentPatch.data.settings.shdblsubbank && currentPatch.data.settings.subhold}
 				<p class="warn">Access to sub-banks while holding down encoders is enabled. If you press any pads in 3 seconds after
 					you press encoders, the encoders will not be reset.</p>
 				{/if}
@@ -226,11 +227,11 @@
 			<h3>Shift</h3>
 			
 			<div class="ce-block">
-				<label><input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.shhold} />
+				<label><input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.shhold} />
 				<mark> Hold Shift to show sub-bank 4</mark>
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</label>
-				{#if currentPatch.settings.encreset}
+				{#if currentPatch.data.settings.encreset}
 				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
 				{/if}
 			</div>
@@ -240,7 +241,7 @@
 				<h4>Double-pressing Shift opens
 					<Halp>Sub-bank 3 is not accessible on Micro by default. You can make it accessible by binding it to
 					double-pressing Shift.</Halp></h4>
-				<select on:input={patchChanged} bind:value={currentPatch.settings.shdblsubbank}>
+				<select on:input={patchChanged} bind:value={currentPatch.data.settings.shdblsubbank}>
 					<option value={3}>Sub-bank 4</option>
 					<option value={2}>Sub-bank 3</option>
 				</select>
@@ -252,17 +253,17 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subhold} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
 				<mark>Hold to show a sub-bank</mark>
 				</label>
-				{#if currentPatch.settings.encreset}
+				{#if currentPatch.data.settings.encreset}
 				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
 				{/if}
 			</div>
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subdbl} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subdbl} />
 				<mark>Double-press to open a sub-bank</mark>
 				</label>
 			</div>
@@ -277,7 +278,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.encreset} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
 				<mark>Long press resets encoders
 					<Halp>
 						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
@@ -288,7 +289,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.settings.subhold} />
+				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
 				<mark>Hold to show a sub-bank
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</mark>
@@ -298,7 +299,7 @@
 			
 			<p class="explain">Sub-banks are accessed by double-pressing encoders.</p>
 			
-			{#if currentPatch.settings.encreset && currentPatch.settings.subhold}
+			{#if currentPatch.data.settings.encreset && currentPatch.data.settings.subhold}
 			<p class="warn">You may not want to enable both of these settings at the same time, as they both rely on 
 				pressing and hold encoders. If you do, note that if you press any pads in 3 seconds after
 				you press encoders, the encoders will not be reset.</p>
@@ -311,7 +312,7 @@
 			<legend>Description
 				<Halp>A short optional note to distinguish the patch, displayed in the configurator patch list.</Halp>
 			</legend>
-			<textarea on:input={patchChanged} id="dw-patch-desc" bind:value={currentPatch.info.desc}></textarea>
+			<textarea on:input={patchChanged} id="dw-patch-desc" bind:value={currentPatch.data.info.desc}></textarea>
 		</fieldset>
 		
 		<fieldset id="dw-patch-advanced">

@@ -1,19 +1,20 @@
 <svelte:options accessors="{true}" />
 
 <script lang="ts">
-	import { tick, createEventDispatcher, onDestroy } from 'svelte';
-	import { controls } from './control_defs'
-	import type { ControlDefinition } from './control_defs'
-	import { fakeNoteOff, fakeNoteUseScale, paramOff, paramOffNegative, getNoteInCurrentScale, MidiCtrl } from './midi_utils'
-	import { colourOff } from './colour_utils'
-	import { Hand, Control, EncoderBehaviour } from './types'
-	import type { DeviceOrBankValue } from './types'
-	import type { Patch, BranchControl } from './types_patch'
-	import { deepClone } from './basic'
-	import { createPadsIfAbsent } from './data_utils';
-	import { ExpanderSanizer, expandData, sanizeData } from './data_expandsanize';
+	import { tick, onDestroy } from 'svelte';
+	import { controls } from 'control_defs'
+	import type { ControlDefinition } from 'control_defs'
+	import { fakeNoteOff, fakeNoteUseScale, paramOff, paramOffNegative, getNoteInCurrentScale, MidiCtrl } from 'midi_utils'
+	import { colourOff } from 'colour_utils'
+	import { Hand, Control, EncoderBehaviour } from 'types'
+	import type { DeviceOrBankValue } from 'types'
+	import type { Patch, BranchControl } from 'types_patch'
+	import { deepClone } from 'basic'
+	import { createPadsIfAbsent } from 'data_utils';
+	import { ExpanderSanizer, expandData, sanizeData } from 'data_expandsanize';
+	import { dispatchEditorClose } from 'event_helpers';
 	
-	import { patchChanged, quickCustom } from './events';
+	import { patchChanged, quickCustom } from 'event_helpers';
 	
 	import NoteEditor from './NoteEditor.svelte'
 	import MidiControl from './editor/MidiControl.svelte'
@@ -31,7 +32,7 @@
 	// import { tweened } from 'svelte/motion';
 //	import { cubicOut } from 'svelte/easing';
 
-	let dispatchEvent = createEventDispatcher();
+//	let dispatchEvent = createEventDispatcher();
 	
 //	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
 	export let currentPatch: Patch;
@@ -136,7 +137,7 @@
 			case Control.Pad: currentPatch.padbanks[currentHand][currentBank].pads[controlNumber] = setTo; break;
 		}
 		
-		dispatchEvent('close');
+		dispatchEditorClose();
 	}
 	
 	function revert()
@@ -178,7 +179,7 @@
 	{
 		if (ev.key != "Enter" && ev.key != "Escape") return;
 		if (ev.key == "Escape") revert();
-		dispatchEvent('close');
+		dispatchEditorClose();
 	}
 	
 	function patchMaybeChanged()
@@ -262,7 +263,7 @@
 		<h2>{theControl.friendlyName} {controlNumber+1}</h2>
 		<div class="cancelerholder" style="text-align: right; font-weight: bold">
 			<span class="revert" on:click={revert}>↺</span>
-			<span class="close" on:click="{()=>{dispatchEvent('close')}}"><Tick /></span>
+			<span class="close" on:click={dispatchEditorClose}><Tick /></span>
 		</div>
 	</header>
 	

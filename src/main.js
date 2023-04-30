@@ -16,7 +16,7 @@ function checkBrowser()
 
 checkBrowser();
 
-import { init } from './midi';
+import { init } from 'midi_core';
 
 init();
 

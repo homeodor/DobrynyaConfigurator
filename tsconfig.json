@@ -4,4 +4,9 @@
   "include": ["src/**/*", "src/node_modules"],
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
   "lib": ["ES2021"],
+  "compilerOptions": {
+      "paths": {
+        "*": ["*", "./src/ts/*"]
+      }
+  }
 }

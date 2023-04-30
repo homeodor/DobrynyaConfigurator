@@ -11,5 +11,7 @@ declare namespace svelte.JSX {
         oninvokebank?: (ev: CustomEvent) => any,
         onselectpatch?: (ev: CustomEvent) => any,
         onopennewui?: (ev: CustomEvent) => any,
+        oncloseeditor?: (ev: CustomEvent) => any,
+        onclosenewui?: (ev: CustomEvent) => any,
     }
 }

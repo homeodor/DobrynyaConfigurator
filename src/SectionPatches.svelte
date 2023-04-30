@@ -2,16 +2,16 @@
 	import { tick } from 'svelte';
 	import * as BSON from 'bson'
 	
-	import { isMacLike } from './stores';
+	import { isMacLike } from 'stores';
 	
-	import { models } from './device';
-	import { quickCustom } from './events'
+	import { models } from 'device';
+	import { quickCustom } from 'event_helpers'
 		
-	import type { Patch } from './types_patch';
+	import type { Patch } from 'types_patch';
 	import type SectionEditor from './SectionEditor.svelte';
 		
-	import { sysExFilenameAndDo, sysExTwoFilenamesAndDo } from './midi';
-	import { SysExCommand } from './midi_utils';
+	import { sysExFilenameAndDo, sysExTwoFilenamesAndDo } from 'midi_core';
+	import { SysExCommand } from 'midi_utils';
 	
 	import iconTune from '../i/patchtune.svg'
 	import iconDuplicate from '../i/patchduplicate.svg'
@@ -22,15 +22,17 @@
 	import RenameInline from './widgets/RenameInline.svelte';
 	import Confirm from './widgets/Confirm.svelte';
 		
-	import { NameFailsBecause, checkIfPatchNameIsValid, nbsp, getNewPatchName } from './editor'
-	import { sortPatchList, patchAsFileFromData, getPatch } from './data_utils';
-	import { hexToCSS } from './colour_utils'
-	import { sysExDiskMode, sysExBootloader } from './midi'
-	import type { PatchInfoItem } from './types_patch'
-	import type { StatusResult } from './types'
+	import { NameFailsBecause, checkIfPatchNameIsValid, nbsp, getNewPatchName } from 'editor'
+	import { sortPatchList, patchAsFileFromData, getPatch } from 'data_utils';
+	import { hexToCSS } from 'colour_utils'
+	import { sysExDiskMode, sysExBootloader } from 'midi_core'
+	import type { PatchInfoItem } from 'types_patch'
+	import type { StatusResult } from 'types'
+	
+	import { newPatch, getCurrentPatch, setCurrentPatchName, patchListHasBeenLoaded } from 'patch'
+	import { hueShiftPattern } from 'colour_utils'
 
 	export let patchesInfo: PatchInfoItem[];
-	export let patchesInfoHasBeenLoaded: boolean; // maybe indicate it is still loading smh?
 	export let editor: SectionEditor;
 	export let changeSection: Function;
 	export let device: StatusResult;
@@ -99,7 +101,7 @@
 		patchesInfo.find(v=>{return v.name == name}).name = newValue;
 		patchesInfo.sort(sortPatchList);
 		
-		if (isThePatch) editor.setCurrentPatchName(newValue);
+		if (isThePatch) setCurrentPatchName(newValue);
 		
 		await tick();
 		
@@ -119,9 +121,10 @@
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDuplicateOfCurrent);
 		
-		editor.newPatch(
+		newPatch(
+			device.model,
 			false,								// not a clean slate
-			false,								// do not generate random pattern, shift hues
+			hueShiftPattern,					// do not generate random pattern, shift hues
 			getNewPatchName(patchesInfo, name), // get a name + Copy n
 			false, 								// do not load afterwards
 			async (patchInfo: PatchInfoItem)=>	// fix UI
@@ -142,7 +145,7 @@
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDownloadOfCurrent);
 		
-		if (patchData === null && isThePatch) patchData = editor.getCurrentPatch();
+		if (patchData === null && isThePatch) patchData = getCurrentPatch();
 		
 		let downloadAction = async ()=>
 		{
@@ -250,7 +253,7 @@
 			to safely disconnect the disk after you’re done (it is actually important).</Halp></button>
 	</div>
 	
-	{#if !patchesInfoHasBeenLoaded}
+	{#if $patchListHasBeenLoaded }
 	<p>Patches are still loading...</p>
 	{/if}
 
