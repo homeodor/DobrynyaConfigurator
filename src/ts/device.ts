@@ -63,6 +63,7 @@ export interface Model
 	pots?: number,
 	auxbuttons?: number,
 	hasJoysitck?: true,
+	canHid?: boolean,
 };
 
 export interface Capabilities
@@ -105,8 +106,13 @@ export const models: Model[][] =
 	[
 		{},
 		{
-			name: "Calculator",
-			code: "calc"
+			name: "Pocket",
+			code: "pocket",
+			canHid: false,
+			template: "miniv2",
+			encoders: 2,
+			chipVaries: false,
+			settingsLength: 64,
 		}
 	],
 	[	
@@ -114,6 +120,7 @@ export const models: Model[][] =
 		{
 			name: "Micro V2",
 			code: "microv2",
+			canHid: true,
 			template: "miniv2",
 			encoders: 3,
 			chipVaries: true,
@@ -127,6 +134,7 @@ export const models: Model[][] =
 		{
 			name: "Micro#",
 			code: "microsharp",
+			canHid: true,
 			template: "miniv2",
 			encoders: 3,
 			chipVaries: true,
@@ -138,6 +146,7 @@ export const models: Model[][] =
 		{
 			name: "Mini V2",
 			code: "miniv2",
+			canHid: true,
 			template: "miniv2",
 			encoders: 4,
 			chipVaries: true,
@@ -147,6 +156,7 @@ export const models: Model[][] =
 		{
 			name: "Mini 25",
 			code: "mini25",
+			canHid: true,
 			template: "mini25",
 			encoders: 4,
 			chipVaries: true,
@@ -158,6 +168,7 @@ export const models: Model[][] =
 		{
 			name: "Pro M V2",
 			code: 'promv2',
+			canHid: true,
 			template: 'prov2',
 			encoders: 5,
 			chipVaries: false,
@@ -166,6 +177,7 @@ export const models: Model[][] =
 		{
 			name: "Pro M#",
 			code: 'promsharp',
+			canHid: true,
 			template: 'prov2',
 			encoders: 5,
 			chipVaries: false,
@@ -174,6 +186,7 @@ export const models: Model[][] =
 		{
 			name: "32 M",
 			code: 'm32',
+			canHid: true,
 			template: 'l32',
 			encoders: 2,
 			chipVaries: false,
@@ -193,6 +206,7 @@ export const models: Model[][] =
 		{
 			name: "Pro V2",
 			code: 'prov2',
+			canHid: false,
 			template: 'prov2',
 			encoders: 5,
 			faders: 4,
@@ -205,6 +219,7 @@ export const models: Model[][] =
 		{
 			name: "Pro 25",
 			code: 'pro25',
+			canHid: false,
 			encoders: 5,
 			faders: 4,
 			pots: 5,
@@ -216,6 +231,7 @@ export const models: Model[][] =
 		{
 			name: "32",
 			code: 'l32',
+			canHid: false,
 			template: 'l32',
 			encoders: 2,
 			hasJoysitck: true,
@@ -225,6 +241,7 @@ export const models: Model[][] =
 		{
 			name: "41",
 			code: 'l41',
+			canHid: false,
 			encoders: 2,
 			hasJoysitck: true,
 			chipVaries: false,
@@ -233,6 +250,7 @@ export const models: Model[][] =
 		{
 			name: "50",
 			code: 'l50',
+			canHid: false,
 			encoders: 2,
 			hasJoysitck: true,
 			chipVaries: false,
@@ -243,20 +261,29 @@ export const models: Model[][] =
 
 export const ChipIDs = 
 {
-	'5':
+	5:
 	{
 		name: "SAMD21x18",
-		code: 18
+		code: 18,
+		mhz: 48,
 	},
-	'6':
+	6:
 	{
 		name: "SAMD21x17",
-		code: 17
+		code: 17,
+		mhz: 48,
 	},
-	'21':
+	21:
 	{
 		name: "SAME51J20",
-		code: 20
+		code: 20,
+		mhz: 120,
+	},
+	32:
+	{
+		name: "ESP32-S3",
+		code: 32,
+		mhz: 240,
 	}
 };
 

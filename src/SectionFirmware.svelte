@@ -22,8 +22,6 @@
 	// @ts-ignore
 	const hid = navigator.hid;
 	
-	const hasHid = hid !== undefined;
-	
 	let hidSearchTimeout = null;
 	let hidList = hid?.getDevices();
 	
@@ -38,6 +36,11 @@
 	let uploadFWAnyway = false;
 //	let newerBLAvailable = false;
 	let newerFWAvailable = false;
+	
+	function hidAvailable()
+	{
+		return hid !== undefined && $deviceDefinition && $deviceDefinition?.model?.canHid;
+	}
 	
 	async function getVersions()
 	{
@@ -111,7 +114,7 @@
 	
 	onMount(()=>
 	{
-		if (hasHid) setInterval(updateHidList, 500);
+		if (hidAvailable()) setInterval(updateHidList, 500);
 		probablySwitching = false;
 		fl.setUiUpdate(updateFirmwareDataStatus, updateProgress, updateMaxProgress);
 		
@@ -122,7 +125,7 @@
 	let dbrHidIsHere: boolean = false;
 	
 	$:{
-		dbrHidIsHere = (hasHid && hidList.length > 0);
+		dbrHidIsHere = (hidAvailable() && hidList.length > 0);
 		
 		if (isOnline)
 		{
@@ -182,7 +185,7 @@
 
 
 {#if !isOnline}
-{#if hasHid}
+{#if hidAvailable()}
 	{#if bootloader}
 		<fieldset class="modemanifest" class:over={dragOverClass} on:drop="{(ev)=>{dragOverClass=false;fl.customUF2(ev)}}" on:dragover|stopPropagation|preventDefault="{()=>{}}" on:dragenter="{_=>dragOverClass=true}" on:dragleave="{_=>dragOverClass=false}">
 			
@@ -433,7 +436,7 @@
 		to be used with the configurator.</div>
 	<div class="fw-updateavailablecl plashka plashkafw plashkagood hh">A new version of firmware is available for your device!</div>
 	<div class="fw-noupdates plashka plashkafw plashkagood hh">Your firmware is up to date!</div>
-	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(!hasHid || ev.altKey);}}">
+	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(!hidAvailable() || ev.altKey);}}">
 	{#if $isAlt}
 		Bootloader with virual disk
 	{:else}
