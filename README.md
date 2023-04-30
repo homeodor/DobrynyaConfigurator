@@ -45,15 +45,17 @@ Here are some details that will help you understand the underpinnings of the Con
 
 ## Device class, model and serial
 
-Each device’s serial number consists of model string and, well, an actual serial number.
+Each device’s serial number consists of model string and, well, an actual serial number. It is stored as a sequence of 8 bytes.
 
 It goes like this:
 
 ```
-CMVVRR-xxxx
+00CMVVRR-xxxx
 ```
 
-```C``` is the class (think of it as the size of the device), ```M``` is the model number; together they make up the model ID. ```VV``` is the variant and ```RR``` is the revision of that model. ```xxxx``` is the actual serial number which increments separately for each model ID, but not for revisions or variants. 
+```00``` is the first byte, which is reserved. ```C``` is the class (think of it as the size of the device), ```M``` is the model number; together they make up the model ID. ```VV``` is the variant and ```RR``` is the revision of that model. All of these are written as hexadecimal digits. ```xxxx``` is the actual serial number which increments separately for each model ID, but not for revisions or variants; it is a 32-bit number, written in decimal.
+
+The format may change in the future by either making use of reserved bytes or reducing the length of the 32-bit actual serial number to, say, 24 bits.
 
 The Configurator supports these devices:
 
