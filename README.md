@@ -76,7 +76,7 @@ The other models which are yet to be supported:
 
 Currently used device variants are:
 
-|Model ID|Chip|
+|Variant|Chip|
 |-|-|
 |05|ATSAMD21x18|
 |06|ATSAMD21x17|
