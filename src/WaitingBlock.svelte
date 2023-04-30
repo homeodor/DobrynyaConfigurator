@@ -1,5 +1,5 @@
 <script lang="ts">
-	let dialog;
+	let dialog: HTMLDialogElement;
 	export let errorText = "";
 	
 	export function block()

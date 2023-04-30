@@ -3,11 +3,11 @@
 	import Halp from './widgets/Halp.svelte'
 	import Confirm from './widgets/Confirm.svelte'
 	
-	import { patchChanged, drawer } from './events';
-	import type { BranchBank } from './types_patch';		
-	import { numberOfPads } from './data_utils'
-	import { fillWithTemplate } from './editor';
-	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from './midi_utils'
+	import { patchChanged, drawer } from 'event_helpers';
+	import type { BranchBank } from 'types_patch';		
+	import { numberOfPads } from 'data_utils'
+	import { fillWithTemplate } from 'editor';
+	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from 'midi_utils'
 
 	export let currentBank: BranchBank;
 	export let numberOfActiveBanks: number;

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { hexToCSS, gracefulGetColour, ColourPaintLayer, colourOff } from '../colour_utils';
-	import type { BranchControl } from '../types_patch'
-	import { Control } from '../types';
-	import type { HexColour } from '../types'
-	import { filterInvoke } from '../events';
-	import type { InvokeControlEvent, InvokeControlEventData } from '../events'
+	import { hexToCSS, gracefulGetColour, ColourPaintLayer, colourOff } from 'colour_utils';
+	import type { BranchControl } from 'types_patch'
+	import { Control } from 'types';
+	import type { HexColour } from 'types'
+	import { filterInvoke } from 'event_helpers';
+	import type { InvokeControlEvent, InvokeControlEventData } from 'event_helpers'
 	import InnerControl from './InnerControl.svelte';
 	
 	import { createEventDispatcher } from 'svelte';

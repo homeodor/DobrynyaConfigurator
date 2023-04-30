@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount, createEventDispatcher } from 'svelte';
 	
-	import * as keyboardUtils from './keyboard'
-	import { isMacLike } from './stores.js';
+	import * as keyboardUtils from 'keyboard'
+	import { isMacLike } from 'stores';
 	
 	export let header: string = "";
 	export let value: number;

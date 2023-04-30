@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { colourOff, hexToCSS, isSameColour } from '../colour_utils';
+	import { colourOff, hexToCSS, isSameColour } from 'colour_utils';
 	
 	const dispatch = createEventDispatcher();
 

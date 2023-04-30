@@ -3,14 +3,13 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from '../basic';
-	import { colourOff, ColourPaintLayer } from '../colour_utils'
+	import { deepClone } from 'basic';
+	import { colourOff, ColourPaintLayer } from 'colour_utils'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, getLayerFromHexes  } from './common';
 	import type { CTData, HexArrays } from './common'
 	
 	import OkCancel from '../widgets/OkCancel.svelte'
-	// import Halp from '../widgets/Halp.svelte'
 	import Preview from './Preview.svelte'
 
 	export let ctData: CTData;

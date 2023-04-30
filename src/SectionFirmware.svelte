@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { StatusResult } from './types';
-	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare } from './device'
+	import type { StatusResult } from 'types';
+	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare } from 'device'
 	import { onMount, onDestroy } from 'svelte'
-	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from './hid'
-	import { sysExBootloader } from './midi';
-	import { isAlt } from './stores';
-	import * as fl from './flasher'
+	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from 'hid'
+	import { sysExBootloader } from 'midi_core';
+	import { isAlt } from 'stores';
+	import * as fl from 'flasher'
 	
 	import dbrswitching from '../i/dbrswitching.svg'
 	import dbrbootloader from '../i/dbrbootloader.svg'

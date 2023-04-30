@@ -3,8 +3,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from '../basic';
-	import { colourOff } from '../colour_utils'
+	import { deepClone } from 'basic';
+	import { colourOff } from 'colour_utils'
 	
 	import { fill, HueMode, FillMode } from './fill_func';
 	

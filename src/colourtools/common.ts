@@ -1,9 +1,9 @@
-import type { BranchBank } from "../types_patch";
-import { numberOfPads, createPadsIfAbsent } from '../data_utils'
-import { patchChanged } from "../events";
-import { copyPattern, colourOff, ColourPaintLayer, gracefulGetColour } from '../colour_utils'
-import type { ColourArray  } from "../types";
-import { getNoteInCurrentScale } from '../midi_utils'
+import type { BranchBank } from "types_patch";
+import { numberOfPads, createPadsIfAbsent } from 'data_utils'
+import { patchChanged } from "event_helpers";
+import { copyPattern, colourOff, ColourPaintLayer, gracefulGetColour } from 'colour_utils'
+import type { ColourArray  } from "types";
+import { getNoteInCurrentScale } from 'midi_utils'
 
 /*
 

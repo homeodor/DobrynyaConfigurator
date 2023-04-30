@@ -12,7 +12,7 @@
 			"node_modules/**/*",
 			"package.json"
 		],
-		"copyright": "Copyright © 2022 Alexander Golovanov",
+		"copyright": "Copyright © 2022–2023 Alexander Golovanov",
 		"mac": {
 			"icon": "electron-resources/DobrynyaApp.icns",
 			"category": "public.app-category.utilities"

@@ -1,11 +1,11 @@
 <script lang="ts">
 
-	import { EncoderBehaviour } from "../types"
-	import type { BranchControl } from "../types_patch";
+	import { EncoderBehaviour } from "types"
+	import type { BranchControl } from "types_patch";
 
 	import CC from '../widgets/CC.svelte'	
-	import { noteMidiToHuman, ccToHuman, fakeNoteOff, fakeNoteUseScale } from '../midi_utils';
-	import { keycodeToHuman } from '../keyboard';
+	import { noteMidiToHuman, ccToHuman, fakeNoteOff, fakeNoteUseScale } from 'midi_utils';
+	import { keycodeToHuman } from 'keyboard';
 	
 	const encBehaviourHuman: string[] = ['Key','Oct','Ofs','Scl','Tmp'];
 	

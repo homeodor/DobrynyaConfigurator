@@ -11,8 +11,6 @@
 	
 	let prevValue: string;
 	
-	let laskKey: string | null = null;
-	
 	let theInline: Element;
 	let inlineHolder: Element;
 	let doNotSend: boolean = false;

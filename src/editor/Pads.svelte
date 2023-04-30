@@ -3,11 +3,11 @@
 	
 	import Pad from './Pad.svelte';
 	
-	import type { ColourPaintLayer } from '../colour_utils';
-	import type { Pattern } from '../types';
-	import type { BranchBank, BranchControl } from '../types_patch';
-	import { getNoteInCurrentScale } from '../midi_utils';
-	import { numberOfPads } from '../data_utils';
+	import type { ColourPaintLayer } from 'colour_utils';
+	import type { Pattern } from 'types';
+	import type { BranchBank, BranchControl } from 'types_patch';
+	import { getNoteInCurrentScale } from 'midi_utils';
+	import { numberOfPads } from 'data_utils';
 	
 	export let pattern: Pattern;
 	export let bank: BranchBank;
@@ -44,26 +44,6 @@
 			});
 		}
 	}
-
-// 	function padClick (ev: MouseEvent, i: number)
-// 	{
-// 		console.log(ev.type);
-// 		
-// 		let eventToDispatch: string;
-// 		
-// 		if (colourPaintMode != ColourPaintLayer.Off) // colour paint
-// 		{
-// 			if (
-// 				(ev.type == "click" || ev.buttons & 0x1)
-// 			) eventToDispatch = "paint";
-// 		} else {
-// 			if (ev.type != "click") return; // mouseover?
-// 			eventToDispatch = "click";
-// 		}
-// 
-// 		dispatch(eventToDispatch, {controlKind: 'pad', target: ev.currentTarget, controlNo: i});
-// 	};
-
 
 </script>
 

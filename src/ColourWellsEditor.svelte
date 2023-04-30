@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ColourArray } from './types';
+	import type { ColourArray } from 'types';
 	import ColourWell from './widgets/ColourWell.svelte';
 	export let colours: ColourArray;
 	export let globalColours: number[];

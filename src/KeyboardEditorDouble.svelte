@@ -1,6 +1,6 @@
 <script type="ts">
 	import Halp from './widgets/Halp.svelte';
-	import { Control } from './types';
+	import { Control } from 'types';
 
 	export let controlKind: Control;
 	export let value: number = 0;

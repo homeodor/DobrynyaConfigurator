@@ -4,11 +4,11 @@
 	
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
 	
-	export let rampu;
-	export let rampd;
+	export let rampu: number;
+	export let rampd: number;
 	
 	let dispatchEvent = createEventDispatcher();
-	let theDialog;
+	let theDialog: HTMLDialogElement;
 	
 	onMount(  () => theDialog.showModal());
 	onDestroy(() => theDialog.close());

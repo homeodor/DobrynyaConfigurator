@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getPaletteCSS } from '../palettes'
+	import { getPaletteCSS } from 'palettes'
 	import Halp from './Halp.svelte';
 	
 	export let flags: boolean[];

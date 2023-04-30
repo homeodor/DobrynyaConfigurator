@@ -1,5 +1,5 @@
-import { numberOfPads } from '../data_utils'
-import { colourOff, ColourPaintLayer, getH, getS, getV, hexFromComponents } from '../colour_utils'
+import { numberOfPads } from 'data_utils'
+import { colourOff, ColourPaintLayer, getH, getS, getV, hexFromComponents } from 'colour_utils'
 import type { HexArrays } from './common'
 import { CTAffect, getLayerFromHexes, assembleLayerFromHexes, colourIsExplicitlySet } from './common'
 

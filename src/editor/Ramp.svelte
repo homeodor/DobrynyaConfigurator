@@ -30,16 +30,16 @@
 		{ value: 2,    noteCode: "32-T", 	noteValue: "1/32T" }, 
 	];
 
-	export let value;
-	export let rampID;
+	export let value: number;
+	export let rampID: string;
 	
-	console.log("RAMP value", rampID, value, (value == true));
+//	console.log("RAMP value", rampID, value, (value == true));
 	
 	let tickSource = value & 0xe000;
 	let lengthValue = value & 0xfff;
 	let enabled: boolean = (lengthValue > 0);
 	let wasEnabled: boolean = enabled;
-	let theSVG;
+	let theSVG: SVGElement;
 	
 	function showEach(v:any) { v.style.display="block"; }
 	

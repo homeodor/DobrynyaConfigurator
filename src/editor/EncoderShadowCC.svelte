@@ -1,12 +1,12 @@
 <script lang="ts">
 
-	import { patchChanged } from '../events'
-	import { MidiCtrl, paramOff, paramOffNegative } from '../midi_utils'
+	import { patchChanged } from 'event_helpers'
+	import { MidiCtrl, paramOff, paramOffNegative } from 'midi_utils'
 	
 	import RangeWithInline from '../widgets/RangeWithInline.svelte';
 	
-	export let encoderIsTempo;
-	export let encoderIsScaleOrTempo
+	export let encoderIsTempo: boolean;
+	export let encoderIsScaleOrTempo: boolean;
 	
 	export let cc: number;
 	export let min: number;

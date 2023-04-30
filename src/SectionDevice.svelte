@@ -15,13 +15,13 @@
 		prov2: { name: "ATSAME53J20", mhz: 72 },
 	};
 
-	import { importantFactorySettings } from './settings_utils'
+	import { importantFactorySettings } from 'settings_utils'
 	import imageMiniV2 from '../i/devices/miniv2.webp'
 	import imageMicroV2Dark from '../i/devices/microv2_dark.webp'
 	import imageMicroV2Light from '../i/devices/microv2_light.webp'
-	import type { StatusResult } from './types'
+	import type { StatusResult } from 'types'
 	import Opensource from "./Opensource.svelte";
-	import { CaseColour } from './device'
+	import { CaseColour } from 'device'
 	
 	let imageURL = imageMiniV2;
 	

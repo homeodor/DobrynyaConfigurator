@@ -1,5 +1,3 @@
-<svelte:options tag="dc-pianoroll" />
-
 <style>
 	.pianoroll { position:relative; display:inline-block }
 	.pianorollwhite { position:relative; display:flex; z-index: 1; }

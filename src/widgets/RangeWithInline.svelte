@@ -1,5 +1,3 @@
-<svelte:options tag="dc-range-with-inline" />
-
 <script lang="ts">
 	import Inline from './DumbInline.svelte'
 	import { createEventDispatcher } from 'svelte';

@@ -5,13 +5,13 @@
 
 	export let okText = "OK";
 	
-	let dialog;
-	let resolveFunction;
+	let dialog: HTMLDialogElement;
+	let resolveFunction: Function;
 	
 	export function confirm()
 	{
 		dialog.showModal();
-		return new Promise((resolve,reject)=>resolveFunction = resolve);
+		return new Promise((resolve,_)=>resolveFunction = resolve);
 	};
 	
 </script>

@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte'
-	import { lastColourPaintLayer, lastColourPaintHex } from './stores'
+	import { lastColourPaintLayer, lastColourPaintHex } from 'stores'
 	
-	import { sysExTestPattern } from './midi'
-	import { patchChanged } from './events'
-	import { getIconURL, getIconCSS } from './icons'
-	import { ColourPaintLayer, colourOff, hexToCSS, randomPattern } from './colour_utils'
-	import { createObjectIfAbsent, createPadsIfAbsent, numberOfPads } from './data_utils';
-	import { isSame } from './basic'
-	import { expandSetSanize } from './data_expandsanize'
+	import { sysExTestPattern } from 'midi_core'
+	import { patchChanged } from 'event_helpers'
+	import { getIconURL, getIconCSS } from 'icons'
+	import { ColourPaintLayer, colourOff, hexToCSS, randomPattern } from 'colour_utils'
+	import { createObjectIfAbsent, createPadsIfAbsent, numberOfPads } from 'data_utils';
+	import { isSame } from 'basic'
+	import { expandSetSanize } from 'data_expandsanize'
 	
-	import { Control } from './types';
-	import type { InvokeControlEventData } from './events'
-	import type { BranchBank } from "./types_patch";
+	import { Control } from 'types';
+	import type { InvokeControlEventData } from 'event_helpers'
+	import type { BranchBank } from "types_patch";
 	import { getCurrentHexes, assembleLayerFromHexes } from './colourtools/common'
 	import type { CTData } from './colourtools/common';
 	
@@ -25,7 +25,6 @@
 	import CTRandom from './colourtools/Random.svelte'
 	import CTFade from './colourtools/Fade.svelte'
 	import CTCopy from './colourtools/Copy.svelte'
-	// import CTExplicit from './colourtools/Explicit.svelte'
 	
 	export let paintData: InvokeControlEventData = null;
 

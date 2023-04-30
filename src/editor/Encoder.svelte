@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import InnerControl from './InnerControl.svelte';
-	import { Control } from '../types';
-	import type { InvokeControlEvent } from '../events'
-	import { filterInvoke } from '../events'
-	import type { BranchControl } from '../types_patch'
+	import { Control } from 'types';
+	import type { InvokeControlEvent } from 'event_helpers'
+	import { filterInvoke } from 'event_helpers'
+	import type { BranchControl } from 'types_patch'
 		
 	export let dataAll: BranchControl[];
 	export let controlNo: number;

@@ -1,14 +1,14 @@
 <script lang="ts">
 //	const jQ = window.$;
-	import * as midiUtils from './midi_utils'
-	import type { DeviceOrBankValue } from './types'
+	import * as midiUtils from 'midi_utils'
+	import type { DeviceOrBankValue } from 'types'
 	
 	import Pianoroll from './widgets/Pianoroll.svelte'
 	import RangeWithInline from './widgets/RangeWithInline.svelte'
 	import Inline from './widgets/DumbInline.svelte'
 	import Overridable from './widgets/Overridable.svelte'
 	
-	import { patchChanged } from './events'
+	import { patchChanged } from 'event_helpers'
 	
 	export let midiNote: number;
 	export let scaleNote: number;

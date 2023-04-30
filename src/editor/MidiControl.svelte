@@ -5,11 +5,11 @@
 	import Halp from "../widgets/Halp.svelte";
 	import Ramps from "./Ramps.svelte";
 		
-	import { patchChanged } from '../events';
-	import { MidiCtrl, paramOffNegative, paramOff } from '../midi_utils'
-	import { map } from '../basic'
+	import { patchChanged } from 'event_helpers';
+	import { MidiCtrl, paramOffNegative, paramOff } from 'midi_utils'
+	import { map } from 'basic'
 	
-	import { EncoderBehaviour } from '../types'
+	import { EncoderBehaviour } from 'types'
 	
 	export let cc:  number;
 	export let min: number;

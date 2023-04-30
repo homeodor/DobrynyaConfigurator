@@ -5,10 +5,10 @@
 </style>
 
 <script lang="ts">
-	import { sysExColourReset } from '../midi'
-	import type { HexColour } from '../types';
+	import { sysExColourReset } from 'midi_core'
+	import type { HexColour } from 'types';
 	import { createEventDispatcher } from 'svelte';
-	import { colourOff, hexToCSS, hexOrAux, gracefulGetColour } from '../colour_utils';
+	import { colourOff, hexToCSS, gracefulGetColour } from 'colour_utils';
 	import Colour from '../Colour.svelte'
 
 	export let hex: HexColour = colourOff;

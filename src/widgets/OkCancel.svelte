@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { isMacLike } from '../stores.js';
+	import { isMacLike } from 'stores';
 	import { createEventDispatcher } from 'svelte';
 	
 	const dispatch = createEventDispatcher();
 	
-	export let theDialog = null;
+	export let theDialog: HTMLDialogElement = null;
 	export let dispatchEvent = null;
 	export let resetAction = null;
 	
@@ -12,7 +12,8 @@
 	export let okDisabled = false;
 	export let cancelText = "Cancel";
 	
-	let okButton, cancelButton;
+	let okButton: HTMLButtonElement;
+	let cancelButton: HTMLButtonElement;
 	
 	async function okOrCancel(ev: Event)
 	{
@@ -24,7 +25,6 @@
 		if (theDialog)
 		{
 			if (!isOK && resetAction) resetAction();
-//			await tick();
 			theDialog.close();
 			if (dispatchEvent) dispatchEvent("close");
 		}

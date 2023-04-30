@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { StatusResult } from './types'
+	import type { StatusResult } from 'types'
 	
 	import RangeWithInline from './widgets/RangeWithInline.svelte';
 	import Channel from './widgets/Channel.svelte';
@@ -8,7 +8,7 @@
 	import Overridable from './widgets/Overridable.svelte';
 	import Halp from './widgets/Halp.svelte'
 	
-	import { settings, saveSettings, parseSettingsData, isSaved, markSettingsUnsaved } from './settings_utils'
+	import { settings, saveSettings, isSaved, markSettingsUnsaved } from 'settings_utils'
 	
 	export let device: StatusResult;
 	export let isOnline: boolean;

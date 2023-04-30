@@ -1,11 +1,11 @@
 <script lang="ts">
 	import OkCancel from './widgets/OkCancel.svelte'
 	import ColourCanned from './widgets/ColourCanned.svelte'
-	import { sysExTestFill } from './midi'
+	import { sysExTestFill } from 'midi_core'
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
-	import { colourOff, hexToObj, hsvToHex, hexToCSS, invH, dimV, dimS } from './colour_utils'
-	import { isSame, deepClone } from './basic';
-	import type { HexObject } from './types'
+	import { colourOff, hexToObj, hsvToHex, hexToCSS, invH, dimV, dimS } from 'colour_utils'
+	import { isSame, deepClone } from 'basic';
+	import type { HexObject } from 'types'
 
 	export let hex: number = colourOff;
 	export let startHex: number = colourOff;
