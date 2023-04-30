@@ -74,6 +74,17 @@ The other models which are yet to be supported:
 |51|L|Pro V2|Prototype|
 |53|L|32|Prototype|
 
+Currently used device variants are:
+
+|Model ID|Chip|
+|-|-|
+|05|ATSAMD21x18|
+|06|ATSAMD21x17|
+|15|ATSAME51x20|
+|20|ESP32-S3|
+
+That is, if the serial number is `210601-0014`, this is a MIDI Dobrynya Micro V2, based on the ATSAMD21x17, and it is the fourteenth of its kind.
+
 The serial number is important information for the Configurator: it is used to distinguish models as well as individual devices.
 
 ## Patches
