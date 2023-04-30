@@ -150,8 +150,6 @@
 			case Control.Pad: currentPatch.padbanks[currentHand][currentBank].pads[controlNumber] = editorData; break;
 		}
 	}
-	
-	let editorLocked = false;
 
 	async function initEditorAfterTick()
 	{
