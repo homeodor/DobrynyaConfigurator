@@ -111,7 +111,7 @@
 	
 	onMount(()=>
 	{
-		setInterval(updateHidList, 500);
+		if (hasHid) setInterval(updateHidList, 500);
 		probablySwitching = false;
 		fl.setUiUpdate(updateFirmwareDataStatus, updateProgress, updateMaxProgress);
 		
@@ -348,8 +348,8 @@
 		<div id="dobrynyafails">
 		<p>
 			If Dobrynya doesn’t boot up normally, try putting it into the bootloader mode manually.
-			{#if device?.model?.code === "miniv2" || device?.model?.code === "prov2"}Replug the cable of your device while holding down encoders 2 and 4.{/if}
-			{#if device?.model?.code === "microv2"}Replug the cable of your device while holding down encoders 1 and 3{/if}
+			{#if $deviceDefinition?.model?.code === "miniv2" || $deviceDefinition?.model?.code === "prov2"}Replug the cable of your device while holding down encoders 2 and 4.{/if}
+			{#if $deviceDefinition?.model?.code === "microv2"}Replug the cable of your device while holding down encoders 1 and 3{/if}
 		</p>
 		</div>
 		{/if}
@@ -425,7 +425,7 @@
 <fieldset class="modemanifest">
 	<p><img src="{dbrnormal}" alt="Normal operation" class="dbrstate" /></p>
 	<p>Your Dobrynya is in normal mode.
-		Uploading the firmware is easy: just restart in boot loader mode and follow
+		Uploading the firmware is easy: just restart in bootloader mode and follow
 		the instructions!</p>
 	<div id="version-local"></div>
 	<div class="version-remote"></div>
@@ -433,7 +433,7 @@
 		to be used with the configurator.</div>
 	<div class="fw-updateavailablecl plashka plashkafw plashkagood hh">A new version of firmware is available for your device!</div>
 	<div class="fw-noupdates plashka plashkafw plashkagood hh">Your firmware is up to date!</div>
-	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(ev.altKey);}}">
+	<p><button id="restart-bootloader" on:click="{(ev)=>{probablySwitching = true; sysExBootloader(!hasHid || ev.altKey);}}">
 	{#if $isAlt}
 		Bootloader with virual disk
 	{:else}

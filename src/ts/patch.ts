@@ -96,7 +96,6 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 	});
 }
 
-
 	export async function newPatch(
 		cleanSlate: boolean, 									// use an empty template for patch, or the current data?
 		patternFunction: Function | null,							// generate random pattern (or just shift hues)
