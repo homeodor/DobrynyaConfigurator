@@ -77,12 +77,14 @@
 	}
 </script>
 {#if list}
-<datalist id="jopacom" bind:this={listElement}>
+<datalist bind:this={listElement}>
 	{#each list as li}
 	<option value={li}>
 	{/each}
 </datalist>
 {/if}
+<div class="range-inline-container">
 <input type="range" {min} {max} {step} bind:this={range} bind:value id={elId} on:input={dispatchChange} on:click={maybeReset} disabled={disabled} list={listElement?listElement.id:""}>
-<Inline bind:this={theInline} bind:value={inlineValue} on:input={updateRange} on:cancel={updateInline} width={width} disabled={disabled} {nudgeMagnitude} on:nudge={nudge} />
+<Inline bind:this={theInline} bind:value={inlineValue} on:input={updateRange} on:cancel={updateInline} width={width} disabled={disabled} {nudgeMagnitude} on:nudge={nudge} verticalalign="top" />
+</div>
 <!-- <input type="text" class="inline-editable-new" bind:this={theInline} bind:value={inlineValue} on:change={updateRange} on:keydown="{keypress}" on:focus={selectAll} /> -->

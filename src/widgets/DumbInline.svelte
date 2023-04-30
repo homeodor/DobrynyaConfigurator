@@ -1,5 +1,15 @@
 <style>
-	.inline-editable-new:not(:focus) { line-height: 1.4em; cursor:pointer; color: #00eaff; border: 2px transparent; border-bottom-style:dotted; border-bottom-width:1px; border-bottom-color: rgba(0, 234, 255, 0.7); text-decoration: none; background-color:transparent;  }
+	.inline-editable-new:not(:focus) {
+		line-height: 1.4em;
+		cursor:pointer;
+		color: #00eaff;
+		border: 2px transparent;
+		border-bottom-style:dotted;
+		border-bottom-width:1px;
+		border-bottom-color: rgba(0, 234, 255, 0.7);
+		text-decoration: none;
+		background-color:transparent;
+	}
 	.inline-editable-new:focus { background:white; border:1px solid silver; color:black; padding:0em 0.2em }
 	.inline-editable-new.disabled { color:#999; border-bottom-color:#999 }
 	.inline-editable-new.invalid { background-color: rgb(255, 238, 160); box-shadow: rgb(228, 218, 83) 3px 3px 5px, rgb(228, 218, 83) -3px -3px 5px, rgb(228, 218, 83) -3px 3px 5px, rgb(228, 218, 83) 3px -3px 5px; }
@@ -11,6 +21,7 @@
 	const dispatch = createEventDispatcher();
 	
 	export let value: string;
+	export let verticalalign: string = "auto";
 	export let width: string = "auto";
 	export let disabled: boolean = false;
 	export let display: string = "inline-block";
@@ -199,4 +210,4 @@
 </script>
 <!-- <svelte:document on:mouseover={maybeChangeValue} on:mouseup={releaseValueChange}></svelte:body> -->
 
-<span style="width:{width}; display:{display}" role="textbox" contenteditable class:invalid={!isValid && prevValue != value} class:disabled={disabled} type="text" class="inline-editable-new" bind:this={theInline} bind:textContent={value} on:keydown="{keypress}" on:focus={focus} on:blur={blur} on:click={click} on:mousedown={mouseDown}></span>
+<span style="width:{width}; display:{display}; vertical-align:{verticalalign}" role="textbox" contenteditable class:invalid={!isValid && prevValue != value} class:disabled={disabled} type="text" class="inline-editable-new" bind:this={theInline} bind:textContent={value} on:keydown="{keypress}" on:focus={focus} on:blur={blur} on:click={click} on:mousedown={mouseDown}></span>

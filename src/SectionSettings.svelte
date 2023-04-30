@@ -127,12 +127,12 @@
 			
 			<div class="ce-block">
 				<h4>Go idle after</h4>
-				<RangeWithInline on:change={markSettingsUnsavedNow} width="4.5em" bind:value={settings.leds.timeoutchill.value} max={1800} list={logtime} inlineToRange={timeToValue} rangeToInline={valueToTime} />
+				<RangeWithInline on:change={markSettingsUnsavedNow} width="4.7em" bind:value={settings.leds.timeoutchill.value} max={1800} list={logtime} inlineToRange={timeToValue} rangeToInline={valueToTime} />
 			</div>
 			
 			<div class="ce-block">
 				<h4>Change palettes every</h4>
-				<RangeWithInline on:change={markSettingsUnsavedNow} width="4.5em" bind:value={settings.leds.timeoutpalette.value} max={1200} step={5} defValue={30} inlineToRange={timeToValue} rangeToInline={valueToTime} />
+				<RangeWithInline on:change={markSettingsUnsavedNow} width="4.7em" bind:value={settings.leds.timeoutpalette.value} max={1200} step={5} defValue={30} inlineToRange={timeToValue} rangeToInline={valueToTime} />
 			</div>
 			
 			<PaletteCheckboxes bind:flags={settings.leds.palettes.flag} oninput={markSettingsUnsavedNow} />
