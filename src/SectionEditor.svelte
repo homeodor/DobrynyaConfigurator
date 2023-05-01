@@ -19,7 +19,8 @@
 	import DrawerPatch from './DrawerPatch.svelte'
 	import DrawerTemplate from './DrawerTemplate.svelte'
 	import DrawerColour from './DrawerColour.svelte'
-	
+	import DrawerPalette from './DrawerPalette.svelte';
+		
 	import ButtonUpload from './widgets/ButtonUpload.svelte';
 	import Confirm from './widgets/Confirm.svelte';
 	import Alert from './widgets/Alert.svelte';
@@ -83,6 +84,7 @@
 		{ id: 'banktemplates', 	title: "Bank templates" },
 		{ id: 'banksettings', 	title: "Bank settings" },					
 		{ id: 'colourpaint', 	title: "Colour paint" },
+		{ id: 'palette', 		title: "Palette editor" },
 		{ id: 'patchsettings', 	title: "Patch settings" },
 	];
 	
@@ -544,6 +546,9 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{#if drawer == "patchsettings"}
 			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPatch {currentPatch} model={$deviceDefinition.model} /></div>
 		{/if}
+		{#if drawer == "palette"}
+			<div class="drawerwrapper" id="dw-wrapper-patchsettings"><DrawerPalette {currentPatch} model={$deviceDefinition.model} /></div>
+		{/if}
 		{#if drawer == "banksettings"}
 			<div class="drawerwrapper" id="dw-wrapper-banksettings"><DrawerBank bind:currentBank={currentPatch.data.padbanks[editorState.hand][editorState.bank]} {deviceLevelChannel} /></div>
 		{/if}
@@ -553,6 +558,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{#if drawer == "banktemplates"}
 			<div class="drawerwrapper" id="dw-wrapper-banktemplates"><DrawerTemplate bind:currentBank={currentPatch.data.padbanks[editorState.hand][editorState.bank]} {numberOfActiveBanks} /></div>
 		{/if}
+
 		
 		
 		<div class="drawer" id="dw-paintcolour">

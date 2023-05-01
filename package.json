@@ -52,6 +52,7 @@
 	"dependencies": {
 		"@rollup/plugin-typescript": "^8.3.2",
 		"bson": "^4.6.4",
+		"colorthief": "^2.4.0",
 		"electron-json-storage": "^4.5.0",
 		"electron-store": "^8.0.2",
 		"js-cookie": "^3.0.1",

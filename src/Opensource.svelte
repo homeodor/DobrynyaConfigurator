@@ -51,6 +51,13 @@ const opensource: OpenSourceData[] = [
 		licenseOpen: false,
 	},
 	{
+		name: "Color Thief",
+		copyright: "Lockesh Dhakar",
+		license: "MIT",
+		github: "lokesh/color-thief",
+		licenseOpen: false,
+	},
+	{
 		name: "DefinitelyTyped (HID and WebMidi definitions)",
 		copyright: "Kouhei Kiyama, Matt Reynolds, Toshiya Nakakura",
 		license: "MIT",
