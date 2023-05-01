@@ -28,10 +28,10 @@ export enum CaseColour
 
 const minimumFirmware: VersionDataShort =
 {
-	fullVersion: "2.0-25.04.2023",
-	comparableVersion: [2, 0, 2023, 4, 25],
+	fullVersion: "2.0-1.05.2023",
+	comparableVersion: [2, 0, 2023, 5, 1],
 	version: "2.0",
-	date: "25.04.2023"
+	date: "1.05.2023"
 };
 
 export interface VersionData extends VersionDataShort
