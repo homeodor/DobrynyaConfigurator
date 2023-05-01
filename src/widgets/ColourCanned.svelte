@@ -15,5 +15,5 @@
 	
 </script>
 
-	<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+	<!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div class={className} class:thecolour={isSameColour(hex,selectedHex)} style="background-color: {hexToCSS(hex)}" on:click={thisHex} on:mouseover={thisHex}></div>

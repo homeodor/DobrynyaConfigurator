@@ -210,7 +210,7 @@
 	
 	.preview-with-layers > div { width: 6em; }
 	.preview-with-layers label { margin-bottom:0.8em; display:inline-block }
-	.preview-with-layers .patternpreview { display:inline-block }
+	/* .preview-with-layers .patternpreview { display:inline-block } */
 </style>
 
 <dialog bind:this={dialog} class="dw-colour-toolmodal modal">
