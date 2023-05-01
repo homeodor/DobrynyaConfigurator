@@ -35,7 +35,7 @@
 
 <svelte:body on:invoke={invokeControl}></svelte:body>
 
-
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="dobrynya-encoder editablecontrol" bind:this={theElement} on:click={dispatchClick}>
 	{#if data}<InnerControl {data} />{/if}
 </div>

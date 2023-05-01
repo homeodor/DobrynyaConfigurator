@@ -8,7 +8,7 @@
 	
 	export let okText = "OK";
 	
-	let okButton;
+	let okButton: HTMLButtonElement;
 	
 	async function okOrCancel(ev: Event)
 	{

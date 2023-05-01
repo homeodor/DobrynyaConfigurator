@@ -123,7 +123,7 @@
 	div:hover { border-color: var(--active-colour) }
 </style>
 
-<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y-click-events-have-key-events -->
 <div bind:this={theDiv} on:click={customClick} on:mouseover={customClick} on:mousedown={customClick} class:nocolour={moreData.noColour} class="dobrynya-pad editablecontrol colourablecontrol" class:colourpaint={isColourPaint} style="{backgroundColour}; --normal-colour: {normalColour}; --active-colour: {activeColour}" class:ramp={data?.midi?.rampu || data?.midi?.rampd}>
 	{#if data && !isColourPaint}
 	<InnerControl {data} {scaleNote} />

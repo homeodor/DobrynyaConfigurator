@@ -170,6 +170,7 @@ const opensource: OpenSourceData[] = [
 		<h2>{lib.name ?? lib.github.split("/")[1].replaceAll("_"," ")}{#if lib.contributed }<img src="{mergeSVG}" class="info-freelibs-contributed" title="Contributed back" alt="Contributed back">{/if}</h2>
 		
 		<p><a href="{lib.url??`https://github.com/${lib.github}`}">{#if lib.url}Website{:else}GitHub{/if}</a></p>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<p>© {lib.copyright}. Licensed under <span class="unreal" on:click="{()=>lib.licenseOpen = !lib.licenseOpen}">{lib.license}</span> license.</p>
 	
 		{#if lib.licenseOpen}

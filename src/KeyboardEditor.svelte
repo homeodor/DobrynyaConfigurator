@@ -136,16 +136,24 @@
 Add
 	{#if $isMacLike}
 	<span class="system-mac">
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(8) }">⌘</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(2) }">⇧</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(4) }">⌥</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(1) }">⌃</span>
 	</span>
 	{:else}
 	<span class="system-win">
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(1) }">Ctrl</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(2) }">Shift</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(4) }">Alt</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="cbm-keycombo-addmodifier" data-keyboardcatcher="1" on:click="{ () => addModifier(8) }">Win</span>
 	</span>
 	{/if}

@@ -175,6 +175,7 @@
 		<fieldset id="dw-patch-patchpattern">
 			<legend>Patch pattern</legend>
 			<p>Patch pattern is used to uniquely identify the patch. Use
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span class="unreal" on:click={openPatternEditor}>Colour paint</span>
 				to edit it.</p>
 		</fieldset>

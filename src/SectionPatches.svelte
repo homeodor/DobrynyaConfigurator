@@ -27,9 +27,8 @@
 	import { hexToCSS } from 'colour_utils'
 	import { sysExDiskMode, sysExBootloader } from 'midi_core'
 	import type { PatchInfoItem } from 'types_patch'
-	import type { StatusResult } from 'types'
 	
-	import { newPatch, getCurrentPatch, setCurrentPatchName, patchListHasBeenLoaded } from 'patch'
+	import { newPatch, getCurrentPatch, setCurrentPatchName, isSaved } from 'patch'
 	import { hueShiftPattern } from 'colour_utils'
 	
 	import { deviceDefinition } from 'device';
@@ -255,6 +254,7 @@
 	{#if patch}
 		<div class="patchlist-item" class:current-patch={patch.isThePatch} class:uploaded-patch={justUploadedName==patch.name}>
   		<div>
+			 <!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div class="patchlist-pattern patternpreview" on:click="{()=>tune(patch.name, patch.isThePatch)}">
 			{#if patch.info.pattern}
 			{#each patch.info.pattern as colour}
@@ -264,7 +264,7 @@
 			</div>
   		</div>
   		<div>
-			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} /></h3>
+			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} showDot={patch.isThePatch && !isSaved()} /></h3>
 			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
 			{#if patch.info.device != $deviceDefinition.modelID}
 				<div class="warn">{getThisDobrynyaModel(patch.info.device)} </div>

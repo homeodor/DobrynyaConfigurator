@@ -26,7 +26,7 @@
 	export let disabled: boolean = false;
 	export let display: string = "inline-block";
 	export let requireEnter: boolean = false;
-	export let validatorFunction: Function = (v) => { return true };
+	export let validatorFunction: Function = (_: any) => { return true };
 	export let scrubbable: boolean = false;
 	export let nudgeMagnitude: number = 1;
 	

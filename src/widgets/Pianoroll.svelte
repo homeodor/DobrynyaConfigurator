@@ -54,11 +54,13 @@
 <div class="pianoroll" class:disabled class:octave10={octave == 10}>
 	<div class="pianorollwhite">
 	{#each whiteKeys as theKey, k}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div on:click="{(ev) => setMusicKey(ev.currentTarget, ev.altKey)}" class:hh="{k > 7 && octave >= 10}" class:thescalekey="{musicScaleKey === theKey && musicKey < 0}" class:thekey="{musicKey === theKey}" class="pianorollkey whitekey {whiteKeyClasses[k]}" data-key={theKey} title={whiteKeyLetter[k]}></div>
 	{/each}	
 	</div>
 	<div class="pianorollblack">
 	{#each blackKeys as theKey, k}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div on:click="{(ev) => setMusicKey(ev.currentTarget, ev.altKey)}" class:hh="{k > 7 && octave >= 10}" class:thescalekey="{musicScaleKey === theKey && musicKey < 0}" class:thekey="{musicKey === theKey}" class="pianorollkey blackkey {blackKeyClasses[k]}" data-key={theKey} title={blackKeyLetter[k]}></div>
 	{/each}	
 	</div>

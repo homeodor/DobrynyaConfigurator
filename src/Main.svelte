@@ -1,10 +1,10 @@
 <script lang="ts">	
 	import { build, version } from 'version';
 	
-	import type { StatusResult, NoPatchesObject } from 'types'
+	import type { NoPatchesObject } from 'types'
 	import { NewPatchDecision } from 'types'
-	import { defaultStatusResult, isMinimumVersion, FirmwareState, setDevice, deviceDefinition } from 'device'
-	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, flipConnected, sysExLockPatchSwitching, sysExBootloader } from 'midi_core'
+	import { isMinimumVersion, FirmwareState, setDevice, deviceDefinition } from 'device'
+	import { sysExDiskMode, flipConnected, sysExLockPatchSwitching, sysExBootloader } from 'midi_core'
 	import { SysExStatus } from 'midi_utils';
 	import { fixSettings, getSettingsFromDevice, getPalettesFromDevice, getFactorySettings } from 'settings_utils'
 	import { WaitingBlock } from 'waitingblock'
@@ -31,7 +31,7 @@
 	let openSection = "";
 	let sectionSwitchingAllowed = false;
 	
-	let patchesInfoHasBeenLoaded = false;
+//	let patchesInfoHasBeenLoaded = false;
 	
 	let alertJsonLoadFailed: Alert;
 	
@@ -218,10 +218,12 @@
 
 <svelte:body on:dobrynyahere={dobrynyaIsHere} on:dobrynyagone={dobrynyaGone} on:section={section}></svelte:body>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div id="is-online" class:online={isOnline} class:disconnect={!isConnected} class:bootloader={isBootloader} on:click={flipDisconnectNow}>{$deviceDefinition.model.name}</div>
 
 <div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div on:click="{()=>section(sect)}" class:sel={openSection==sect} class:newfirmware={hasNewFirmware==FirmwareState.Outdated && sect=='firmware'} class:disabled={!sectionSwitchingAllowed && sect != 'firmware'} id="show-{sect}">{sect[0].toUpperCase() + sect.substring(1)}</div>
 	{/each}
 </div>

@@ -241,7 +241,9 @@
 	<header>
 		<h2>{theControl.friendlyName} {controlNumber+1}</h2>
 		<div class="cancelerholder" style="text-align: right; font-weight: bold">
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<span class="revert" on:click={revert}>↺</span>
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<span class="close" on:click={dispatchEditorClose}><Tick /></span>
 		</div>
 	</header>
@@ -282,9 +284,11 @@
 					</select>
 					{#if !scaleIsOn && encoderIsScale}
 					<p class="warn explain" style="padding:0">This encoder is set to change scale parameters, but no scale is set.
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						You can change the scale in <span class="unreal" on:click={openBankSettings}>bank settings</span>.</p>
 					{:else if !encoderIsScale}
 					<p class="explain">Encoder can be used to change scale parameters on the fly. You can set the scale in
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<span class="unreal" on:click={openBankSettings}>bank settings</span>.</p>
 					{/if}
 				</div>

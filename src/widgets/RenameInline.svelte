@@ -8,6 +8,7 @@
 	export let disabled: boolean = false;
 	export let display: string = "inline-block";
 	export let validatorFunction: Function = (v: any) => { v; return true };
+	export let showDot: boolean = false;
 	
 	let prevValue: string;
 	
@@ -17,7 +18,7 @@
 	
 	let isValid = true;
 	
-	let laskKey: string | null = null;
+//	let laskKey: string | null = null;
 
 	// onMount(updateInline);
 	// 
@@ -33,7 +34,7 @@
 				value = prevValue;
 			}
 			
-			laskKey = ev.key;
+//			laskKey = ev.key;
 
 			// @ts-ignore
 			theInline.blur(); // onblur fires → maybeDispatch
@@ -100,7 +101,7 @@
 	
 	function focus(ev: Event): boolean
 	{
-		laskKey = null;
+//		laskKey = null;
 		
 		let range = document.createRange();
 		let sel = window.getSelection();
@@ -136,8 +137,13 @@
 	{#if inlineActive}
 	<span style="width:{width}; display:{display}" role="textbox" contenteditable class:invalid={!isValid && prevValue != value} class:disabled={disabled} type="text" class="rename-inline" bind:this={theInline} bind:textContent={value} on:keydown="{keypress}" on:focus={focus} on:blur={blur} on:click={doNotFocus}></span>
 	{:else}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<span style="width:{width}; display:{display}" bind:this={theInline} class:disabled={disabled} class="rename-inline" on:click={doNotFocus}>{value}</span>
 	{/if}
+	{#if showDot}
+	<span class="reddot">●</span>
+	{/if}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<svg on:click={click} enable-background="new 0 0 24 24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class:disabled><g fill="none" stroke-miterlimit="16.0535" stroke-width="1.6054">
 	{#if inlineActive}
 		<path class="st1" d="M1.5,15l5.6,5.8C7.1,20.8,22,6,22.3,5.7"/>

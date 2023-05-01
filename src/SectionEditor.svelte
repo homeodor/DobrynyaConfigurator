@@ -30,8 +30,8 @@
 	import { deepClone, isSame } from 'basic';
 	import { ExpanderSanizer } from 'data_expandsanize'
 	
-	import type { DeviceOrBankValue, StatusResult } from 'types'
-	import type { Patch, PatchInfoItem } from 'types_patch'
+	import type { DeviceOrBankValue } from 'types'
+	import type { Patch } from 'types_patch'
 	import { ColourPaintLayer, randomPattern, hueShiftPattern, hexToCSS } from 'colour_utils'
 	import { CaseColour, deviceDefinition } from 'device';
 	
@@ -447,6 +447,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		<div class="patchlist-pattern patternpreview" style="display: inline-flex; width: 2.5rem; height: 2.5rem; vertical-align: middle; position: relative; top: -0.11rem;">
 		{#if currentPatch.data.info.pattern}
 		{#each currentPatch.data.info.pattern as colour}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<span data-colour="0" style="background-color: {hexToCSS(colour)}" on:click={openPatternEditor}></span>
 		{/each}
 		{/if}
@@ -504,15 +505,23 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		<div class="bsw-holder">
 <!-- 					<p class="b">Banks</p> -->
 			<ul class="bankswitcher" id="bsw-left">
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][0]?.pads?.length)}" class:sel="{editorState.bank == 0}" on:click="{()=>selectBank(0)}">1</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][1]?.pads?.length)}" class:sel="{editorState.bank == 1}" on:click="{()=>selectBank(1)}">2</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][2]?.pads?.length)}" class:sel="{editorState.bank == 2}" on:click="{()=>selectBank(2)}">3</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][3]?.pads?.length)}" class:sel="{editorState.bank == 3}" on:click="{()=>selectBank(3)}">4</li>
 			</ul>
 			<ul class="bankswitcher" id="bsw-shift">
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][4]?.pads?.length)}" class:sel="{editorState.bank == 4}" on:click="{()=>selectBank(4)}">-1</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][5]?.pads?.length)}" class:sel="{editorState.bank == 5}" on:click="{()=>selectBank(5)}">-2</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][6]?.pads?.length)}" class:sel="{editorState.bank == 6}" on:click="{()=>selectBank(6)}">-3</li>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][7]?.pads?.length)}" class:sel="{editorState.bank == 7}" on:click="{()=>selectBank(7)}">-4</li>
 			</ul>
 			<!-- <ul class="bankswitcher hh" id="bsw-right">
@@ -527,6 +536,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 	<div id="drawerholder" class="donotcloseeditor" class:banktemplates={drawer=='banktemplates'} class:colourpaint={drawer=='colourpaint'} class:banksettings={drawer=='banksettings'} class:patchsettings={drawer=='patchsettings'}>
 		<div id="drawerclick">
 		{#each drawers as oneDrawer}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<span class="unreal" class:sel={drawer === oneDrawer.id} on:click="{()=>setDrawer(oneDrawer.id)}">{oneDrawer.title}</span>
 		{/each}
 		</div>

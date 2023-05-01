@@ -65,6 +65,7 @@
 	{#if name}
 	<h4>{name}</h4>
 	{/if}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div class:large class="colourwell" class:nocolour={hex == colourOff} style="background-color: {hexToCSS(backgroundColourHex)}" on:click="{show}"></div>
 	{#if modalIsOpen}
 	<Colour startHex={backgroundColourHex} bind:hex={hex} auxHex={auxHex} name={name} on:close="{modalClose}" />

@@ -393,8 +393,11 @@
 
 			<div class="dw-colour-stuff">
 				<p>Layer:
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Idle }"    class:sel={colourPaintMode == ColourPaintLayer.Idle}    class="unreal">Idle</span>
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span on:click="{()=>colourPaintMode = ColourPaintLayer.Active }"  class:sel={colourPaintMode == ColourPaintLayer.Active}  class="unreal">Active</span>
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span style="white-space: nowrap" on:click="{()=>colourPaintMode = ColourPaintLayer.Pattern }" class:sel={colourPaintMode == ColourPaintLayer.Pattern} class="unreal">Patch pattern
 						<Halp dark={colourPaintMode == ColourPaintLayer.Pattern}>
 							Patch pattern is used to distinguish the patch from others. Click “Randomise” to get a unique combo!
@@ -402,7 +405,9 @@
 					</span>
 				</p>
 				<p class:disabled={isPattern}>Bank colour:
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span on:click="{()=>colourPaintShowBank = true}" class="unreal inline-selector" class:sel={colourPaintShowBank}>Show</span>
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span on:click="{()=>colourPaintShowBank = false}" class="unreal inline-selector" class:sel={!colourPaintShowBank}>Hide</span>
 				</p>
 				<p><select class="notselect" bind:value={openCtModal}>

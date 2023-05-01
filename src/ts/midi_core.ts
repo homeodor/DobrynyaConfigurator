@@ -472,9 +472,8 @@ export async function sysExFileAndDo(theCommand: SysExCommand, filename: string,
 	try
 	{
 		let result = await waitForMidiResult(theCommand, handler, timeout);
-		console.warn("jkashgdkdh");
 		return result;
-	} catch(e) { throw(e); console.error("SDSADS"); }
+	} catch(e) { throw(e); }
 }
 
 export async function sysExTwoFilenamesAndDo(theCommand: SysExCommand, filename1: string, filename2: string, handler: Function, timeout: number = 4000): Promise<any>

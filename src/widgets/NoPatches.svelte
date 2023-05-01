@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	import OkCancel from './OkCancel.svelte';
-	import type { StatusResult, NoPatchesObject } from 'types';
+	import type { NoPatchesObject } from 'types';
 	import { NewPatchDecision } from 'types';
 	import { defaultPatches } from 'defaultpatches';
 	import type { DefaultPatchDescriptor } from 'defaultpatches';

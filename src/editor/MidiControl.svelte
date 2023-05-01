@@ -351,6 +351,7 @@
 		</div>
 		
 		<div class="checkboxholder">
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<label on:click|stopPropagation|preventDefault={openRampEditor}>
 			<input checked={(rampu || rampd)>0} class="appleswitch" type="checkbox" > <mark></mark><span class="unreal">Ramp...
 			<Halp>

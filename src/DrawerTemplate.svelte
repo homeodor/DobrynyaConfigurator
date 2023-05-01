@@ -144,6 +144,7 @@
 		
 		<fieldset>
 			<legend>Scale and key</legend>
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<p>You can set scale in <span class="unreal" on:click="{()=>drawer('banksettings')}">bank settings</span>.</p>
 		</fieldset>
 		

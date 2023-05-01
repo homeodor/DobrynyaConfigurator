@@ -49,6 +49,8 @@ export const editorState: CurrentEditorState =
 	bank: 0,
 };
 
+export function isSaved(): boolean { return currentPatch.isSaved; }
+
 export function getCurrentPatch(): Patch { return currentPatch.data; }
 export function setCurrentPatchName(v: string) { currentPatch.value = currentPatch.name = v; }
 

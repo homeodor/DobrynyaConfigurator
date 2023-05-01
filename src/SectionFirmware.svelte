@@ -22,7 +22,7 @@
 	const hid = navigator.hid;
 	
 	let hidSearchTimeout = null;
-	let hidList = hid?.getDevices();
+	let hidList: HIDDevice[];
 	
 	let probablySwitching = true;
 	let doesNotShowUpTips = false;
@@ -111,9 +111,13 @@
 			hasNewFirmware = FirmwareState.UpToDate;
 	}
 	
-	onMount(()=>
+	onMount(async ()=>
 	{
-		if (hidAvailable()) setInterval(updateHidList, 500);
+		if (hidAvailable())
+		{
+			await updateHidList();
+			setInterval(updateHidList, 500);
+		}
 		probablySwitching = false;
 		fl.setUiUpdate(updateFirmwareDataStatus, updateProgress, updateMaxProgress);
 		
@@ -187,7 +191,7 @@
 {#if hidAvailable()}
 	{#if bootloader}
 		<fieldset class="modemanifest" class:over={dragOverClass} on:drop="{(ev)=>{dragOverClass=false;fl.customUF2(ev)}}" on:dragover|stopPropagation|preventDefault="{()=>{}}" on:dragenter="{_=>dragOverClass=true}" on:dragleave="{_=>dragOverClass=false}">
-			
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<p><img src="{dbrbootloader}" alt="Bootloader mode" class="dbrstate" on:click="{(e)=>dumpFirmware(e)}" /></p>
 			<p>Your Dobrynya is in bootloader mode.</p>
 			
@@ -236,6 +240,7 @@
 						</table><br />
 						{:else}
 						<p>Your firmware version ({bootloader.fwVersion}) is up to date.
+							<!-- svelte-ignore a11y-click-events-have-key-events -->
 							<span on:click="{()=>uploadFWAnyway=!uploadFWAnyway}" class="unreal">{#if uploadFWAnyway}Okay, fine.{:else}Upload anyway{/if}</span>
 						</p>
 						{/if}
@@ -312,6 +317,7 @@
 			<p>If Dobrynya is showing red light for more than 10 seconds or is otherwise unresponsive, or your OS is displaying an error,
 				unplug and plug it again and try going into bootloader mode once more.</p>
 			{#if !doesNotShowUpTips}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<p><span class="unreal" on:click="{()=>doesNotShowUpTips=true}">Dobrynya doesn’t show up?</span></p>
 			{:else}
 			<div id="dobrynyafails">
@@ -345,6 +351,7 @@
 		<p>If Dobrynya is showing red light for more than 10 seconds or is otherwise unresponsive, or your OS is displaying an error,
 		or no virtual drive appears, unplug and plug it again and try going into bootloader mode once more.</p>
 		{#if !doesNotShowUpTips}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<p><span class="unreal" on:click="{()=>doesNotShowUpTips=true}">Dobrynya doesn’t show up?</span></p>
 		{:else}
 		<div id="dobrynyafails">
@@ -416,6 +423,7 @@
 	{:else if hasNewFirmware == FirmwareState.UpToDate}
 	<div id="fw-updateavailable" class="plashka plashkagood">Your firmware is up to date.</div>
 	{:else if hasNewFirmware == FirmwareState.Unknown}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div id="fw-noupdates" class="plashka plashkawarn">Cannot check if a new version is available. <span class="unreal" on:click="{()=>updateVersionInfo()}">Check again</span>?</div>
 	{:else}
 	<div id="fw-noupdates" class="plashka plashkawarn">Checking for updates...</div>
