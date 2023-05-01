@@ -22,7 +22,7 @@
 	const hid = navigator.hid;
 	
 	let hidSearchTimeout = null;
-	let hidList: HIDDevice[];
+	let hidList: HIDDevice[] = [];
 	
 	let probablySwitching = true;
 	let doesNotShowUpTips = false;
