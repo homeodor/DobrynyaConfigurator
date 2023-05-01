@@ -157,8 +157,6 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 				midiResult.data.push({ name: patchItemResult.string, isThePatch: patchItemResult.isThePatch });
 			}
 			
-			console.log("Patchlist", midiResult.data);
-			
 			midiResult.data.sort(sortPatchList);
 			
 			break;

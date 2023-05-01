@@ -52,6 +52,8 @@ export class WaitingBlock
 				text = "The requested filename is wrong."; break;
 			case SysExStatus.FILENAME_TOO_LONG:
 				text = "The requested file has a filename that is too long."; break;
+			case SysExStatus.NOT_IMPLEMENTED:
+				WaitingBlock.unblock(); return; // so what.
 			default:
 				text = "An unknown error has occured. Please try again."; break;
 		}

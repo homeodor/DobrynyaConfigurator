@@ -51,16 +51,13 @@ async function checkDobrynyaIsHere()
 	
 	dobrynyaIsHere = false;
 	
-	// @ts-ignore
 	if (!midi.outputs || Array.from(midi?.outputs.values()).length === 0)
 	{
 		dobrynyaEvent('gone');
 		return false;
 	}
 	
-	// @ts-ignore
 	portOut = Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => { return entry.name.startsWith("MIDI Dobrynya ") });
-	// @ts-ignore
 	portIn  = Array.from(midi?.inputs.values() ).find((entry: MIDIInput)  => { return entry.name.startsWith("MIDI Dobrynya ") });
 	
 	if (portIn) portIn.addEventListener("midimessage", onMIDIMessage);
@@ -83,7 +80,7 @@ async function checkDobrynyaIsHere()
 		
 		if (!result.success)
 		{
-			console.log(result);
+			console.debug(result);
 			dobrynyaWasHere = false;
 			return dobrynyaEvent('gone');
 		}
@@ -93,14 +90,14 @@ async function checkDobrynyaIsHere()
 		if (dobrynyaIsHere != dobrynyaWasHere) // appeared after a pause
 		{
 			resetConnected();
-			console.info("Dobrynya is here!");
+			console.debug("Dobrynya is here!");
 			dobrynyaWasHere = dobrynyaIsHere;
 			return dobrynyaEvent('here', result.data);
 		}
 
 	} catch(e) {
 		dobrynyaWasHere = false;
-		console.log(e);
+		console.debug(e);
 		return dobrynyaEvent('gone');
 	}
 }
@@ -118,10 +115,8 @@ export async function init()
 		
 		enablePing();
 		
-		console.log("Got midi", midi);
-		
 	} catch(e) {
-		console.log("MIDI Failed");
+		console.warn("MIDI Failed");
 		console.log(e.name);
 		console.log(e);
 	}
@@ -216,12 +211,6 @@ export function sysExableString(filename: string): SysExableStringData
 	}	
 	
 	message.push(0); // zero-terminated string!
-	
-	console.log("YHK", {
-			message: message,
-			hasForbiddenCharacters: hasForbidden,
-			hasUnicode: hasUnicode
-		})
 	
 	return {
 		message: message,
@@ -328,24 +317,6 @@ function sysExArray(cmd: SysExCommand, status = SysExStatus.REQUEST): number[]
 	return [0xf0, 0x0, 0x39, 0x40, 0x77, 0x76, 0x0, 0x0, 0x0, 0x0, cmd, status];
 }
 
-// function sysExBlob(cmd: SysExCommand, load: any)
-// {
-// 	var b1 = new Uint8Array(sysExArray(cmd));
-// 	var b2 = new Uint8Array(load);
-// 	var b3 = new Uint8Array([0xf7]);	
-// 	
-// 	var message = new Uint8Array(b1.length + b2.length + b3.length);
-// 	message.set(b1);
-// 	message.set(b2, b1.length);
-// 	message.set(b3, b2.length);
-// 	
-// //	console.log("SysEx →", cmd, load, message);
-// 	
-// 	midiSend(message);		
-// }
-// 
-// function sysExComplete(cmd: SysExCommand) { midiSendTerminated(sysExArray(cmd,SysExStatus.COMPLETE)); }
-
 export function sysExLockPatchSwitching(lockOrUnlock: boolean)
 {
 	let message = sysExArray(SysExCommand.LOCKPATCHSWITCHING, lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET);
@@ -414,20 +385,11 @@ function sysEx(cmd: SysExCommand, load: any = null, usechecksum: boolean = false
 	if (usechecksum)
 	{
 		let checksumArr = sysEx28bit(checksum % 0xfffffff);
-		// console.log("Checksum", checksum); 
 		for (let checksum28 of checksumArr) message[checksumposition++] = checksum28;
 	}
 
 	midiSendTerminated(message);
-//		console.log("SysEx out →", cmd, load, message);
 }
-
-// function sysExRawBytes(cmd: SysExCommand, load: any)
-// {
-// 	let message = sysExArray(cmd);
-// 	for (let b of load) message.push(parseInt(b));
-// 	midiSendTerminated(message);
-// }
 
 function sysExFilename(cmd: SysExCommand, load: string)
 {
@@ -479,8 +441,6 @@ async function waitForMidiResult(theCommand: SysExCommand, handler: Function, ti
 	try
 	{
 		let result: MidiResult = await waitForMidi(theCommand, timeout);
-		
-		if (theCommand == 4) console.log(result);
 		
 		if (!result.success)
 		{
@@ -610,18 +570,3 @@ export function sysExBootloader(withMSC: boolean = false)
 {
 	sysEx(withMSC ? SysExCommand.REBOOT_BOOTMSC : SysExCommand.REBOOT_BOOT);
 }
-
-// function listMIDI()
-// {
-// 	midi.inputs.forEach(
-// 		function(entry) {
-// 			console.log(entry);
-// 		});
-// 		
-// 	midi.outputs.forEach(
-// 	function(entry) {
-// 		console.log(entry);
-// 		});
-// 
-// }
-

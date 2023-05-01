@@ -6,7 +6,7 @@
 	import { defaultStatusResult, isMinimumVersion, FirmwareState, setDevice, deviceDefinition } from 'device'
 	import { sysExAndDo, sysExFilenameAndDo, sysExDiskMode, flipConnected, sysExLockPatchSwitching, sysExBootloader } from 'midi_core'
 	import { SysExStatus } from 'midi_utils';
-	import { fixSettings, getSettingsFromDevice, getFactorySettings } from 'settings_utils'
+	import { fixSettings, getSettingsFromDevice, getPalettesFromDevice, getFactorySettings } from 'settings_utils'
 	import { WaitingBlock } from 'waitingblock'
 	import { isAlt } from 'stores';
 	import { loadPatchInfo, fillPatchList, patchList, loadCurrentPatch, newPatch } from 'patch';
@@ -108,6 +108,15 @@
 		
 		await getSettingsFromDevice();
 		
+		try {
+			await getPalettesFromDevice();
+		} catch(ex) {
+			console.warn("Getting palettes is not implemented");
+			if (ex.status != SysExStatus.NOT_IMPLEMENTED) { 
+				throw(ex);
+			}
+		}
+		
 		while(true)
 		{
 			try
@@ -189,7 +198,7 @@
 	function dobrynyaGone()
 	{
 		isOnline = false;
-		console.log("Dobrynya is gone");
+		console.debug("Dobrynya is gone");
 	}
 	
 	function section(ev: CustomEvent | string)
@@ -198,13 +207,8 @@
 		openSection = (typeof ev === "string") ? ev : ev.detail.section;
 	}
 	
-	//@ts-ignore
-	//	window.ms = markSaved;
-		//@ts-ignore
 		document.body.addEventListener("keydown", (ev)=>{if (ev.key === "Alt") isAlt.set(true); })
 		document.body.addEventListener("keyup", (ev)=>{if (ev.key === "Alt") isAlt.set(false); })
-	
-	console.log({data: openSection});
 	
 </script>
 
@@ -256,7 +260,7 @@
 	<SectionDevice on:section={section} />
 	{/if}
 	{#if openSection=="firmware"}
-	<SectionFirmware {isOnline} {isConnected} {flipDisconnectNow} {hasNewFirmware} {updateVersionInfo} bind:isBootloader />
+	<SectionFirmware {isOnline} {isConnected} {flipDisconnectNow} bind:hasNewFirmware {updateVersionInfo} bind:isBootloader />
 	{/if}
 </main>
 
