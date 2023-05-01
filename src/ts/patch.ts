@@ -50,11 +50,10 @@ export const editorState: CurrentEditorState =
 };
 
 export function getCurrentPatch(): Patch { return currentPatch.data; }
-export function setCurrentPatchName(v: string) { currentPatch.value = currentPatch.name = v; console.log("Current patch name set to ", currentPatch.name) }
+export function setCurrentPatchName(v: string) { currentPatch.value = currentPatch.name = v; }
 
 export function patchAction (data: Patch, filename: string)
 {
-	console.log(data, filename);
 	currentPatch.data = data; // new Proxy (data, markUnsaved);
 
 	currentPatch.originalState = deepClone(currentPatch.data);

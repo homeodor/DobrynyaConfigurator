@@ -101,7 +101,6 @@
 			prevChannel = -2;
 			lightshowPrev = -1;
 			keyinfoPrev = -2;
-			console.log("Housekeeping done");
 		}
 		
 		if (keyinfoPrev != currentBank.bank.keyinfo)
@@ -117,8 +116,6 @@
 			
 			scaleEnabled = scaleEnabledPrev = (keyinfoPrev != -1);
 		}
-		
-		console.log(scaleEnabled, scaleEnabledPrev, scale.key);
 		
 		if (scaleEnabled != scaleEnabledPrev)
 		{

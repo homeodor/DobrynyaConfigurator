@@ -229,9 +229,7 @@ window.settings = settingsModel();
 export let settings = window.settings;
 
 export function parseSettingsData()
-{
-	console.log(settingsObjectIsValid);
-	
+{	
 	if (settingsObjectIsValid) return; // it’s all good, no need to re-parse
 	
 	if (!isSaved) return; // there was a previous state available
@@ -278,8 +276,6 @@ export function parseSettingsData()
 		}
 	}
 	
-	console.log(window.settings);
-	
 	settingsObjectIsValid = true;
 }
 
@@ -299,7 +295,6 @@ export async function saveSettings(settingsLength: number, uploadButton: ButtonU
 			
 			if (!reserved && typeof param.isFlag == "boolean" && param.isFlag)
 			{
-				console.log(param);
 				param.value = 0;
 				for (let bf = 0; bf < 8; bf++)
 					param.value |= (param.flag[bf] ? (1 << bf) : 0);
@@ -336,6 +331,11 @@ export async function getSettingsFromDevice()
 {
 	await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=> settingsRawData = d);
 	parseSettingsData();
+}
+
+export async function getPalettesFromDevice()
+{
+	await sysExAndDo(SysExCommand.PALETTE, (d: Uint8Array)=> {});
 }
 
 export async function fixSettings(settingsLength: number)

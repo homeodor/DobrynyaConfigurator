@@ -50,7 +50,6 @@
 	{
 		getPatch(currentPatch.data, model, async ()=>
 		{
-//			console.log("Getting the patch", currentPatch.data);
 			let filedata: string | Buffer = json ? JSON.stringify(currentPatch.data, null, 2) : BSON.serialize(currentPatch.data);		
 			patchAsFileFromData(filedata, currentPatch.name, json);
 			return true;
@@ -66,8 +65,6 @@
 			// keyinfoPrev = -2;
 			// console.log("Housekeeping done");
 		}
-		
-		console.log(currentPatch.data.settings);
 		
 		if (burstPrev != currentPatch.data.settings.burst) // external change... probably in the beginning
 		{

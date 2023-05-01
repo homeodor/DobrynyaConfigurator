@@ -174,10 +174,9 @@ export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model)
 	{
 		if (model[fixDevicePresence])
 		{
-			console.info(`${fixDevicePresence} branch doesn’t exists!`);
 			if (createObjectIfAbsent(currentPatch, fixDevicePresence, []))
 			{
-				console.info(`${fixDevicePresence} branch has been created!`);
+				console.debug(`${fixDevicePresence} branch has been created!`);
 				for (let i = 0; i < model[fixDevicePresence]; i++) currentPatch[fixDevicePresence].push({});
 			}
 		}

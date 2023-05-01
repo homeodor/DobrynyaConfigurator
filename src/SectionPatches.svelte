@@ -39,8 +39,6 @@
 	export let changeSection: Function;
 	export let isOnline: boolean;
 	
-	console.log(patchesInfo);
-	
 	async function tune(name: string, isThePatch: boolean, openDrawer: boolean = false)
 	{
 		if (isThePatch) changeSection("editor"); else await editor.selectPatch(name);
@@ -63,7 +61,6 @@
 	function validatePatchNameSimple(name: string)
 	{
 		let result: NameFailsBecause = checkIfPatchNameIsValid(name, patchesInfo);
-		console.log("RESULT", result);
 		return result === NameFailsBecause.Nothing; // || result === NameFailsBecause.Exists; 
 	}
 	
@@ -71,12 +68,9 @@
 	{
 		let inlineElement = event.detail.inline;
 		
-		console.log("OK here we go");
-		
 		function ohJustFail()
 		{
 			event.detail.setValue(event.detail.prevValue);
-			console.log("We just failed...");
 		}
 		
 		let result = checkIfPatchNameIsValid(event.detail.value, patchesInfo);
@@ -114,11 +108,9 @@
 	{
 		if (isThePatch && (editor.getIsSaved() || await confirmDialog.confirm()))
 		{
-			console.warn("Getting current patch!");
 			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
 		}
 		else {
-			console.warn("Getting REMOTE patch!");
 			return { patchData: await getPatchData(name), isCurrent: false };
 		}
 	}
@@ -149,8 +141,6 @@
 	async function download(name: string, isThePatch: boolean, isJson: boolean)
 	{
 		let { patchData } = await getWithChangesOrNot(name,isThePatch,confirmDownloadOfCurrent);
-		
-		console.log(name, patchData);
 		
 		if (patchData === null && isThePatch) patchData = getCurrentPatch();
 		
@@ -239,8 +229,6 @@
 		
 		let uploadedPatchElement: HTMLDivElement = patchList?.querySelector(".uploadedPatch");
 		
-		console.log(uploadedPatchElement);
-		
 		if (uploadedPatchElement && needToScroll)
 		{
 			needToScroll = false;
@@ -251,9 +239,7 @@
 </script>
 
 <section id="tab-patches">
-	<div style="margin-bottom:2rem" id="patchlist-diskmode"></div>
-	
-	<div>
+	<div style="margin-bottom:2rem" id="patchlist-diskmode">
 		<button style="height:3em; vertical-align: bottom;" on:click={openNewUI}>New patch...</button>
 		<button style="height:3em; vertical-align: bottom" on:click={rebootToDisk}>Disk mode <Halp>You may also manipulate your patches from the {#if $isMacLike }<span class="system-mac">Finder</span>{:else}<span class="system-win">Explorer</span>{/if}
 			by switching Dobrynya to disk mode. It is especially useful for backing up your stuff! Don’t forget

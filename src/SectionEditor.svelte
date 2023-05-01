@@ -89,7 +89,6 @@
 	onMount(() => {
 	// @ts-ignore
 		window.controlEditor = controlEditor;
-		console.log($deviceDefinition);
 	});
 	
 	let confirmDiscard: Confirm;
@@ -177,8 +176,6 @@
 				let patchData = await fetch(`defaultpatches/${$deviceDefinition.model.code}-${template}.json`);
 				let patchJson = await patchData.json();
 				
-				console.log(patchJson);
-				
 				newPatch(
 					false, // not a clean slate
 					useHueShiftIfDuplicating ? hueShiftPattern : null, // shift hue
@@ -230,7 +227,6 @@
 	
 	function selectBankFromEvent(ev: CustomEvent)
 	{
-		console.log(ev.detail)
 		editorState.hand = ev.detail.hand as Hand;
 		selectBank(ev.detail.bankNo + (ev.detail.isShift ? 4 : 0), false);
 	}

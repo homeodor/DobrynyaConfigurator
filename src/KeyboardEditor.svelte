@@ -73,8 +73,6 @@
 		
 		if (ev.type != "keydown") return false;
 		
-		console.log(ev.code);
-		
 		let code: string = ev.code;
 		
 		if (!(code in keyboardUtils.keyboardJSToHIDCatchable)) return false;
@@ -89,8 +87,6 @@
 		if (ev.altKey)    hidCode |= 0x400;
 		if (ev.metaKey)   hidCode |= 0x800;
 		
-//		console.log(hidCode.toString(16));
-		
 		value = hidCode;
 			
 		update();
@@ -98,8 +94,6 @@
 	
 	export function update(v?: number)
 	{
-		
-		console.log(combosSorted);
 		
 		if (typeof v !== "undefined") value = v;
 		
@@ -125,8 +119,6 @@
 	let prevExoticSelectorValue = exoticSelectorValue;
 	
 	$: {
-//		exoticSelectorValue = "notacombo";
-//		console.log(this.value, parseInt(this.value));
 		if (prevExoticSelectorValue != exoticSelectorValue)
 		{
 			if (exoticSelectorValue && exoticSelectorValue != 'notacombo') update(parseInt(exoticSelectorValue));

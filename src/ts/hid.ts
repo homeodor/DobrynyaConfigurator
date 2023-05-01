@@ -41,7 +41,6 @@ const bootloader: BootloaderData =
 	fwVersionIsReal: null,
 };
 
-// @ts-ignore
 let hid = navigator.hid;
 
 const hidFilters = 

@@ -201,28 +201,14 @@
 			theControl = controls.find(v=>{return v.control == controlKind});
 			expanderSanizer.sanize();
 			setCorrectEditorData();
-//			console.log("Creating data", editorData);
-			console.warn(editorData.midi);
 			expanderSanizer.expand(editorData);
-			console.warn(editorData.midi.min);
-//			console.log("Expadning data?", editorData.midi);
 			prevHand = editorState.hand; prevControlKind = controlKind; prevControlNumber = controlNumber; prevBank = editorState.bank;
 			encModePrev = -1;
-			
-			console.warn(editorData.midi.min);
 			editorData = editorData; // svelte
-			
-			console.warn(editorData.midi.min);
-			initEditorAfterTick();
-			console.warn(editorData.midi.min);
-			
+			initEditorAfterTick();			
 		}
-		
-		console.warn(editorData.midi.min);
 
 		expanderSanizer.expand(editorData);
-		
-		console.warn(editorData.midi.min);
 
 		disableResetToBankColours = (editorData.colour[0] == colourOff && editorData.colour[1] == colourOff);
 		
@@ -235,10 +221,8 @@
 		
 		if (encModePrev != editorData.encmode) // check if encmode has been changed, and make some reasonable changes...
 		{
-//			console.log("Encmode chnaged");
 			if (encoderIsRelative)
 			{
-//				console.log("It is relative");
 				if (editorData.midi.cc > 127)
 					editorData.midi.cc = 1;
 				

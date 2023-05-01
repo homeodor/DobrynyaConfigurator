@@ -39,7 +39,6 @@
 			let chipObj = realChips[$deviceDefinition.model.code][$deviceDefinition.model.chipCode] ?? realChips[$deviceDefinition.model.code];
 			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
 		}
-		console.log($deviceDefinition);
 		
 		let isDark = importantFactorySettings.caseColour === CaseColour.Dark || importantFactorySettings.caseColour === CaseColour.Gray;
 		

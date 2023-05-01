@@ -92,7 +92,7 @@
 	
 	function convertRelativeToAbsolute(v: number)
 	{
-		console.warn(`Converting ${v} to ${(v >= 0) ? v : (Math.abs(v) | 0x40)}`);
+		// console.warn(`Converting ${v} to ${(v >= 0) ? v : (Math.abs(v) | 0x40)}`);
 		return (v >= 0) ? v : (Math.abs(v) | 0x40); // always signed value
 //		if (encmode == EncoderBehaviour.Relative64Zero) { console.log(v); return v + 64; }
 //		if (v >= 0) return v;
@@ -128,7 +128,7 @@
 	
 	export function init() // decompose the values
 	{
-		console.warn("INIT", cc, what, min, max, par);
+		console.debug("INIT", cc, what, min, max, par);
 		encmodePrev = encmode; // should not matter at the startup
 
 		// cc
@@ -171,7 +171,7 @@
 	{ return w === MidiCtrl.CC || w === MidiCtrl.PITCH; }
 	
 	$:{
-		console.warn("Updating editor");
+		console.debug("Updating editor");
 		
 		if (!locked)
 		{

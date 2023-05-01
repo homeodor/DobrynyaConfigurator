@@ -39,7 +39,6 @@
 	}
 	
 	$: {
-		console.log(musicScaleKey);
 		if (octave >= 10 && musicKey > 7) setAndDispatch(7);
 	}
 	

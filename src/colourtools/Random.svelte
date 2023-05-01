@@ -81,8 +81,6 @@
 	// let layerPrev: ColourPaintLayer = ColourPaintLayer.Off;
 	
 	$:{
-		
-		console.log(enableTargetPreview, params.layersIdle);
 		okEnabled = (params.layersIdle || params.layersActive || params.layersPattern);
 		
 		enableTargetPreview = dialog?.open;

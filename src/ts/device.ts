@@ -28,10 +28,10 @@ export enum CaseColour
 
 const minimumFirmware: VersionDataShort =
 {
-	fullVersion: "2.0-26.06.2022",
-	comparableVersion: [2, 0, 2022, 6, 26],
+	fullVersion: "2.0-25.04.2023",
+	comparableVersion: [2, 0, 2023, 4, 25],
 	version: "2.0",
-	date: "26.06.2022"
+	date: "25.04.2023"
 };
 
 export interface VersionData extends VersionDataShort
@@ -321,7 +321,7 @@ export function versionCompare(currentVersion: string, newVersion: VersionDataSh
 
 export function isMinimumVersion(currentVersion: string)
 {
-	console.log(currentVersion, minimumFirmware, versionCompare(currentVersion, minimumFirmware));
+//	console.log(currentVersion, minimumFirmware, versionCompare(currentVersion, minimumFirmware));
 	return !versionCompare(currentVersion, minimumFirmware);
 }
 

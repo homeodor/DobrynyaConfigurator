@@ -19,7 +19,6 @@
 	export let updateVersionInfo: Function;
 	export let isBootloader: boolean;
 	
-	// @ts-ignore
 	const hid = navigator.hid;
 	
 	let hidSearchTimeout = null;

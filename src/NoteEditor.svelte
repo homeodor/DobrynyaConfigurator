@@ -43,8 +43,6 @@
 		
 		if (midiNote != previousMidiNote)
 		{
-			console.log("Midi value changes", midiNote);
-			
 			previousMidiNote = midiNote;
 			
 			if (midiNote > 0x7f)
@@ -63,7 +61,6 @@
 		
 		if (!theInline || !theInline.isActive())
 		{
-			console.log("Midi note is ", midiNote);
 			inlineValue =  (musicKey == -1) ? (midiNote == midiUtils.fakeNoteOff ? "Off" : "Scale") : midiUtils.noteMidiToHuman(midiNote);
 		}
 	}

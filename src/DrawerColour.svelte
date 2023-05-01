@@ -84,8 +84,6 @@
 		));
 	}
 	
-//	console.log(setCursor);
-	
 	function setTool (t: Tool, setReleaseTool: boolean = false)
 	{
 		if (setReleaseTool)
@@ -196,8 +194,6 @@
 	
 	export function paintEvent(data: InvokeControlEventData): boolean
 	{
-		console.log("PAINT EVENT");
-		console.log(data);
 		releaseToolUsed = true;
 		
 		let hexFixed = fixHex(hex);
@@ -210,7 +206,6 @@
 				hex = data.hex;
 				
 			updateCursor();
-			console.warn("Cursor should update??");
 		} else {
 			switch (data.controlKind)
 			{
@@ -227,7 +222,6 @@
 							pattern[i] = hexFixed;
 						else
 						{
-							console.log(colourPaintMode);
 							createPadsIfAbsent(bank);
 							expandSetSanize(colourDataModel, bank.pads[i], ()=>{
 								bank.pads[i].colour[colourPaintMode] = hexFixed
@@ -270,7 +264,7 @@
 	});
 	
 	function updateCT() { pattern = pattern; } // this triggers the UI update
-	function updateBucket(ev: CustomEvent) { console.log(ev.detail); bucketCSS = [ hexToCSS(ev.detail.hex), hexToCSS(ev.detail.hex2) ] }
+	function updateBucket(ev: CustomEvent) { bucketCSS = [ hexToCSS(ev.detail.hex), hexToCSS(ev.detail.hex2) ] }
 	
 
 	
@@ -289,7 +283,6 @@
 	
 	export function updateDevicePreview(force: boolean = false)
 	{
-//		if (mainColourWell) console.log(force, colourPaintMode == ColourPaintLayer.Off, mainColourWell?.isOpen(), Object.values(ctDialogs).find(v=>{return v.isOpen()}) !== undefined);
 		if (
 			!force && (										// if we do not force the update
 			!mainColourWell ||								// if nothing is loaded
@@ -300,16 +293,12 @@
 			return false;
 		}
 		
-		console.log(bank, pattern, getCurrentHexes(bank,pattern));
-		
 		let pattrn = assembleLayerFromHexes(getCurrentHexes(bank, pattern), colourPaintMode);
 		
 		if (isSame(previousPattern, pattrn) && !force) return;
 		
 		previousPattern = pattrn;
 		
-		console.log(pattrn);
-//		console.log(pattrn, bank, pattern, colourPaintMode)
 		sysExTestPattern(pattrn);
 	}
 	
@@ -325,9 +314,7 @@
 	let bucketCSS = [ hexToCSS(hex), hexToCSS(hex) ];
 	
 	$:
-	{
-		console.warn("Colour paint is updated");
-		
+	{	
 		if (openCtModal != openCtModalPrev && openCtModal != "notacc")
 		{
 			ctDialogs[openCtModal].start();
