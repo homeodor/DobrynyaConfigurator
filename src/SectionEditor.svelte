@@ -3,7 +3,7 @@
 	
 	import { openPatternEditor } from 'event_helpers'
 	import type { InvokeControlEventData } from 'event_helpers'
-	import { isAlt } from 'stores'
+	import { isAlt, isColourPreviewMode } from 'stores'
 	import { defaultPatches } from 'defaultpatches';
  	
 	import { sysExFilenameAndDo, sysExLockPatchSwitching, sysExBank, sysExColourReset } from 'midi_core'
@@ -142,9 +142,9 @@
 			uploadThePatch();
 	}
 	
-	function uploadThePatch()
+	async function uploadThePatch()
 	{
-		patchToDevice(
+		await patchToDevice(
 			SysExCommand.OVERWRITEPATCH,
 			currentPatch.name,
 			() => //(data: any, filename: string) =>
@@ -155,6 +155,11 @@
 			},
 			currentPatch.data
 		);
+		
+		if ($isColourPreviewMode)
+		{
+			colourPaintDrawer.updateDevicePreview();
+		}
 	}
 	
 	let alertJsonLoadFailed: Alert;
@@ -404,7 +409,11 @@
 	
 	function setDrawer (d: string)
 	{
-		if (drawer == "colourpaint") sysExColourReset(); // if current drawer is colourpaint, reset colour preview
+		$isColourPreviewMode = (drawer == "colourpaint");
+		
+		if (drawer == "colourpaint")
+			sysExColourReset(); // if current drawer is colourpaint, reset colour preview
+
 		drawer = (d == drawer) ? "" : d;
 		if (drawer == "colourpaint") closeEditor(); // if the selected drawer is colourpaint, close the editor	
 	}
