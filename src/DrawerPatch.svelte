@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as BSON from 'bson'
+	import { sleep } from 'basic';
 	import { onDestroy } from 'svelte'
 	
 	import { patchChanged, openPatternEditor } from 'event_helpers';
@@ -7,7 +8,7 @@
 	import { ExpanderSanizer } from 'data_expandsanize'
 	
 	import type { Model } from 'device';
-	import type { Patch, BranchSettings } from 'types_patch'
+	import type { BranchSettings } from 'types_patch'
 	
 	import Halp from './widgets/Halp.svelte';
 	import PaletteCheckboxes from './widgets/PaletteCheckboxes.svelte';
@@ -55,6 +56,13 @@
 			return true;
 		});
 	}
+
+	async function patchChangedOverTick()
+	{
+		await sleep(5);
+		patchChanged();
+	}
+	
 	
 	$:
 	{
@@ -91,7 +99,7 @@
 				);
 			}
 			
-			if (burstPrev != currentPatch.data.settings.burst) patchChanged();
+			if (burstPrev != currentPatch.data.settings.burst) patchChangedOverTick();
 			
 			burstPrev = currentPatch.data.settings.burst;
 		}
@@ -186,7 +194,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
+				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
 				<mark>Long press resets encoders
 					<Halp>
 						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
@@ -217,7 +225,7 @@
 			<h3>Shift</h3>
 			
 			<div class="ce-block">
-				<label><input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.shhold} />
+				<label><input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.shhold} />
 				<mark> Hold Shift to show sub-bank 4</mark>
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</label>
@@ -231,7 +239,7 @@
 				<h4>Double-pressing Shift opens
 					<Halp>Sub-bank 3 is not accessible on Micro by default. You can make it accessible by binding it to
 					double-pressing Shift.</Halp></h4>
-				<select on:input={patchChanged} bind:value={currentPatch.data.settings.shdblsubbank}>
+				<select on:input={patchChangedOverTick} bind:value={currentPatch.data.settings.shdblsubbank}>
 					<option value={3}>Sub-bank 4</option>
 					<option value={2}>Sub-bank 3</option>
 				</select>
@@ -243,7 +251,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
+				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
 				<mark>Hold to show a sub-bank</mark>
 				</label>
 				{#if currentPatch.data.settings.encreset}
@@ -253,7 +261,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subdbl} />
+				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subdbl} />
 				<mark>Double-press to open a sub-bank</mark>
 				</label>
 			</div>
@@ -268,7 +276,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
+				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.encreset} />
 				<mark>Long press resets encoders
 					<Halp>
 						<p>Hold an encoder for 3 seconds to reset. Resets CCs to the minimum specified value, and Pitch bend to zero.</p>
@@ -279,7 +287,7 @@
 			
 			<div class="ce-block">
 				<label>
-				<input on:input={patchChanged} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
+				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
 				<mark>Hold to show a sub-bank
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</mark>
@@ -302,7 +310,7 @@
 			<legend>Description
 				<Halp>A short optional note to distinguish the patch, displayed in the configurator patch list.</Halp>
 			</legend>
-			<textarea on:input={patchChanged} id="dw-patch-desc" bind:value={currentPatch.data.info.desc}></textarea>
+			<textarea on:input={patchChangedOverTick} id="dw-patch-desc" bind:value={currentPatch.data.info.desc}></textarea>
 		</fieldset>
 		
 		<fieldset id="dw-patch-advanced">
