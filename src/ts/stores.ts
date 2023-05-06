@@ -9,6 +9,8 @@ export let midi = null;
 export const lastColourPaintLayer = writable(0);
 export const lastColourPaintHex = writable(colourOff);
 
+export const isColourPreviewMode = writable(false);
+
 export let ignoreChanges = false;
 
 export const persistentSettings = writable(null);
