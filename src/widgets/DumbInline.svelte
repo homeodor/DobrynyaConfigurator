@@ -57,6 +57,7 @@
 			// @ts-ignore
 			theInline.blur(); // onblur fires → maybeDispatch
 			ev.stopPropagation();
+			dispatch("change");
 		}
 		if (ev.key == "ArrowDown" || ev.key == "ArrowUp")
 		{

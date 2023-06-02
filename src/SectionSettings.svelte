@@ -215,7 +215,7 @@
 						but can reasonably go down to 2 ms for extreme responsiveness.</p>
 				</Halp>
 				</h4>
-				<RangeWithInline on:change={markSettingsUnsavedNow} width="4em" bind:value={settings.input.debouncepad.value} max={100} defValue={5} inlineToRange={msToValue} rangeToInline={valueToMs}  />
+				<RangeWithInline on:change={markSettingsUnsavedNow} width="4em" bind:value={settings.input.debouncepad.value} min={1} max={100} defValue={5} inlineToRange={msToValue} rangeToInline={valueToMs}  />
 			</div>
 			
 			<!-- <div class="ce-block">

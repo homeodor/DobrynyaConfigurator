@@ -148,6 +148,7 @@
 	
 	function updateNoteFromInline()
 	{
+		console.log("WORKS");
 		updateNoteFromInlineRoutine(); // even if the function returns early,
 		fixInlineValue(); // we need to fix the inline editor
 	}
