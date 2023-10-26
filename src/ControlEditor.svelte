@@ -122,7 +122,7 @@
 			}
 		}
 		
-		editorDataPrev = deepClone(editorData);
+		editorDataPrev = structuredClone(editorData);
 	}
 	
 	function resetAll()
@@ -143,7 +143,7 @@
 	
 	function revert()
 	{
-		editorData = deepClone(editorDataPrev);
+		editorData = structuredClone(editorDataPrev);
 		
 		switch (controlKind)
 		{

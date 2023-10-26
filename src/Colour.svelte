@@ -4,7 +4,7 @@
 	import { sysExTestFill } from 'midi_core'
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte'
 	import { colourOff, hexToObj, hsvToHex, hexToCSS, invH, dimV, dimS } from 'colour_utils'
-	import { isSame, deepClone } from 'basic';
+	import { isSame } from 'basic';
 	import type { HexObject } from 'types'
 
 	export let hex: number = colourOff;
@@ -19,7 +19,7 @@
 	let theDialog: HTMLDialogElement;
 	
 	let range: HexObject = { h:0, s:0, v:0 };
-	let rangeWas: HexObject = deepClone(range);
+	let rangeWas: HexObject = structuredClone(range);
 		
 	let dispatchEvent = createEventDispatcher();
 	
@@ -95,9 +95,9 @@
 		if (!isSame(range,rangeWas))
 			hex = hsvToHex(range.h, range.s, range.v);
 		else
-			range = deepClone(hexObject);
+			range = structuredClone(hexObject);
 		
-		rangeWas = deepClone(range);
+		rangeWas = structuredClone(range);
 
 		gradS1 = hexToCSS(hsvToHex(hexObject.h, 0, hexObject.v));
 		gradS2 = hexToCSS(hsvToHex(hexObject.h, 15,  hexObject.v));

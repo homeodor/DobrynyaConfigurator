@@ -11,7 +11,7 @@ export function map(x: number, in_min: number, in_max: number, out_min: number, 
 	return Math.floor(Math.floor((x - in_min) * (out_max - out_min)) / divisor + out_min);
 }
 
-export function deepClone(data: any) { return JSON.parse(JSON.stringify(data)); }
+// export function deepClone(data: any) { return JSON.parse(JSON.stringify(data)); }
 export function isSame(data1: any, data2: any) { return JSON.stringify(data1) === JSON.stringify(data2); }
 export function isEmpty(a: any) { return Object.keys(a).length === 0; }
 

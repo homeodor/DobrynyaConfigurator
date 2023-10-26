@@ -1,5 +1,3 @@
-import { deepClone } from 'basic';
-
 export function expandData(model: any, data: any)
 {
 	for (let property in model)
@@ -9,7 +7,7 @@ export function expandData(model: any, data: any)
 			if (property in data)
 				expandData(model[property], data[property]);
 			else
-				data[property] = deepClone(model[property]);
+				data[property] = structuredClone(model[property]);
 		} else {
 			if (!(property in data)) data[property] = model[property];
 		}

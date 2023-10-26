@@ -12,7 +12,7 @@ export default class UndoStack
 	
 	constructor(baseObject: any)
 	{
-		this.#originalData = UndoStack.deepClone(baseObject.data);
+		this.#originalData = structuredClone(baseObject.data);
 		this.#theObject = baseObject;
 		this.push();
 	}
@@ -30,19 +30,17 @@ export default class UndoStack
 		console.log("Pushing undo: ", this.#theObject.data, "---");
 		
 		if (this.#pointer < this.#maxUndos)
-			this.#stack[++this.#pointer] = UndoStack.deepClone(this.#theObject.data);
+			this.#stack[++this.#pointer] = structuredClone(this.#theObject.data);
 		else
 		{
 			this.#stack.shift();
-			this.#stack.push(UndoStack.deepClone(this.#theObject.data))
+			this.#stack.push(structuredClone(this.#theObject.data))
 		}
 		
 		return true;
 	}
 	
-	static deepClone(v: any) { return JSON.parse(JSON.stringify(v)); }
-	
-	#mutate() { this.#theObject.data = UndoStack.deepClone(this.#stack[this.#pointer]); }
+	#mutate() { this.#theObject.data = structuredClone(this.#stack[this.#pointer]); }
 	
 	undo(): boolean
 	{
@@ -59,7 +57,7 @@ export default class UndoStack
 	revert(): boolean
 	{
 		this.reset();
-		this.#theObject.data = UndoStack.deepClone(this.#originalData);
+		this.#theObject.data = structuredClone(this.#originalData);
 		return true;
 	}
 	
