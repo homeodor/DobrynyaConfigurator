@@ -1,5 +1,5 @@
 import type { HexColour, ColourArray, Pattern, HexObject } from 'types'
-import { deepClone, getRandomIntInclusive, map } from 'basic'
+import { getRandomIntInclusive, map } from 'basic'
 
 export const colourOff = 0xff00;
 
@@ -137,8 +137,8 @@ export function gracefulGetColour(
 		return colourOff;
 	}
 	
-	let padArray  =  (padArrayIn === null) ? [] : deepClone(padArrayIn);
-	let bankArray = (bankArrayIn === null) ? [] : deepClone(bankArrayIn);	
+	let padArray  =  (padArrayIn === null) ? [] : structuredClone(padArrayIn);
+	let bankArray = (bankArrayIn === null) ? [] : structuredClone(bankArrayIn);	
 	
 	
 	while (padArray.length < 2) padArray.push(colourOff);

@@ -3,7 +3,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from 'basic';
 	import { colourOff } from 'colour_utils'
 	
 	import { fill, HueMode, FillMode } from './fill_func';
@@ -78,7 +77,7 @@
 		if (ctData.hexStorage)
 		{
 			// console.log("Writing stuff");
-			let tempHex = fill(params, deepClone(ctData.hexStorage), ctData.layer);
+			let tempHex = fill(params, structuredClone(ctData.hexStorage), ctData.layer);
 			before = tempHex.before;
 			after  = tempHex.after;
 		}

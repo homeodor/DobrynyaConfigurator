@@ -6,7 +6,7 @@
 	
 	import { getIconURL } from 'icons';
 	
-	import { deepClone, getRandomIntInclusive } from 'basic';
+	import { getRandomIntInclusive } from 'basic';
 	import { numberOfPads } from 'data_utils';
 	import { colourOff, ColourPaintLayer } from 'colour_utils'
 	
@@ -87,7 +87,7 @@
 		
 		if (ctData.hexStorage)
 		{
-			randomFill(params, deepClone(ctData.hexStorage));
+			randomFill(params, structuredClone(ctData.hexStorage));
 			preview = preview;
 			// before = tempHex.before;
 			// after  = tempHex.after;

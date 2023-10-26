@@ -5,7 +5,6 @@ import { SysExCommand, SysExStatus } from 'midi_utils'
 import type { Model } from 'device'
 import BSON from 'bson';
 import { sysExFileAndDo } from 'midi_core';
-import { deepClone } from 'basic';
 import { patchTemplates } from 'patchtemplates';
 import { createPadsIfAbsent } from 'data_utils';
 import { Hand } from './types';
@@ -58,7 +57,7 @@ export function patchAction (data: Patch, filename: string)
 {
 	currentPatch.data = data; // new Proxy (data, markUnsaved);
 
-	currentPatch.originalState = deepClone(currentPatch.data);
+	currentPatch.originalState = structuredClone(currentPatch.data);
 	fixAndExpandPatch(currentPatch.data, getDevice().model);
 	
 	currentPatch.name = filename;
@@ -120,12 +119,12 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 		
 		if (cleanSlate)
 		{
-			patchData = deepClone(patchTemplates[getDevice().model.code]);
+			patchData = structuredClone(patchTemplates[getDevice().model.code]);
 			createPadsIfAbsent(patchData.padbanks[0][0]);
 		} else {
 			if (patchData === null)
 			{
-				patchData = deepClone(currentPatch.data);
+				patchData = structuredClone(currentPatch.data);
 			}
 		}
 		
@@ -148,7 +147,7 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 				patchListNow.forEach((_,k,a)=>{a[k].isThePatch = false});
 			}
 			
-			patchListNow.push({name: uploadPatchName, isThePatch: loadPatchAfter, info: deepClone(patchData.info)});
+			patchListNow.push({name: uploadPatchName, isThePatch: loadPatchAfter, info: structuredClone(patchData.info)});
 			
 			uiSuccessHandler(patchListNow[patchListNow.length - 1]); // maybe do something in the UI, pass the variable then
 			
