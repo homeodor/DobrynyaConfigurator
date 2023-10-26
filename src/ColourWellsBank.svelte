@@ -9,6 +9,6 @@
 		<ColourWell on:input name="Idle"   bind:hex={colours[0]} />
 		<ColourWell on:input name="Active" bind:hex={colours[1]} />
 		<br />
-		<ColourWell on:input name="Music Key"  bind:hex={colours[2]} />
-		<ColourWell on:input name="Key Active" bind:hex={colours[3]} />
+		<ColourWell on:input name="Root Note"  bind:hex={colours[2]} />
+		<ColourWell on:input name="Root Active" bind:hex={colours[3]} />
 	</div>

@@ -3,7 +3,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { deepClone } from 'basic';
 	import { colourOff, ColourPaintLayer } from 'colour_utils'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, getLayerFromHexes  } from './common';
@@ -59,7 +58,7 @@
 		
 		if (ctData.hexStorage)
 		{
-			let tempHex: HexArrays = fade(params, deepClone(ctData.hexStorage), ctData.layer);
+			let tempHex: HexArrays = fade(params, structuredClone(ctData.hexStorage), ctData.layer);
 			before = tempHex.before;
 			after  = tempHex.after;
 		}

@@ -395,7 +395,7 @@ export function keycodeToHuman(kc: number, returnShort: boolean = false): any
 {
 	if (!kc) return "";
 	
-	let isMedia: boolean = kc & 0xC000;
+	let isMedia: boolean = (kc & 0xC000) !== 0;
 	
 	if (isMedia)
 	{

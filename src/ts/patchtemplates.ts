@@ -1,41 +1,43 @@
-
-
-export const patchTemplates = 
-{
-	"miniv2": {
-		  "info": {
+export const patchTemplates = {
+	pocket: {
+		info: {
+			device: 0x11,
+			desc: "",
+			pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		},
+		settings: {},
+		encoders: [{}, {}],
+		padbanks: [[{}, {}, {}, {}]],
+		accel: [{}, {}],
+	},
+	miniv2: {
+		info: {
 			device: 0x31,
 			desc: "",
-			pattern: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-		  },
-		  "settings": { "shhold": true },
-		  "encoders": [{},{},{},{}],
-		  "padbanks": [
-			[{},{},{},{},{},{},{},{}]
-		  ]
+			pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		},
-	"microv2": {
-		  "info": {
+		settings: {},
+		encoders: [{}, {}, {}, {}],
+		padbanks: [[{}, {}, {}, {}, {}, {}, {}, {}]],
+	},
+	microv2: {
+		info: {
 			device: 0x21,
 			desc: "",
-			pattern: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-		  },
-		  "settings": { "shhold": true },
-		  "encoders": [{},{},{}],
-		  "padbanks": [
-			[{},{},{},{},{},{},{},{}]
-		  ]
+			pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		},
-	"microsharp": {
-		  "info": {
+		settings: { shhold: true },
+		encoders: [{}, {}, {}],
+		padbanks: [[{}, {}, {}, {}, {}, {}, {}, {}]],
+	},
+	microsharp: {
+		info: {
 			device: 0x22,
 			desc: "",
-			pattern: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-		  },
-		  "settings": { "shhold": true },
-		  "encoders": [{},{},{}],
-		  "padbanks": [
-			[{},{},{},{},{},{},{},{}]
-		  ]
-		}	
+			pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		},
+		settings: { shhold: true },
+		encoders: [{}, {}, {}],
+		padbanks: [[{}, {}, {}, {}, {}, {}, {}, {}]],
+	},
 };

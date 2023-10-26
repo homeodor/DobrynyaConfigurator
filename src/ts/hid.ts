@@ -181,7 +181,6 @@ export async function dumpFirmware(ev: MouseEvent)
 	for (let pos = 0; pos < totalBytes; pos += chunk)
 	{
 		console.log(`Requesting byte ${pos}...`);
-		uberc++;
 		dataView.setUint32(0,pos,true);
 		dataView.setUint32(4,chunk,true);
 		fwBuffer.set(await requestAndWait(bootloader.device, hf2Command.READ_WORDS, new Uint8Array(dataStuff)), pos);

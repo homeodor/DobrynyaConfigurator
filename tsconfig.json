@@ -7,7 +7,7 @@
   "compilerOptions": {
       "resolveJsonModule": true,
       "paths": {
-        "*": ["*", "./src/ts/*"]
+        "*": ["./*", "./src/ts/*"]
       }
   }
 }
