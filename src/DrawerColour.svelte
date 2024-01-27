@@ -368,7 +368,7 @@
 	</GotIt>
 	<p class="explain-caption">
 		Click the well to pick a colour, then apply it to the whole bank or paint each pad individually!
-		A diagonal dash (<span style="display: inline-block;width: 1.5em;height: 1.5em;vertical-align: middle;background-size: 90%;" class="nocolour"></span>) means
+		A diagonal dash <nobr>(<span style="display: inline-block;width: 1.5em;height: 1.5em;vertical-align: middle;background-size: 90%;" class="nocolour"></span>)</nobr> means
 		no explicit colour is set (the colour is “off”). Bank colours can also be set in the <span class="unreal openbanksettings">bank settings</span> tab.
 	</p>
 	

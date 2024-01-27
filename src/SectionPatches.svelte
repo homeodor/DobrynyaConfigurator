@@ -256,7 +256,7 @@
   		<div>
 			 <!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div class="patchlist-pattern patternpreview" on:click="{()=>tune(patch.name, patch.isThePatch)}">
-			{#if patch.info.pattern}
+			{#if patch.info?.pattern}
 			{#each patch.info.pattern as colour}
 				<span data-colour="0" style="background-color: {hexToCSS(colour)}"></span>
 			{/each}
@@ -265,16 +265,16 @@
   		</div>
   		<div>
 			<h3><RenameInline disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch)}" validatorFunction={validatePatchNameSimple} on:input="{(ev)=>rename(patch.name, patch.isThePatch, ev)}" value={patch.name.replace(".dbrpatch","")} showDot={patch.isThePatch && !isSaved()} /></h3>
-			<div class="patchlist-desc">{#if patch.info.desc}{patch.info.desc}{/if}</div>
-			{#if patch.info.device != $deviceDefinition.modelID}
+			<div class="patchlist-desc">{#if patch.info?.desc}{patch.info?.desc}{/if}</div>
+			{#if patch.info?.device && patch.info?.device != $deviceDefinition.modelID}
 				<div class="warn">{getThisDobrynyaModel(patch.info.device)} </div>
 			{/if}
   		</div>
   		<div class="patchlist-actions">
-			<button disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch, true)}"><img alt="Tune" src="{iconTune}" ></button>
-			<button disabled={!isOnline} on:click="{()=>duplicate(patch.name, patch.isThePatch)}"><img alt="Duplicate" src="{iconDuplicate}" /></button>
-			<button disabled={!isOnline} on:click="{(ev)=>download(patch.name, patch.isThePatch, ev.altKey)}"><img alt="Download" src="{iconDownload}" /></button>
-			<button disabled={!isOnline || (!$isAlt && patchesInfo.length <= 1)} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
+			<button title="Tune" disabled={!isOnline} on:click="{()=>tune(patch.name, patch.isThePatch, true)}"><img alt="Tune" src="{iconTune}" ></button>
+			<button title="Duplicate" disabled={!isOnline} on:click="{()=>duplicate(patch.name, patch.isThePatch)}"><img alt="Duplicate" src="{iconDuplicate}" /></button>
+			<button title="Download" disabled={!isOnline} on:click="{(ev)=>download(patch.name, patch.isThePatch, ev.altKey)}"><img alt="Download" src="{iconDownload}" /></button>
+			<button title="Delete" disabled={!isOnline || (!$isAlt && patchesInfo.length <= 1)} on:click="{(ev)=>deletePatch(patch.name, patch.isThePatch, ev.target)}" class="dangerous"><img alt="Delete" src="{iconDelete}" /></button>
   		</div>
 		</div>
 	{/if}

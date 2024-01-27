@@ -201,15 +201,17 @@
 					</Halp>
 				</mark>
 				</label>
-				{#if currentPatch.data.settings.shdblsubbank}
-				<p class="warn">Access to sub-bank 4 while holding down Shift is enabled, too. If you press any pads in 3 seconds after
-					you press down Shift, the encoder will not be reset.</p>
-				{:else if currentPatch.data.settings.subhold}
-				<p class="warn">Access to sub-banks while holding down encoders 1, 2 and 3 is enabled. If you press any pads in 3 seconds after
-					you press these encoders, the encoders will not be reset.</p>
-				{:else if currentPatch.data.settings.shdblsubbank && currentPatch.data.settings.subhold}
+				{#if currentPatch.data.settings.encreset}
+				{#if currentPatch.data.settings.shhold && currentPatch.data.settings.subhold}
 				<p class="warn">Access to sub-banks while holding down encoders is enabled. If you press any pads in 3 seconds after
 					you press encoders, the encoders will not be reset.</p>
+				{:else if currentPatch.data.settings.shhold}
+				<p class="warn">Access to sub-bank 4 while holding down Shift is enabled, too. If you press any pads in 3 seconds after
+					you press down Shift, the encoder will not be reset.</p>
+				{:else if currentPatch.data.settings.encreset && currentPatch.data.settings.subhold}
+				<p class="warn">Access to sub-banks while holding down encoders 1, 2 and 3 is enabled. If you press any pads in 3 seconds after
+					you press these encoders, the encoders will not be reset.</p>
+				{/if}
 				{/if}
 			</div>
 		</fieldset>
@@ -229,9 +231,6 @@
 				<mark> Hold Shift to show sub-bank 4</mark>
 					<Halp>Useful for quick access to common actions, such as transport controls.</Halp>
 				</label>
-				{#if currentPatch.data.settings.encreset}
-				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
-				{/if}
 			</div>
 			
 			{#if model.code == "microv2" || model.code == "microsharp"}
@@ -254,9 +253,6 @@
 				<input on:input={patchChangedOverTick} type="checkbox" class="appleswitch" bind:checked={currentPatch.data.settings.subhold} />
 				<mark>Hold to show a sub-bank</mark>
 				</label>
-				{#if currentPatch.data.settings.encreset}
-				<p class="warn">Resetting encoders with a long press is enabled, too.</p>
-				{/if}
 			</div>
 			
 			<div class="ce-block">
