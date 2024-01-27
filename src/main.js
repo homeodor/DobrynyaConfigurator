@@ -9,7 +9,7 @@ function checkBrowser()
   if (
     (uaParserEngine.name != "Blink" && uaParserEngine.name != "Gecko") ||
     (uaParserEngine.name == "Gecko" && parseInt(uaParserEngine.version.split(".")[0]) < 99) ||
-    (uaParserEngine.name == "Blink" && parseInt(uaParserEngine.version.split(".")[0]) < 85)
+    (uaParserEngine.name == "Blink" && parseInt(uaParserEngine.version.split(".")[0]) < 98)
     )
     document.location.href = "incompatible.html";
 }

@@ -1,6 +1,8 @@
 <script lang="ts">	
 	import pJson from '../package.json';
 	
+	import { UAParser } from 'ua-parser-js'
+	
 	import type { NoPatchesObject } from 'types'
 	import { NewPatchDecision } from 'types'
 	import { isMinimumVersion, FirmwareState, setDevice, deviceDefinition } from 'device'
@@ -8,7 +10,7 @@
 	import { SysExStatus } from 'midi_utils';
 	import { fixSettings, getSettingsFromDevice, getPalettesFromDevice, getFactorySettings } from 'settings_utils'
 	import { WaitingBlock } from 'waitingblock'
-	import { isAlt } from 'stores';
+	import { isAlt, isMacLike } from 'stores';
 	import { loadPatchInfo, fillPatchList, patchList, loadCurrentPatch, newPatch } from 'patch';
 	import { randomPattern } from 'colour_utils';
 	
@@ -65,6 +67,8 @@
 	
 	let versionInfo: VersionData;
 	let hasNewFirmware = FirmwareState.Unknown;
+	
+	let uaParserEngine = (new UAParser()).getEngine();
 	
 	async function updateVersionInfo()
 	{
@@ -235,6 +239,13 @@
 	{#if openSection=="" && $deviceDefinition.isCorrect}
 	<section id="tab-nodevice">
 		<h1>Please connect a (single) MIDI Dobrynya.</h1>
+		{#if (uaParserEngine.name == "Gecko")}
+		{#if ($isMacLike)}
+		<p>You may need to restart Firefox, too.</p>
+		{:else}
+		<p>You may need to reload the page, too.</p>
+		{/if}
+		{/if}
 	</section>
 	{/if}
 	
