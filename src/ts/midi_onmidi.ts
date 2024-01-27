@@ -6,6 +6,7 @@ import { capabilityFlags, models, ChipIDs, defaultStatusResult } from 'device'
 import type { StatusResult } from 'types'
 import * as BSON from 'bson'
 import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank } from 'event_helpers'
+import { stateOfCharge } from 'stores'
 
 const headerLength: number = 12;
 
@@ -64,8 +65,8 @@ function serialDataToOutput(pureData: number[], output: StatusResult)
 	
 	output.model = models[output.class][output.modelNumber];
 	
-	output.model['chipName'] = ChipIDs[output.variant].name;
-	output.model['chipCode'] = ChipIDs[output.variant].code;
+	output.model.chip.name = ChipIDs[output.variant].name;
+	output.model.chip.code = ChipIDs[output.variant].code;
 }
 
 function versionDataToString(versionArray: number[])
@@ -105,7 +106,7 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			
 			let pureData = sevenToEight(d).data;
 			
-//			console.log(pureData);
+			console.log(pureData);
 			
 			let output: StatusResult = defaultStatusResult();
 			
@@ -129,6 +130,9 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			output.version = versionDataToString(pureData.slice(9 + 4)); // 9 bytes of serial number, 4 bytes of flags
 			
 			midiResult.data = output;
+
+			stateOfCharge.set(pureData[43] | (pureData[44] << 8));
+			console.log(pureData[43] | (pureData[44] << 8));
 			
 			break;
 		}

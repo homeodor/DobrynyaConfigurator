@@ -1,6 +1,7 @@
 <script lang="ts">
 	let dialog: HTMLDialogElement;
 	export let errorText = "";
+	export let commandText = "";
 	
 	export function block()
 	{
@@ -11,11 +12,13 @@
 	export function unblock()
 	{
 		errorText = "";
+		commandText = "";
 		dialog.close();
 	}
 	
-	export function error(t: string)
+	export function error(c: string, t: string)
 	{
+		commandText = c;
 		errorText = t;
 	}
 
@@ -29,6 +32,9 @@
 	</div>
 	{:else}
 	<div id="blocker-error" class="plashkabad plashka">
+		{#if commandText != ""}
+		<p>The configurator failed to {commandText.toLowerCase()}.</p>
+		{/if}
 		<p>{errorText}</p>
 		<p><button on:click={unblock}>Okay :(</button></p>
 	</div>

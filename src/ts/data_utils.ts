@@ -116,7 +116,13 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 {
 	let cleanObject: any = {};
 	
-	if (!("info" in currentPatch) || !("padbanks" in currentPatch) || currentPatch.padbanks.length != 1 || currentPatch.padbanks[0].length != 8)
+	if (
+		!("info" in currentPatch) ||
+		!("padbanks" in currentPatch) ||
+		currentPatch.padbanks.length != model.patch.hands ||
+		currentPatch.padbanks[0].length != model.patch.banks ||
+		(currentPatch.padbanks[1] && currentPatch.padbanks[1].length != model.patch.banks)
+	)
 		throw("Patch is malformed");
 
 	cleanObject.info = currentPatch.info;
@@ -144,8 +150,8 @@ export function sanizePatch(currentPatch: Patch, model: Model)
 		
 		console.log(cleanObject.encoders);
 		
-		while (cleanObject.encoders.length > model.encoders) cleanObject.encoders.pop();
-		while (cleanObject.encoders.length < model.encoders) cleanObject.encoders.push({});
+		while (cleanObject.encoders.length > model.hardware.encoders) cleanObject.encoders.pop();
+		while (cleanObject.encoders.length < model.hardware.encoders) cleanObject.encoders.push({});
 	}
 	if ("joystick" in currentPatch) cleanObject.joystick = currentPatch.joystick;
 	if ("faders" in currentPatch) cleanObject.faders = currentPatch.faders;

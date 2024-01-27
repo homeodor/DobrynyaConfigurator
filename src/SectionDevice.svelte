@@ -15,6 +15,7 @@
 		},
 		l32:   { name: "ATSAMD21J18", mhz: 48 },
 		prov2: { name: "ATSAME53J20", mhz: 72 },
+		pocket: { name: "ESP32-S3", mhz: 240 },
 	};
 
 	import { importantFactorySettings } from 'settings_utils'
@@ -29,14 +30,14 @@
 
 	// export let isOnline: boolean;
 	
-	let chipName = "ATSAMD";
+	let chipName = "";
 	
 	let showOpenSource = false;
 	
 	$:{
 		if (realChips[$deviceDefinition.model.code])
 		{
-			let chipObj = realChips[$deviceDefinition.model.code][$deviceDefinition.model.chipCode] ?? realChips[$deviceDefinition.model.code];
+			let chipObj = realChips[$deviceDefinition.model.code][$deviceDefinition.model.chip.code] ?? realChips[$deviceDefinition.model.code];
 			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
 		}
 		

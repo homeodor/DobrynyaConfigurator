@@ -8,7 +8,7 @@
 	
 	import { settings, saveSettings, isSaved, markSettingsUnsaved } from 'settings_utils'
 	
-	import { deviceDefinition } from 'device';
+	import { deviceDefinition, BLEAvailable } from 'device';
 	
 	export let isOnline: boolean;
 	
@@ -162,8 +162,8 @@
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[0]}> USB</label><br />
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.outputs.flag[1]}> Classic MIDI</label><br />
-					{#if $deviceDefinition.has.ble}
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} disabled={!settings.midi.outputs.flag[1]} bind:checked={settings.midi.outputs.flag[2]}> BLE</label>
+					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} disabled={$deviceDefinition.model.hardware.ble == BLEAvailable.External &&!settings.midi.outputs.flag[1]} bind:checked={settings.midi.outputs.flag[2]}> BLE</label>
 					{/if}
 				</div>
 			</div>
@@ -174,7 +174,7 @@
 				<div class="checkboxblock">
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs.flag[0]}> USB</label><br />
 					<label style="display:none"><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs[1]}> Classic MIDI - no MIDI inputs on Dobrynyas, left as a placeholder</label><!--br  /-->
-					{#if $deviceDefinition.has.ble}
+					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.inputs.flag[2]}> BLE</label>
 					{/if}
 				</div>
@@ -183,16 +183,28 @@
 			<div class="ce-block">
 				<h4>Classic MIDI</h4>
 				<p class="explain">These settings work regardless of the Input/Output settings</p>
+				
+				<h4>Passthru USB → MIDI</h4>
+				<Channel on:change={markSettingsUnsavedNow} bind:value={settings.midi.passthruusb.value} channelDefaultName="Off" channelDefaultValue={255} optionAll={true} />
+				{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
+				<h4>Passthru BLE → MIDI</h4>
+				<Channel on:change={markSettingsUnsavedNow} bind:value={settings.midi.passthruble.value} channelDefaultName="Off" channelDefaultValue={255} optionAll={true} />
+				{/if}
 				<!-- <nobr> -->
 				<div class="checkboxblock">
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI{#if $deviceDefinition.has.ble}&nbsp;and BLE{/if})</label><!--/nobr--><br />
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Send active sensing</label>
+					
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI)</label><!--/nobr--><br />
+					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Passthru (BLE → MIDI)</label><!--/nobr--><br />
+					{/if}
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[2]}> Send active sensing</label>
 				</div>
 			</div>
 			
-			{#if $deviceDefinition.model.code != "prov2" }
+			{#if !$deviceDefinition.model.hardware.midiOut }
 			<p class="explain">All MIDI Dobrynyas are capable of outputting classic MIDI, which can control older hardware such as synths or drum machines directly.
-				However, because it is a rarely needed feature, there is no connector available to the user except on <nobr>MIDI Dobrynya Pro V2</nobr>. 
+				However, because it is a rarely needed feature, there is no connector available to the user except on <nobr>MIDI Dobrynya Pro V2</nobr>
+				and <nobr>Pocket</nobr>. 
 				Connection points are provided on the board, to which the output connector may be soldered. Contact support to find out more!</p>
 			{/if}
 		</fieldset>
