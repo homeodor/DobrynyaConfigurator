@@ -1,4 +1,3 @@
-import { deepClone } from 'basic';
 import { writable, get } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 
@@ -48,22 +47,48 @@ export interface VersionData extends VersionDataShort
 	}
 }
 
+interface ModelChip
+{
+	varies?: boolean,
+	name?: string,
+	code?: number,
+};
+
+export enum BLEAvailable
+{
+	None,
+	Internal,
+	External,
+};
+
+interface ModelHardware
+{
+	encoders?: number,
+	faders?: number,
+	pots?: number,
+	auxbuttons?: number,
+	hasJoystick?: boolean,
+	midiOut: boolean,
+	ble: BLEAvailable,
+};
+
+interface ModelPatchSections
+{
+	hands: number,
+	banks: number,
+};
+
 export interface Model
 {
 	name?: string,
 	code?: string,
 	template?: string,
-	chipVaries?: boolean,
-	chipName?: string,
-	chipCode?: number,
 	webpage?: string,
-	settingsLength?: number
-	encoders?: number,
-	faders?: number,
-	pots?: number,
-	auxbuttons?: number,
-	hasJoysitck?: true,
+	settingsLength?: number,
 	canHid?: boolean,
+	chip?: ModelChip,
+	hardware?: ModelHardware,
+	patch?: ModelPatchSections,
 };
 
 export interface Capabilities
@@ -95,6 +120,19 @@ export function defaultStatusResult(isC: boolean = false): StatusResult
 	} };
 }
 
+const patch1Hand8Banks: ModelPatchSections = 
+{
+	hands: 1,
+	banks: 8,
+};
+
+const patch2Hands4Banks: ModelPatchSections = 
+{
+	hands: 2,
+	banks: 4,
+};
+
+
 export const models: Model[][] = 
 [
 	[
@@ -110,9 +148,18 @@ export const models: Model[][] =
 			code: "pocket",
 			canHid: false,
 			template: "miniv2",
-			encoders: 2,
-			chipVaries: false,
-			settingsLength: 64,
+			hardware: {
+				encoders: 2,
+				midiOut: true,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
+			settingsLength: 112,
+			patch:
+			{
+				hands: 1,
+				banks: 4,
+			},
 		}
 	],
 	[	
@@ -122,10 +169,15 @@ export const models: Model[][] =
 			code: "microv2",
 			canHid: true,
 			template: "miniv2",
-			encoders: 3,
-			chipVaries: true,
+			hardware: {
+				encoders: 3,
+				midiOut: false,
+				ble: BLEAvailable.None,
+			},
+			chip: { varies: true },
 			settingsLength: 64,
 			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1636487672317",
+			patch: patch1Hand8Banks,
 		},
 		{},
 		{},
@@ -136,9 +188,14 @@ export const models: Model[][] =
 			code: "microsharp",
 			canHid: true,
 			template: "miniv2",
-			encoders: 3,
-			chipVaries: true,
+			hardware: {
+				encoders: 3,
+				midiOut: false,
+				ble: BLEAvailable.None,
+			},
+			chip: { varies: true },
 			settingsLength: 64,
+			patch: patch1Hand8Banks,
 		}
 	],
 	[
@@ -148,19 +205,29 @@ export const models: Model[][] =
 			code: "miniv2",
 			canHid: true,
 			template: "miniv2",
-			encoders: 4,
-			chipVaries: true,
+			hardware: {
+				encoders: 4,
+				midiOut: false,
+				ble: BLEAvailable.None,
+			},
+			chip: { varies: true },
 			settingsLength: 64,
 			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1594941660113",
+			patch: patch1Hand8Banks,
 		},
 		{
 			name: "Mini 25",
 			code: "mini25",
 			canHid: true,
 			template: "mini25",
-			encoders: 4,
-			chipVaries: true,
+			hardware: {
+				encoders: 4,
+				midiOut: false,
+				ble: BLEAvailable.None,
+			},
+			chip: { varies: true },
 			settingsLength: 64,
+			patch: patch1Hand8Banks,
 		}
 	],
 	[
@@ -170,35 +237,55 @@ export const models: Model[][] =
 			code: 'promv2',
 			canHid: true,
 			template: 'prov2',
-			encoders: 5,
-			chipVaries: false,
+			hardware: {
+				encoders: 5,
+				midiOut: true,
+				ble: BLEAvailable.External,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch1Hand8Banks,
 		},
 		{
 			name: "Pro M#",
 			code: 'promsharp',
 			canHid: true,
 			template: 'prov2',
-			encoders: 5,
-			chipVaries: false,
+			hardware: {
+				encoders: 5,
+				midiOut: true,
+				ble: BLEAvailable.External,
+			},
+			chip: {varies: false},
 			settingsLength: 112,
+			patch: patch1Hand8Banks,
 		},
 		{
 			name: "32 M",
 			code: 'm32',
 			canHid: true,
 			template: 'l32',
-			encoders: 2,
-			chipVaries: false,
+			hardware: {
+				encoders: 2,
+				midiOut: false,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch2Hands4Banks,
 		},
 		{
 			name: "32 M#",
 			code: 'm32sharp',
 			template: 'l32',
-			encoders: 2,
-			chipVaries: false,
+			hardware: {
+				encoders: 2,
+				midiOut: false,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch2Hands4Banks,
 		}
 	],
 	[
@@ -208,53 +295,81 @@ export const models: Model[][] =
 			code: 'prov2',
 			canHid: false,
 			template: 'prov2',
-			encoders: 5,
-			faders: 4,
-			pots: 5,
-			auxbuttons: 5,
-			hasJoysitck: true,
-			chipVaries: false,
+			hardware: {
+				encoders: 5,
+				faders: 4,
+				pots: 5,
+				auxbuttons: 5,
+				hasJoystick: true,
+				midiOut: true,
+				ble: BLEAvailable.External,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch1Hand8Banks,
 		},
 		{
 			name: "Pro 25",
 			code: 'pro25',
 			canHid: false,
-			encoders: 5,
-			faders: 4,
-			pots: 5,
-			auxbuttons: 5,
-			hasJoysitck: true,
-			chipVaries: false,
+			hardware: {
+				encoders: 5,
+				faders: 4,
+				pots: 5,
+				auxbuttons: 5,
+				hasJoystick: true,
+				midiOut: true,
+				ble: BLEAvailable.External,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch1Hand8Banks,
 		},
 		{
 			name: "32",
 			code: 'l32',
 			canHid: false,
 			template: 'l32',
-			encoders: 2,
-			hasJoysitck: true,
-			chipVaries: false,
+			hardware:
+			{
+				encoders: 2,
+				hasJoystick: true,
+				midiOut: false,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch2Hands4Banks,
 		},
 		{
 			name: "41",
 			code: 'l41',
 			canHid: false,
-			encoders: 2,
-			hasJoysitck: true,
-			chipVaries: false,
+			hardware:
+			{
+				encoders: 2,
+				hasJoystick: true,
+				midiOut: false,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch2Hands4Banks,
 		},
 		{
 			name: "50",
 			code: 'l50',
 			canHid: false,
-			encoders: 2,
-			hasJoysitck: true,
-			chipVaries: false,
+			hardware:
+			{
+				encoders: 2,
+				hasJoystick: true,
+				midiOut: false,
+				ble: BLEAvailable.Internal,
+			},
+			chip: { varies: false },
 			settingsLength: 112,
+			patch: patch2Hands4Banks,
 		}
 	]			
 ];
@@ -279,10 +394,10 @@ export const ChipIDs =
 		code: 20,
 		mhz: 120,
 	},
-	32:
+	2:
 	{
 		name: "ESP32-S3",
-		code: 32,
+		code: 2,
 		mhz: 240,
 	}
 };
@@ -315,7 +430,7 @@ export function versionCompare(currentVersion: string, newVersion: VersionDataSh
 	
 	return versionCompareRaw(
 		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
-		deepClone(newVersion.comparableVersion)
+		structuredClone(newVersion.comparableVersion)
 	);
 }
 
@@ -327,7 +442,7 @@ export function isMinimumVersion(currentVersion: string)
 
 export function getFullModelCode(model: Model)
 {
-	return model.chipVaries ? `${model.code}-${model.chipCode}` : model.code;
+	return model.chip.varies ? `${model.code}-${model.chip.code}` : model.code;
 }
 
 let waitBeforeRetry = false;

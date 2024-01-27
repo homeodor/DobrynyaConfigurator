@@ -16,3 +16,5 @@ export let ignoreChanges = false;
 export const persistentSettings = writable(null);
 
 export const isAlt = writable(false);
+
+export const stateOfCharge = writable(-1);

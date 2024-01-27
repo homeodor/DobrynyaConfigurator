@@ -2,6 +2,18 @@
 
 export const patchTemplates = 
 {
+	"pocket": {
+	  "info": {
+		device: 0x11,
+		desc: "",
+		pattern: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	  },
+	  "settings": { },
+	  "encoders": [{},{}],
+	  "padbanks": [
+		[{},{},{},{}]
+	  ]
+	},
 	"miniv2": {
 		  "info": {
 			device: 0x31,

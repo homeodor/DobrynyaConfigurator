@@ -54,7 +54,11 @@ function factorySettingsModel(): ImportantFactorySettings
 	};
 }
 
-export let importantFactorySettings: ImportantFactorySettings;
+export let importantFactorySettings: ImportantFactorySettings = 
+{
+	hasDecolight: false,
+	caseColour: CaseColour.Light
+};
 
 function settingsModel(): SettingsObject
 {
@@ -144,10 +148,12 @@ function settingsModel(): SettingsObject
 			{
 				fixfunc: fixValueTo7F,
 			},
+			passthruusb: {},
+			passthruble: {},
 			reserved1:
 			{
 				reserved:true,
-				length:11
+				length:9
 			}
 		},
 	
@@ -365,7 +371,8 @@ function ffMeansZero(v: number)
 
 export async function getFactorySettings()
 {
-	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array)=> {
+	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array)=> { // does not work for pocket?!
+		console.log("FACTORY: ", d);
 		importantFactorySettings = factorySettingsModel();
 		importantFactorySettings.hasDecolight = isNotZeroOrFF(d[21]) || isNotZeroOrFF(d[22]) || isNotZeroOrFF(d[23]); // decolight points
 		importantFactorySettings.caseColour = ffMeansZero(d[50]) 
