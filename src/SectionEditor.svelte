@@ -27,7 +27,6 @@
 	
 	import { Control, Hand, NewPatchDecision } from 'types';
 	import { NameFailsBecause, checkIfPatchNameIsValid, getNewPatchName } from 'editor';
-	import { deepClone, isSame } from 'basic';
 	import { ExpanderSanizer } from 'data_expandsanize'
 	
 	import type { DeviceOrBankValue } from 'types'
@@ -36,6 +35,8 @@
 	import { CaseColour, deviceDefinition } from 'device';
 	
 	import { patchToDevice, patchList } from 'patch';
+	
+	import { isSame } from './ts/basic';
 	
 	export let deviceLevelVelocity: number;
 	export let deviceLevelChannel: number;
@@ -325,7 +326,7 @@
 			}
 		}
 		
-		if ($patchList && currentPatch.data) $patchList.find(v=>{return v.isThePatch}).info = deepClone(currentPatch.data.info);
+		if ($patchList && currentPatch.data) $patchList.find(v=>{return v.isThePatch}).info = structuredClone(currentPatch.data.info);
 		
 		if (
 			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
@@ -363,7 +364,7 @@
 			if (!("encoders" in currentPatch?.data))
 			{
 				currentPatch.data.encoders = [];
-				for (let i=0; i<$deviceDefinition.model.encoders; i++) currentPatch?.data?.encoders.push({});
+				for (let i=0; i<$deviceDefinition.model.hardware.encoders; i++) currentPatch?.data?.encoders.push({});
 			}
 		}
 	}
@@ -523,6 +524,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][3]?.pads?.length)}" class:sel="{editorState.bank == 3}" on:click="{()=>selectBank(3)}">4</li>
 			</ul>
+			{#if $deviceDefinition.model.code != "pocket"}
 			<ul class="bankswitcher" id="bsw-shift">
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][4]?.pads?.length)}" class:sel="{editorState.bank == 4}" on:click="{()=>selectBank(4)}">-1</li>
@@ -533,6 +535,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li class:bsw-empty="{!(currentPatch.data.padbanks[0][7]?.pads?.length)}" class:sel="{editorState.bank == 7}" on:click="{()=>selectBank(7)}">-4</li>
 			</ul>
+			{/if}
 			<!-- <ul class="bankswitcher hh" id="bsw-right">
 				<li>1</li>
 				<li>2</li>
@@ -581,8 +584,8 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.data.encoders} />
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.data.encoders} />
-			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" controlNo={2} dataAll={currentPatch.data.encoders} />
-			{#if $deviceDefinition.model.code == "miniv2"}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.data.encoders}  />{/if}
+			{#if $deviceDefinition.model.hardware.encoders >= 3}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 2)}" controlNo={2} dataAll={currentPatch.data.encoders} />{/if}
+			{#if $deviceDefinition.model.hardware.encoders >= 4}<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 3)}" controlNo={3} dataAll={currentPatch.data.encoders}  />{/if}
 		</div>
 	
 		<Pads on:click={openEditorForPad} on:paint="{(ev)=>paintData=ev.detail}" bank={currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]} pattern={currentPatch.data.info.pattern} {colourPaintMode} {colourPaintShowBank} />
