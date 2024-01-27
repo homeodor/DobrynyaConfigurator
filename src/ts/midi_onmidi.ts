@@ -6,7 +6,6 @@ import { capabilityFlags, models, ChipIDs, defaultStatusResult } from 'device'
 import type { StatusResult } from 'types'
 import * as BSON from 'bson'
 import { deviceRefusedToChangePatches, invokeControl, pushFromSysEx, invokeBank } from 'event_helpers'
-import { stateOfCharge } from 'stores'
 
 const headerLength: number = 12;
 
@@ -130,9 +129,6 @@ export function interpretMidiEvent (event: MIDIMessageEvent): MidiResult | boole
 			output.version = versionDataToString(pureData.slice(9 + 4)); // 9 bytes of serial number, 4 bytes of flags
 			
 			midiResult.data = output;
-
-			stateOfCharge.set(pureData[43] | (pureData[44] << 8));
-			console.log(pureData[43] | (pureData[44] << 8));
 			
 			break;
 		}

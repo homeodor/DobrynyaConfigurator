@@ -15,7 +15,7 @@
 		
 		tick.setAttribute("class", "animated");
 		
-		setTimeout(()=>tick.setAttribute("class", ""), 3000);
+		setTimeout(()=>tick?.setAttribute("class", ""), 3000);
 	}
 </script>
 <style type="text/css">
