@@ -264,7 +264,7 @@
 	{/if}
 	<!-- {/if} -->
 	{#if openSection=="patches"}
-	<SectionPatches changeSection={section} {editor} on:section={section} patchesInfo={$patchList} isOnline={isOnline&&isConnected} />
+	<SectionPatches changeSection={section} {editor} on:section={section} bind:patchesInfo={$patchList} isOnline={isOnline&&isConnected} />
 	{/if}
 	{#if openSection=="settings"}
 	<SectionSettings on:section={section} isOnline={isOnline&&isConnected} />
