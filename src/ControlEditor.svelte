@@ -9,7 +9,6 @@
 	import { Hand, Control, EncoderBehaviour } from 'types'
 	import type { DeviceOrBankValue } from 'types'
 	import type { Patch, BranchControl } from 'types_patch'
-	import { deepClone } from 'basic'
 	import { createPadsIfAbsent } from 'data_utils';
 	import { ExpanderSanizer, expandData, sanizeData } from 'data_expandsanize';
 	import { dispatchEditorClose } from 'event_helpers';
