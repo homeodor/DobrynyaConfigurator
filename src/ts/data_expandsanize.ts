@@ -18,8 +18,8 @@ export function sanizeData(model: any, data: any, safe: any = false): boolean //
 {
 	if (Array.isArray(data))
 	{
-		if (data.length != model.length) { console.log(data,model);
-			throw "Sanize failed: model array has a different length from data array";
+		if (data.length > model.length) { console.log(data,model);
+			throw "Sanize failed: data array is longer than model array";
 		}
 
 		for (let i = data.length - 1; i >= 0; i--) // reverse walk the array...

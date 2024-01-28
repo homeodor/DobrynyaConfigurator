@@ -17,6 +17,7 @@ export interface BranchControl
 {
 	encmode?: EncoderBehaviour,
 	combo?: number,
+	burst?: number,
 	colour?: ColourArray,
 	midi?: BranchMidi,
 }
