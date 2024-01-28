@@ -22,11 +22,14 @@
 	import EncoderShadowCC from './editor/EncoderShadowCC.svelte';
 	import ColourWellsEditor from './ColourWellsEditor.svelte'
 	import KeyboardEditor from './KeyboardEditorDouble.svelte'
+	import Halp from "./widgets/Halp.svelte"
 	
 	// import RangeWithInline from './widgets/RangeWithInline.svelte';
 	import Channel from './widgets/Channel.svelte';
 	import Overridable from './widgets/Overridable.svelte'
 	import Tick from './widgets/Tick.svelte';
+    import { burstIsOn } from './ts/bursts';
+    import BurstsDialog from './editor/BurstsDialog.svelte';
 	// import Halp from './widgets/Halp.svelte';
 			
 	// import UndoStack from './undo_stack'
@@ -69,6 +72,9 @@
 	
 	let midiControlEditor: MidiControl;
 	let keyboardEditor: KeyboardEditor;
+
+	let burstIsOpen = false;
+	function openBurstEditor() { burstIsOpen = true; }
 	
 //	let isEncoderRotate: boolean = (controlKind == "encrotate");
 	
@@ -77,6 +83,7 @@
 		encmode: 0,
 		colour: [ colourOff, colourOff ],
 		combo: 0,
+		burst: 0,
 		midi: 
 		{
 			ch: -1,
@@ -197,7 +204,7 @@
 				scaleNote = -1;
 			}
 			
-			theControl = controls.find(v=>{return v.control == controlKind});
+			theControl = controls.find(v=>{return v.control == controlKind});			
 			expanderSanizer.sanize();
 			setCorrectEditorData();
 			expanderSanizer.expand(editorData);
@@ -257,6 +264,18 @@
 			</legend>
 			<ColourWellsEditor on:input={patchMaybeChanged} bind:colours={editorData.colour} globalColours={globalColours} {isKeyOfScale} />
 			<button disabled={disableResetToBankColours} on:click={patchMaybeChanged} on:click="{()=>editorData.colour[0] = editorData.colour[1] = colourOff}" class="auxaction">Reset to bank colours</button>
+			<div class="checkboxholder">
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<label on:click|stopPropagation|preventDefault={openBurstEditor}>
+				<input checked={burstIsOn(editorData.burst)} class="appleswitch" type="checkbox" > <mark></mark><span class="unreal">Custom burst...
+				<Halp>
+					Bursts can be enabled for the whole patch, but also each pad can have a unique burst
+					if, say, you want extra consistency!
+				</Halp>
+				</span></label>
+			{#if burstIsOpen}
+			<BurstsDialog on:input={patchChanged} bind:burst={editorData.burst} on:close="{()=>burstIsOpen=false}" />
+			{/if}
 		</fieldset>
 		{/if}
 		
