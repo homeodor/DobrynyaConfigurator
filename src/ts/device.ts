@@ -394,6 +394,12 @@ export const ChipIDs =
 		code: 20,
 		mhz: 120,
 	},
+	1:
+	{
+		name: "ESP32-S3",
+		code: 2,
+		mhz: 240,
+	},
 	2:
 	{
 		name: "ESP32-S3",
