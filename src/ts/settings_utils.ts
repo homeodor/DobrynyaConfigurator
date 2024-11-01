@@ -4,9 +4,9 @@ import { CaseColour } from 'device'
 import { eightToSeven, SysExCommand } from 'midi_utils';
 
 import type ButtonUpload from '../widgets/ButtonUpload.svelte'
+import { writable, Writable } from 'svelte/store';
 
-interface SettingsObjectItem
-{
+interface SettingsObjectItem {
 	length?: number,
 	reserved?: boolean,
 	isFlag?: boolean,
@@ -16,11 +16,10 @@ interface SettingsObjectItem
 	fixfunc?: Function,
 }
 
-interface SettingsObject
-{
+interface SettingsObject {
 	[index: string]: {
 		[index: string]: SettingsObjectItem
-	}	
+	}
 };
 
 declare global {
@@ -29,8 +28,8 @@ declare global {
 	}
 }
 
-function fixValueToZero(v: number): number { return (v == 0xff) ? 0    : v; }
-function fixValueTo7F  (v: number): number { return (v >  0x7f) ? 0x7f : v; }
+function fixValueToZero(v: number): number { return (v == 0xff) ? 0 : v; }
+function fixValueTo7F(v: number): number { return (v > 0x7f) ? 0x7f : v; }
 
 export let isSaved: boolean = true;
 let settingsRawData: Uint8Array;
@@ -38,47 +37,50 @@ let settingsNeedFixing: boolean = false;
 let settingsObjectIsValid: boolean = false;
 
 export function markSettingsUnsaved() { isSaved = false; }
-export function markSettingsDirty()   { settingsNeedFixing = true }
+export function markSettingsDirty() { settingsNeedFixing = true }
 
-export interface ImportantFactorySettings
-{
+export interface ImportantFactorySettings {
 	hasDecolight: boolean,
-	caseColour: CaseColour
+	caseColour: CaseColour,
+	batteryCapacity: number,
+	boardRevision: string | null,
 };
 
-function factorySettingsModel(): ImportantFactorySettings
-{
+function factorySettingsModel(): ImportantFactorySettings {
 	return {
 		hasDecolight: false,
-		caseColour: CaseColour.Light
+		caseColour: CaseColour.Light,
+		batteryCapacity: 0,
+		boardRevision: null,
 	};
 }
 
-export let importantFactorySettings: ImportantFactorySettings = 
-{
-	hasDecolight: false,
-	caseColour: CaseColour.Light
-};
+export let importantFactorySettings: Writable<ImportantFactorySettings> =
+	writable({
+		hasDecolight: false,
+		caseColour: CaseColour.Light,
+		batteryCapacity: 0,
+		boardRevision: null,
+	});
 
-function settingsModel(): SettingsObject
-{
+function settingsModel(): SettingsObject {
 	return {
-		control: 
+		control:
 		{
 			control:
 			{
 				length: 4
 			}
 		},
-	
-		screen: 
+
+		screen:
 		{
 			brightness:
 			{
 				reserved: true
 			},
 			contrast:
-			{},
+				{},
 			timeout:
 			{
 				length: 2
@@ -89,12 +91,12 @@ function settingsModel(): SettingsObject
 				length: 8
 			}
 		},
-	
+
 		leds:
 		{
-			brightness: {},    
-			brightnesschill: {},    
-			brightnessdeco: {},        
+			brightness: {},
+			brightnesschill: {},
+			brightnessdeco: {},
 			brightnessblink: {},
 			timeoutchill:
 			{
@@ -106,43 +108,43 @@ function settingsModel(): SettingsObject
 				length: 2
 			},
 			timeoutpalette:
-			{},
+				{},
 			palettes:
 			{
 				isFlag: true
 			},
 			flags:
 			{
-				isFlag:true
+				isFlag: true
 			},
 			blinkmode:
-			{},
+				{},
 			chillanimations:
 			{
-				isFlag:true
+				isFlag: true
 			},
 			reserved2:
 			{
-				reserved:true,
-				length:3
+				reserved: true,
+				length: 3
 			}
 		},
-	
+
 		midi:
 		{
 			channel: {},
 			outputs:
 			{
-				isFlag:true
+				isFlag: true
 			},
 			inputs:
 			{
-				isFlag:true
+				isFlag: true
 			},
 			hwmidi:
 			{
 				fixfunc: fixValueToZero,
-				isFlag:true
+				isFlag: true
 			},
 			vel:
 			{
@@ -152,78 +154,78 @@ function settingsModel(): SettingsObject
 			passthruble: {},
 			reserved1:
 			{
-				reserved:true,
-				length:9
+				reserved: true,
+				length: 9
 			}
 		},
-	
+
 		input:
 		{
 			debouncepad: {},
 			debounceother: {},
 			smoothfader:
 			{
-				reserved:true
+				reserved: true
 			},
 			smoothjoystick:
 			{
-				reserved:true
+				reserved: true
 			},
 			encoderkinetics:
 			{
-				reserved:true,
-				length:4
+				reserved: true,
+				length: 4
 			},
 			direction:
 			{
-				isFlag:true
+				isFlag: true
 			},
 			reserved1:
 			{
-				reserved:true,
-				length:7
+				reserved: true,
+				length: 7
 			}
 		},
-		
+
 		lowpower:
 		{
 			reserved1:
 			{
-				reserved:true,
-				length:4
+				reserved: true,
+				length: 4
 			},
 			timeoutleds:
 			{
-				length:2,
+				length: 2,
 				reserved: true
 			},
 			timeoutpoweroff:
 			{
-				length:2,
+				length: 2,
 				reserved: true
 			},
 			reserved2:
 			{
-				reserved:true,
-				length:8
+				reserved: true,
+				length: 8
 			}
 		},
-		
+
 		ble:
 		{
 			reserved1:
 			{
-				reserved:true,
-				length:16
+				reserved: true,
+				length: 16
 			}
 		},
-		
+
 		haptic:
 		{
 			events:
 			{
-				length:2,
-				isFlag:true
+				length: 2,
+				isFlag: true
 			},
 			channel: {}
 		}
@@ -234,147 +236,148 @@ window.settings = settingsModel();
 
 export let settings = window.settings;
 
-export function parseSettingsData()
-{	
+export function parseSettingsData() {
 	if (settingsObjectIsValid) return; // it’s all good, no need to re-parse
-	
+
 	if (!isSaved) return; // there was a previous state available
-	
+
 	let arp = 0;
-	
-	for (let i in window.settings)
-	{
+
+	for (let i in window.settings) {
 		if (i == "fakeparam") continue;
-		
-		
-		for (let j in window.settings[i])
-		{
+
+
+		for (let j in window.settings[i]) {
 			let param = window.settings[i][j];
-			
+
 			if (typeof param.length == "undefined") param.length = 1;
-			
-			if (param.reserved) 
-			{
+
+			if (param.reserved) {
 				arp += param.length;
 				continue;
-			} 
-			
+			}
+
 			param.value = 0;
-			
-			for (let byteshift = 0; byteshift < param.length; byteshift++)
-			{
+
+			for (let byteshift = 0; byteshift < param.length; byteshift++) {
 				param.value |= (settingsRawData[arp++] << (byteshift * 8));
 			}
-			
+
 			if (typeof param.fixfunc == "function") {
 				param.value = param.fixfunc(param.value);
 			}
-			
-			if (param.isFlag)
-			{
+
+			if (param.isFlag) {
 				param.flag = [];
-				
-				for (let bitshift = 0; bitshift < 8; bitshift++)
-				{
+
+				for (let bitshift = 0; bitshift < 8; bitshift++) {
 					param.flag[bitshift] = (((param.value >> bitshift) & 1) == 1 ? true : false);
 				}
 			}
 		}
 	}
-	
+
 	settingsObjectIsValid = true;
 }
 
-export async function saveSettings(settingsLength: number, uploadButton: ButtonUpload = null)
-{
+export async function saveSettings(settingsLength: number, uploadButton: ButtonUpload = null) {
 	let b8 = [];
-	
-	for (let i in window.settings)
-	{
-		for (let j in window.settings[i])
-		{
+
+	for (let i in window.settings) {
+		for (let j in window.settings[i]) {
 			let param: SettingsObjectItem = window.settings[i][j];
 
 			let l = param.length;
-			
-			let reserved = (typeof param.reserved == "boolean" && param.reserved);				
-			
-			if (!reserved && typeof param.isFlag == "boolean" && param.isFlag)
-			{
+
+			let reserved = (typeof param.reserved == "boolean" && param.reserved);
+
+			if (!reserved && typeof param.isFlag == "boolean" && param.isFlag) {
 				param.value = 0;
 				for (let bf = 0; bf < 8; bf++)
 					param.value |= (param.flag[bf] ? (1 << bf) : 0);
 			}
-			
+
 			let byteshift = 0;
-			
-			while (l--)
-			{
+
+			while (l--) {
 				let theByte =
 					reserved ?
 						0xff : // пишем просто 0xff если это резерв
 						(param.value >> byteshift) & 0xff;	// иначе бьём на байты value					
-				
+
 				b8.push(theByte);
-				
+
 				byteshift += 8;
 			}
 		}
 	}
-	
+
 	while (b8.length > settingsLength) b8.pop();
 	while (b8.length < settingsLength) b8.push(0xff);
-	
+
 	WaitingBlock.block(SysExCommand.SAVESETTINGS);
-	await sysExAndDo(SysExCommand.SAVESETTINGS, ()=>
-	{
+	await sysExAndDo(SysExCommand.SAVESETTINGS, () => {
 		if (uploadButton) uploadButton.ok();
 		isSaved = true;
 	}, 1000, eightToSeven(b8), true);
 }
 
-export async function getSettingsFromDevice()
-{
-	await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array)=> settingsRawData = d);
+export async function getSettingsFromDevice() {
+	await sysExAndDo(SysExCommand.GETSETTINGS, (d: Uint8Array) => settingsRawData = d);
 	parseSettingsData();
 }
 
-export async function getPalettesFromDevice()
-{
-	await sysExAndDo(SysExCommand.PALETTE, (d: Uint8Array)=> {});
+export async function getPalettesFromDevice() {
+	await sysExAndDo(SysExCommand.PALETTE, (d: Uint8Array) => { });
 }
 
-export async function fixSettings(settingsLength: number)
-{
+export async function fixSettings(settingsLength: number) {
 	if (!settingsNeedFixing) return;
 	console.warn("Fixing settings requested");
-	
+
 	settingsObjectIsValid = false; // invalidate the object
 	window.settings = settingsModel(); // reset the object
 	settings = window.settings;
-	
+
 	await getSettingsFromDevice();
 	await saveSettings(settingsLength);
-	
+
 	settingsNeedFixing = false;
 }
 
-function isNotZeroOrFF(v: number)
-{
+function isNotZeroOrFF(v: number) {
 	return v !== 0 && v !== 0xff;
 }
 
-function ffMeansZero(v: number)
-{
+function ffMeansZero(v: number) {
 	return v == 0xff ? 0 : v;
 }
 
-export async function getFactorySettings()
-{
-	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array)=> { // does not work for pocket?!
+export async function getFactorySettings() {
+	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array) => { // does not work for pocket?!
 		console.log("FACTORY: ", d);
-		importantFactorySettings = factorySettingsModel();
-		importantFactorySettings.hasDecolight = isNotZeroOrFF(d[21]) || isNotZeroOrFF(d[22]) || isNotZeroOrFF(d[23]); // decolight points
-		importantFactorySettings.caseColour = ffMeansZero(d[50]) 
+
+		const dataview = new DataView(d.buffer);
+
+		const importantFactorySettingsNew = factorySettingsModel();
+		importantFactorySettingsNew.hasDecolight = isNotZeroOrFF(d[21]) || isNotZeroOrFF(d[22]) || isNotZeroOrFF(d[23]); // decolight points
+		importantFactorySettingsNew.caseColour = ffMeansZero(d[50])
+		importantFactorySettingsNew.batteryCapacity = dataview.getUint16(52, true);
+
+		if (importantFactorySettingsNew.batteryCapacity == 0xffff) {
+			importantFactorySettingsNew.batteryCapacity = 0;
+		}
+
+		const boardRevision = [dataview.getUint8(10), dataview.getUint8(9)];
+
+		importantFactorySettingsNew.boardRevision = (
+			boardRevision[0] !== 0 &&
+			boardRevision[0] !== 0xff
+			&& boardRevision[1] !== 0xff
+		)
+			? `${boardRevision[0]}.${boardRevision[1]}`
+			: null;
+
+		importantFactorySettings.set(importantFactorySettingsNew);
 	});
 }

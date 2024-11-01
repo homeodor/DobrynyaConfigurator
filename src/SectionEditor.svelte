@@ -580,7 +580,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		{/if}
 	</div>
 
-	<div class="dobrynya-outline" class:dark={importantFactorySettings.caseColour == CaseColour.Dark} class:gray={importantFactorySettings.caseColour == CaseColour.Gray} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
+	<div class="dobrynya-outline" class:dark={$importantFactorySettings.caseColour == CaseColour.Dark} class:gray={$importantFactorySettings.caseColour == CaseColour.Gray} class:colourpaint={colourPaintMode != ColourPaintLayer.Off} id="dobrynya-outline-miniv2" bind:this={theOutline}>
 		<div class="dobrynya-encoders" data-control-name="Encoder" data-control-type="encrotate">
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 0)}" controlNo={0} dataAll={currentPatch.data.encoders} />
 			<Encoder on:click="{(ev)=>openEditor(ev.detail.encEl, Control.EncRotate, 1)}" controlNo={1} dataAll={currentPatch.data.encoders} />

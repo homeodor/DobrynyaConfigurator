@@ -1,25 +1,22 @@
 import { writable, get } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 
-export interface VersionDataShort
-{
+export interface VersionDataShort {
 	fullVersion: string,
 	comparableVersion: number[],
 	version: string,
 	date: string,
 }
 
-export enum FirmwareState
-{
+export enum FirmwareState {
 	Unknown,
 	Checking,
 	Obsolete,
 	Outdated,
-	UpToDate,	
+	UpToDate,
 };
 
-export enum CaseColour
-{
+export enum CaseColour {
 	Light,
 	Dark,
 	Gray,
@@ -33,36 +30,32 @@ const minimumFirmware: VersionDataShort =
 	date: "1.05.2023"
 };
 
-export interface VersionData extends VersionDataShort
-{
-	isBootloader:	boolean,
-	model:	string,
-	chip:	string,
-	filename:	string,
-	bootloader:	{
-		version:	string,
+export interface VersionData extends VersionDataShort {
+	isBootloader: boolean,
+	model: string,
+	chip: string,
+	filename: string,
+	bootloader: {
+		version: string,
 		fullVersion: string,
 		comparableVersion: number[],
-		filename:	string
+		filename: string
 	}
 }
 
-interface ModelChip
-{
+interface ModelChip {
 	varies?: boolean,
 	name?: string,
 	code?: number,
 };
 
-export enum BLEAvailable
-{
+export enum BLEAvailable {
 	None,
 	Internal,
 	External,
 };
 
-interface ModelHardware
-{
+interface ModelHardware {
 	encoders?: number,
 	faders?: number,
 	pots?: number,
@@ -72,14 +65,12 @@ interface ModelHardware
 	ble: BLEAvailable,
 };
 
-interface ModelPatchSections
-{
+interface ModelPatchSections {
 	hands: number,
 	banks: number,
 };
 
-export interface Model
-{
+export interface Model {
 	name?: string,
 	code?: string,
 	template?: string,
@@ -91,8 +82,7 @@ export interface Model
 	patch?: ModelPatchSections,
 };
 
-export interface Capabilities
-{
+export interface Capabilities {
 	imu: boolean,
 	battery: boolean,
 	ble: boolean,
@@ -104,277 +94,277 @@ export interface Capabilities
 }
 
 
-export const capabilityFlags: string[] = [ 'imu','battery','ble','proximity','haptic','pianoroll','decolight','sidestick' ];
+export const capabilityFlags: string[] = ['imu', 'battery', 'ble', 'proximity', 'haptic', 'pianoroll', 'decolight', 'sidestick'];
 
-export enum OnlineStatus
-{
+export enum OnlineStatus {
 	Disconnect = -1, Offline = 0, Online = 1
 };
 
 import type { StatusResult } from 'types';
 
-export function defaultStatusResult(isC: boolean = false): StatusResult
-{
-	return { isCorrect: isC, class: 0, modelNumber: 0, modelID: 0, variant: 0, revision: 0, serialID: 0, deviceID: "", serial: "", version: "", model: {name:'',code:''}, has:{
-		imu: false, battery: false, ble: false, proximity: false, haptic: false, pianoroll: false, decolight: false, sidestick: false,
-	} };
+export function defaultStatusResult(isC: boolean = false): StatusResult {
+	return {
+		isCorrect: isC, class: 0, modelNumber: 0, modelID: 0, variant: 0, revision: 0, serialID: 0, deviceID: "", serial: "", version: "", model: { name: '', code: '' }, has: {
+			imu: false, battery: false, ble: false, proximity: false, haptic: false, pianoroll: false, decolight: false, sidestick: false,
+		}
+	};
 }
 
-const patch1Hand8Banks: ModelPatchSections = 
+const patch1Hand8Banks: ModelPatchSections =
 {
 	hands: 1,
 	banks: 8,
 };
 
-const patch2Hands4Banks: ModelPatchSections = 
+const patch2Hands4Banks: ModelPatchSections =
 {
 	hands: 2,
 	banks: 4,
 };
 
 
-export const models: Model[][] = 
-[
+export const models: Model[][] =
 	[
-		{
-			name: "Unknown",
-			code: 'none'
-		}
-	],
-	[
-		{},
-		{
-			name: "Pocket",
-			code: "pocket",
-			canHid: false,
-			template: "miniv2",
-			hardware: {
-				encoders: 2,
-				midiOut: true,
-				ble: BLEAvailable.Internal,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch:
+		[
 			{
-				hands: 1,
-				banks: 4,
-			},
-		}
-	],
-	[	
-		{},
-		{
-			name: "Micro V2",
-			code: "microv2",
-			canHid: true,
-			template: "miniv2",
-			hardware: {
-				encoders: 3,
-				midiOut: false,
-				ble: BLEAvailable.None,
-			},
-			chip: { varies: true },
-			settingsLength: 64,
-			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1636487672317",
-			patch: patch1Hand8Banks,
-		},
-		{},
-		{},
-		{},
-		{},
-		{
-			name: "Micro#",
-			code: "microsharp",
-			canHid: true,
-			template: "miniv2",
-			hardware: {
-				encoders: 3,
-				midiOut: false,
-				ble: BLEAvailable.None,
-			},
-			chip: { varies: true },
-			settingsLength: 64,
-			patch: patch1Hand8Banks,
-		}
-	],
-	[
-		{},
-		{
-			name: "Mini V2",
-			code: "miniv2",
-			canHid: true,
-			template: "miniv2",
-			hardware: {
-				encoders: 4,
-				midiOut: false,
-				ble: BLEAvailable.None,
-			},
-			chip: { varies: true },
-			settingsLength: 64,
-			webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1594941660113",
-			patch: patch1Hand8Banks,
-		},
-		{
-			name: "Mini 25",
-			code: "mini25",
-			canHid: true,
-			template: "mini25",
-			hardware: {
-				encoders: 4,
-				midiOut: false,
-				ble: BLEAvailable.None,
-			},
-			chip: { varies: true },
-			settingsLength: 64,
-			patch: patch1Hand8Banks,
-		}
-	],
-	[
-		{},
-		{
-			name: "Pro M V2",
-			code: 'promv2',
-			canHid: true,
-			template: 'prov2',
-			hardware: {
-				encoders: 5,
-				midiOut: true,
-				ble: BLEAvailable.External,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch1Hand8Banks,
-		},
-		{
-			name: "Pro M#",
-			code: 'promsharp',
-			canHid: true,
-			template: 'prov2',
-			hardware: {
-				encoders: 5,
-				midiOut: true,
-				ble: BLEAvailable.External,
-			},
-			chip: {varies: false},
-			settingsLength: 112,
-			patch: patch1Hand8Banks,
-		},
-		{
-			name: "32 M",
-			code: 'm32',
-			canHid: true,
-			template: 'l32',
-			hardware: {
-				encoders: 2,
-				midiOut: false,
-				ble: BLEAvailable.Internal,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch2Hands4Banks,
-		},
-		{
-			name: "32 M#",
-			code: 'm32sharp',
-			template: 'l32',
-			hardware: {
-				encoders: 2,
-				midiOut: false,
-				ble: BLEAvailable.Internal,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch2Hands4Banks,
-		}
-	],
-	[
-		{},
-		{
-			name: "Pro V2",
-			code: 'prov2',
-			canHid: false,
-			template: 'prov2',
-			hardware: {
-				encoders: 5,
-				faders: 4,
-				pots: 5,
-				auxbuttons: 5,
-				hasJoystick: true,
-				midiOut: true,
-				ble: BLEAvailable.External,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch1Hand8Banks,
-		},
-		{
-			name: "Pro 25",
-			code: 'pro25',
-			canHid: false,
-			hardware: {
-				encoders: 5,
-				faders: 4,
-				pots: 5,
-				auxbuttons: 5,
-				hasJoystick: true,
-				midiOut: true,
-				ble: BLEAvailable.External,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch1Hand8Banks,
-		},
-		{
-			name: "32",
-			code: 'l32',
-			canHid: false,
-			template: 'l32',
-			hardware:
+				name: "Unknown",
+				code: 'none'
+			}
+		],
+		[
+			{},
 			{
-				encoders: 2,
-				hasJoystick: true,
-				midiOut: false,
-				ble: BLEAvailable.Internal,
-			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch2Hands4Banks,
-		},
-		{
-			name: "41",
-			code: 'l41',
-			canHid: false,
-			hardware:
+				name: "Pocket",
+				code: "pocket",
+				canHid: false,
+				template: "miniv2",
+				hardware: {
+					encoders: 2,
+					midiOut: true,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch:
+				{
+					hands: 1,
+					banks: 4,
+				},
+			}
+		],
+		[
+			{},
 			{
-				encoders: 2,
-				hasJoystick: true,
-				midiOut: false,
-				ble: BLEAvailable.Internal,
+				name: "Micro V2",
+				code: "microv2",
+				canHid: true,
+				template: "miniv2",
+				hardware: {
+					encoders: 3,
+					midiOut: false,
+					ble: BLEAvailable.None,
+				},
+				chip: { varies: true },
+				settingsLength: 64,
+				webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1636487672317",
+				patch: patch1Hand8Banks,
 			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch2Hands4Banks,
-		},
-		{
-			name: "50",
-			code: 'l50',
-			canHid: false,
-			hardware:
+			{},
+			{},
+			{},
+			{},
 			{
-				encoders: 2,
-				hasJoystick: true,
-				midiOut: false,
-				ble: BLEAvailable.Internal,
+				name: "Micro#",
+				code: "microsharp",
+				canHid: true,
+				template: "miniv2",
+				hardware: {
+					encoders: 3,
+					midiOut: false,
+					ble: BLEAvailable.None,
+				},
+				chip: { varies: true },
+				settingsLength: 64,
+				patch: patch1Hand8Banks,
+			}
+		],
+		[
+			{},
+			{
+				name: "Mini V2",
+				code: "miniv2",
+				canHid: true,
+				template: "miniv2",
+				hardware: {
+					encoders: 4,
+					midiOut: false,
+					ble: BLEAvailable.None,
+				},
+				chip: { varies: true },
+				settingsLength: 64,
+				webpage: "https://mididobrynya.com/#rec212217415#!/tproduct/212217415-1594941660113",
+				patch: patch1Hand8Banks,
 			},
-			chip: { varies: false },
-			settingsLength: 112,
-			patch: patch2Hands4Banks,
-		}
-	]			
-];
+			{
+				name: "Mini 25",
+				code: "mini25",
+				canHid: true,
+				template: "mini25",
+				hardware: {
+					encoders: 4,
+					midiOut: false,
+					ble: BLEAvailable.None,
+				},
+				chip: { varies: true },
+				settingsLength: 64,
+				patch: patch1Hand8Banks,
+			}
+		],
+		[
+			{},
+			{
+				name: "Pro M V2",
+				code: 'promv2',
+				canHid: true,
+				template: 'prov2',
+				hardware: {
+					encoders: 5,
+					midiOut: true,
+					ble: BLEAvailable.External,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch1Hand8Banks,
+			},
+			{
+				name: "Pro M#",
+				code: 'promsharp',
+				canHid: true,
+				template: 'prov2',
+				hardware: {
+					encoders: 5,
+					midiOut: true,
+					ble: BLEAvailable.External,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch1Hand8Banks,
+			},
+			{
+				name: "32 M",
+				code: 'm32',
+				canHid: true,
+				template: 'l32',
+				hardware: {
+					encoders: 2,
+					midiOut: false,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch2Hands4Banks,
+			},
+			{
+				name: "32 M#",
+				code: 'm32sharp',
+				template: 'l32',
+				hardware: {
+					encoders: 2,
+					midiOut: false,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch2Hands4Banks,
+			}
+		],
+		[
+			{},
+			{
+				name: "Pro V2",
+				code: 'prov2',
+				canHid: false,
+				template: 'prov2',
+				hardware: {
+					encoders: 5,
+					faders: 4,
+					pots: 5,
+					auxbuttons: 5,
+					hasJoystick: true,
+					midiOut: true,
+					ble: BLEAvailable.External,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch1Hand8Banks,
+			},
+			{
+				name: "Pro 25",
+				code: 'pro25',
+				canHid: false,
+				hardware: {
+					encoders: 5,
+					faders: 4,
+					pots: 5,
+					auxbuttons: 5,
+					hasJoystick: true,
+					midiOut: true,
+					ble: BLEAvailable.External,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch1Hand8Banks,
+			},
+			{
+				name: "32",
+				code: 'l32',
+				canHid: false,
+				template: 'l32',
+				hardware:
+				{
+					encoders: 2,
+					hasJoystick: true,
+					midiOut: false,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch2Hands4Banks,
+			},
+			{
+				name: "41",
+				code: 'l41',
+				canHid: false,
+				hardware:
+				{
+					encoders: 2,
+					hasJoystick: true,
+					midiOut: false,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch2Hands4Banks,
+			},
+			{
+				name: "50",
+				code: 'l50',
+				canHid: false,
+				hardware:
+				{
+					encoders: 2,
+					hasJoystick: true,
+					midiOut: false,
+					ble: BLEAvailable.Internal,
+				},
+				chip: { varies: false },
+				settingsLength: 112,
+				patch: patch2Hands4Banks,
+			}
+		]
+	];
 
-export const ChipIDs = 
+export const ChipIDs =
 {
 	5:
 	{
@@ -408,123 +398,108 @@ export const ChipIDs =
 	}
 };
 
-export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: string[] | number[])
-{
+export function versionCompareRaw(currVersionSplit: string[], newVersionSplit: string[] | number[]) {
 	if (currVersionSplit.length != newVersionSplit.length) throw "Version lengths are not the same";
-	
-	while (currVersionSplit.length)
-	{
+
+	while (currVersionSplit.length) {
 		let pCurrent = parseInt(currVersionSplit.shift());
-		let pNew     = newVersionSplit.shift();
-		
+		let pNew = newVersionSplit.shift();
+
 		if (typeof pNew === "string") pNew = parseInt(pNew);
-		
+
 		if (isNaN(pCurrent) || isNaN(pNew)) throw "One of the version components is NaN";
-		
+
 		if (pNew > pCurrent) return true;
 		if (pNew < pCurrent) return false;
 	}
-	
+
 	return false;
 }
 
-export function versionCompare(currentVersion: string, newVersion: VersionDataShort)
-{
+export function versionCompare(currentVersion: string, newVersion: VersionDataShort) {
 	// 2.0/26.06.2022-13:51
 
 	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
-	
+
 	return versionCompareRaw(
 		[...currVersionWithoutTime[0].split("."), ...currVersionWithoutTime[1].split(".").reverse()],
 		structuredClone(newVersion.comparableVersion)
 	);
 }
 
-export function isMinimumVersion(currentVersion: string)
-{
-//	console.log(currentVersion, minimumFirmware, versionCompare(currentVersion, minimumFirmware));
+export function isMinimumVersion(currentVersion: string) {
+	//	console.log(currentVersion, minimumFirmware, versionCompare(currentVersion, minimumFirmware));
 	return !versionCompare(currentVersion, minimumFirmware);
 }
 
-export function getFullModelCode(model: Model)
-{
+export function getFullModelCode(model: Model) {
 	return model.chip.varies ? `${model.code}-${model.chip.code}` : model.code;
 }
 
 let waitBeforeRetry = false;
 
-export async function getDefaultPatch(model: Model)
-{
+export async function getDefaultPatch(model: Model) {
 	let result = null;
 	let fetchJSON: Response;
-	
-	try 
-	{
+
+	try {
 		fetchJSON = await fetch(`defaultpatches/${model.code}.json`);
-		
+
 		if (fetchJSON.status === 200)
 			result = await fetchJSON.json();
-		else if (fetchJSON.status === 503)
-		{
-			if (fetchJSON.headers.get("retry-after"))
-			{
+		else if (fetchJSON.status === 503) {
+			if (fetchJSON.headers.get("retry-after")) {
 				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
-				console.warn("We should retry after ", retryAfter );
+				console.warn("We should retry after ", retryAfter);
 				setTimeout(
-					()=>waitBeforeRetry = false, retryAfter * 1000);
+					() => waitBeforeRetry = false, retryAfter * 1000);
 			}
 		}
-	} catch(e)
-	{
+	} catch (e) {
 		console.log(e);
 		waitBeforeRetry = true;
-		setTimeout(()=>waitBeforeRetry = false, 30000);
+		setTimeout(() => waitBeforeRetry = false, 30000);
 		return;
 	}
-	
+
 	return result;
 }
 
-export async function getLatestVersion(model: Model | string)
-{
+export async function getLatestVersion(model: Model | string) {
 	if (waitBeforeRetry) return null;
-	
+
 	let result = null;
-	
+
 	if (typeof model !== "string") model = getFullModelCode(model);
-	
+
 	let fetchJSON: Response;
-	
-	try 
-	{
-		fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${model}/latest.json`, 
+
+	try {
+		fetchJSON = await fetch(`https://config.mididobrynya.com/firmware/${model}/latest.json`,
 			{
-				mode:'cors',
+				mode: 'cors',
 			}
 		);
-		
+
 		if (fetchJSON.status === 200)
 			result = await fetchJSON.json();
-		else if (fetchJSON.status === 503)
-		{
-			if (fetchJSON.headers.get("retry-after"))
-			{
+		else if (fetchJSON.status === 503) {
+			if (fetchJSON.headers.get("retry-after")) {
 				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
-				console.warn("We should retry after ", retryAfter );
+				console.warn("We should retry after ", retryAfter);
 				setTimeout(
-					()=>waitBeforeRetry = false, retryAfter * 1000);
+					() => waitBeforeRetry = false, retryAfter * 1000);
 			}
 		}
-	} catch(e)
-	{
+	} catch (e) {
 		console.log(e);
 		waitBeforeRetry = true;
-		setTimeout(()=>waitBeforeRetry = false, 30000);
+		setTimeout(() => waitBeforeRetry = false, 30000);
 		return;
 	}
-	
+
 	if (!result) return;
-	
+
 	return result;
 }
 
