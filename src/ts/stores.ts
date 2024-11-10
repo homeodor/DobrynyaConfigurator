@@ -1,5 +1,6 @@
 import { readable, writable } from 'svelte/store';
 import { colourOff } from 'colour_utils';
+import { BatteryInfo, BatteryStatus } from './types';
 
 export const isMacLike = readable(/(Mac|iPhone|iPod|iPad|Apple)/i.test(navigator.platform));
 
@@ -18,3 +19,5 @@ export const persistentSettings = writable(null);
 export const isAlt = writable(false);
 
 export const stateOfCharge = writable(-1);
+
+export const batteryInfo = writable<BatteryInfo>({status: BatteryStatus.noBattery, percent: 0});

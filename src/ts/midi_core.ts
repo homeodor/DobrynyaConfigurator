@@ -1,8 +1,9 @@
-import { WaitingBlock } from 'waitingblock'
-import { SysExCommand, SysExStatus } from 'midi_utils'
-import type { MidiResult } from 'midi_utils'
-import { interpretMidiEvent, onMIDIMessage } from 'midi_onmidi'
-import type { HexColour, ColourArray, Hand } from 'types'
+import { WaitingBlock } from "waitingblock";
+import { SysExCommand, SysExStatus } from "midi_utils";
+import type { MidiResult } from "midi_utils";
+import { interpretMidiEvent, onMIDIMessage } from "midi_onmidi";
+import type { HexColour, ColourArray, Hand } from "types";
+import { batteryInfo } from "./stores";
 
 let midi: MIDIAccess | null = null;
 let portOut: MIDIOutput | null = null;
@@ -16,16 +17,17 @@ let dobrynyaWasHere: boolean = false;
 export let isConnected = true;
 export const flipConnected = function () {
 	isConnected = !isConnected;
-	if (isConnected) enablePing(); else disablePing();
+	if (isConnected) enablePing();
+	else disablePing();
 	return isConnected;
-
-}
-export const resetConnected = function () { }
+};
+export const resetConnected = function () {};
 
 export let online = true;
 
 function enablePing() {
-	if (pingInterval === null) pingInterval = setInterval(checkDobrynyaIsHere, 2000);
+	if (pingInterval === null)
+		pingInterval = setInterval(checkDobrynyaIsHere, 2000);
 }
 
 function disablePing() {
@@ -38,7 +40,7 @@ function disablePing() {
 function dobrynyaEvent(evKind: string, data: object = {}) {
 	const event = new CustomEvent(`dobrynya${evKind}`, { detail: data });
 	document.body.dispatchEvent(event);
-	return (evKind != 'gone');
+	return evKind != "gone";
 }
 
 async function checkDobrynyaIsHere() {
@@ -47,49 +49,57 @@ async function checkDobrynyaIsHere() {
 	dobrynyaIsHere = false;
 
 	if (!midi.outputs || Array.from(midi?.outputs.values()).length === 0) {
-		dobrynyaEvent('gone');
+		dobrynyaEvent("gone");
 		return false;
 	}
 
-	portOut = Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => { return entry.name.startsWith("MIDI Dobrynya ") });
-	portIn = Array.from(midi?.inputs.values()).find((entry: MIDIInput) => { return entry.name.startsWith("MIDI Dobrynya ") });
+	portOut = Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => {
+		return entry.name.startsWith("MIDI Dobrynya ");
+	});
+	portIn = Array.from(midi?.inputs.values()).find((entry: MIDIInput) => {
+		return entry.name.startsWith("MIDI Dobrynya ");
+	});
 
 	if (portIn) portIn.addEventListener("midimessage", onMIDIMessage);
 
 	if (!portOut) {
 		dobrynyaWasHere = false;
-		return dobrynyaEvent('gone');
+		return dobrynyaEvent("gone");
 	}
 
 	try {
 		let result: MidiResult = await sysExAndWait(SysExCommand.STATUS, 300);
 
-		if (result.status == SysExStatus.OLD_FIRMWARE) // we do not load anything really, we just want the version info and the serial
-		{
+		if (result.status == SysExStatus.OLD_FIRMWARE) {
+			// we do not load anything really, we just want the version info and the serial
 			result = await sysExAndWait(SysExCommand.GETSERIAL, 300);
-			result.data.version = (await sysExAndWait(SysExCommand.GETVERSION, 300)).data;
+			result.data.version = (
+				await sysExAndWait(SysExCommand.GETVERSION, 300)
+			).data;
 		}
 
 		if (!result.success) {
 			console.debug(result);
 			dobrynyaWasHere = false;
-			return dobrynyaEvent('gone');
+			return dobrynyaEvent("gone");
 		}
 
 		dobrynyaIsHere = true;
 
-		if (dobrynyaIsHere != dobrynyaWasHere) // appeared after a pause
-		{
+		if (dobrynyaIsHere != dobrynyaWasHere) {
+			// appeared after a pause
 			resetConnected();
 			console.debug("Dobrynya is here!");
 			dobrynyaWasHere = dobrynyaIsHere;
-			return dobrynyaEvent('here', result.data);
+			return dobrynyaEvent("here", result.data);
 		}
 
+		batteryInfo.set(result.data.battery);
+		
 	} catch (e) {
 		dobrynyaWasHere = false;
 		console.debug(e);
-		return dobrynyaEvent('gone');
+		return dobrynyaEvent("gone");
 	}
 }
 
@@ -102,7 +112,6 @@ export async function init() {
 		midi = await navigator.requestMIDIAccess({ sysex: true });
 
 		enablePing();
-
 	} catch (e) {
 		console.warn("MIDI Failed");
 		console.log(e.name);
@@ -113,19 +122,26 @@ export async function init() {
 function midiSend(v: number[] | Uint8Array): void {
 	if (!isConnected) return;
 	if (!portOut)
-		console.warn("portIn is likely found, but not portOut", portIn, portOut);
+		console.warn(
+			"portIn is likely found, but not portOut",
+			portIn,
+			portOut
+		);
 	else {
 		portOut.send(v);
 	}
 }
 
-function midiSendTerminated(v: number[]) { v.push(0xf7); midiSend(v); }
+function midiSendTerminated(v: number[]) {
+	v.push(0xf7);
+	midiSend(v);
+}
 
 export interface SysExableStringData {
-	message: number[],
-	hasForbiddenCharacters: boolean,
-	hasUnicode: boolean
-};
+	message: number[];
+	hasForbiddenCharacters: boolean;
+	hasUnicode: boolean;
+}
 
 const charDC2 = 0x12;
 const charDC4 = 0x14;
@@ -142,7 +158,7 @@ export function sysExableString(filename: string): SysExableStringData {
 	let hasForbidden = false;
 	let hasUnicode = false;
 
-	const forbiddencharacters: Uint8Array = encoder.encode("/?^<>\\:*|\"");
+	const forbiddencharacters: Uint8Array = encoder.encode('/?^<>\\:*|"');
 
 	let encodedString = encoder.encode(filename);
 
@@ -151,13 +167,13 @@ export function sysExableString(filename: string): SysExableStringData {
 	if (encodedString[0] === charDot) encodedString[0] = charUnderscore;
 
 	for (let charCode of encodedString) {
-		if (charCode > 0x7f) // it is some kind of UTF-8 code
-		{
+		if (charCode > 0x7f) {
+			// it is some kind of UTF-8 code
 			hasUnicode = true;
 
 			if (!utfSequence) {
 				message.push(charDC2); // insert a marker
-				utfSequence = true;  // begin UTF8 sequence
+				utfSequence = true; // begin UTF8 sequence
 			}
 
 			charCode &= 0x7f; // shave off the 8th bit
@@ -168,7 +184,8 @@ export function sysExableString(filename: string): SysExableStringData {
 			}
 
 			if (
-				(charCode < 0x20 || charCode > 0x7e) ||
+				charCode < 0x20 ||
+				charCode > 0x7e ||
 				forbiddencharacters.includes(charCode)
 			) {
 				hasForbidden = true;
@@ -176,7 +193,7 @@ export function sysExableString(filename: string): SysExableStringData {
 			}
 
 			// меняем любые запрещённые в FAT и просто странные символы на подчёркивание (_)
-			// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО! 
+			// для подчёркиваниедрочеров: НЕ ПРОБЕЛ, СУКА. ПРОБЕЛ МОЖНО!
 			// Хотя нет, позвольте, ведь My_Cool_Patch.dbrpatch НАМНОГО КРУЧЕ И ПРОФЕССИОНАЛЬНЕЙ ВЫГЛЯДИТ, ДА????
 			// Фух.
 		}
@@ -195,17 +212,19 @@ export function sysExableString(filename: string): SysExableStringData {
 	return {
 		message: message,
 		hasForbiddenCharacters: hasForbidden,
-		hasUnicode: hasUnicode
-	}
+		hasUnicode: hasUnicode,
+	};
 }
 
 export interface SysExableStringDecodedData {
-	string: string,
-	isThePatch: boolean,
-	hasUnicode: boolean
-};
+	string: string;
+	isThePatch: boolean;
+	hasUnicode: boolean;
+}
 
-export function sysExableStringToUTF8(msg: number[] | Uint8Array): SysExableStringDecodedData {
+export function sysExableStringToUTF8(
+	msg: number[] | Uint8Array
+): SysExableStringDecodedData {
 	let decoder = new TextDecoder();
 	let result: number[] = [];
 
@@ -234,7 +253,7 @@ export function sysExableStringToUTF8(msg: number[] | Uint8Array): SysExableStri
 	return {
 		hasUnicode: hasUnicode,
 		isThePatch: isThePatch,
-		string: decoder.decode(new Uint8Array(result)).trim()
+		string: decoder.decode(new Uint8Array(result)).trim(),
 	};
 }
 
@@ -246,10 +265,15 @@ function sysExFilenameSanize(filename: string, message: number[]): number[] {
 	return message;
 }
 
-function sysEx2Filenames(cmd: SysExCommand, filename1: string, filename2: string) {
+function sysEx2Filenames(
+	cmd: SysExCommand,
+	filename1: string,
+	filename2: string
+) {
 	let message = [];
 	let filenames = [filename1, filename2];
-	for (let filename of filenames) message = sysExFilenameSanize(filename, message);
+	for (let filename of filenames)
+		message = sysExFilenameSanize(filename, message);
 	sysEx(cmd, message);
 }
 
@@ -287,7 +311,10 @@ function sysExArray(cmd: SysExCommand, status = SysExStatus.REQUEST): number[] {
 }
 
 export function sysExLockPatchSwitching(lockOrUnlock: boolean) {
-	let message = sysExArray(SysExCommand.LOCKPATCHSWITCHING, lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET);
+	let message = sysExArray(
+		SysExCommand.LOCKPATCHSWITCHING,
+		lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET
+	);
 	midiSendTerminated(message);
 }
 
@@ -309,16 +336,19 @@ function sysEx28bit(value: number): number[] {
 export function sysExBank(hand: Hand, shift: boolean, bank: number) {
 	sysEx(SysExCommand.LOADBANK, [
 		(shift == true ? 0x10 : 0x0) | (hand & 0xf),
-		bank & 0x7f
+		bank & 0x7f,
 	]);
 }
 
-function sysEx(cmd: SysExCommand, load: any = null, usechecksum: boolean = false) {
+function sysEx(
+	cmd: SysExCommand,
+	load: any = null,
+	usechecksum: boolean = false
+) {
 	//	if (lockMidi) return;
-	let message: number[] =
-		usechecksum ?
-			sysExArray(cmd, SysExStatus.USECHECKSUM | SysExStatus.REQUEST) :
-			sysExArray(cmd);
+	let message: number[] = usechecksum
+		? sysExArray(cmd, SysExStatus.USECHECKSUM | SysExStatus.REQUEST)
+		: sysExArray(cmd);
 
 	let checksumposition: number = 0;
 	let checksum: number = 0;
@@ -346,7 +376,8 @@ function sysEx(cmd: SysExCommand, load: any = null, usechecksum: boolean = false
 
 	if (usechecksum) {
 		let checksumArr = sysEx28bit(checksum % 0xfffffff);
-		for (let checksum28 of checksumArr) message[checksumposition++] = checksum28;
+		for (let checksum28 of checksumArr)
+			message[checksumposition++] = checksum28;
 	}
 
 	midiSendTerminated(message);
@@ -359,25 +390,36 @@ function sysExFilename(cmd: SysExCommand, load: string) {
 	midiSendTerminated(message);
 }
 
-async function waitForMidi(theCommand = null, timeout = 500): Promise<MidiResult> {
+async function waitForMidi(
+	theCommand = null,
+	timeout = 500
+): Promise<MidiResult> {
 	if (!portIn) throw "No midi port found";
 
 	return new Promise((resolve, reject) => {
-		let failTimeout = setTimeout(() => reject({ reason: "timeout" }), timeout);
+		let failTimeout = setTimeout(
+			() => reject({ reason: "timeout" }),
+			timeout
+		);
 
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
 			let result: MidiResult | boolean = interpretMidiEvent(ev);
 
 			if (result === false) return; // we don’t know what it was...
-			if (theCommand !== null && (result as MidiResult).command && (result as MidiResult).command !== theCommand) return;
+			if (
+				theCommand !== null &&
+				(result as MidiResult).command &&
+				(result as MidiResult).command !== theCommand
+			)
+				return;
 
-			portIn.removeEventListener('midimessage', theListener);
+			portIn.removeEventListener("midimessage", theListener);
 
 			resolve(result as MidiResult);
-		}
+		};
 
-		portIn.addEventListener('midimessage', theListener);
+		portIn.addEventListener("midimessage", theListener);
 	});
 }
 
@@ -387,11 +429,17 @@ export class MidiResultException {
 	status: SysExStatus;
 
 	constructor(theCommand: SysExCommand, result: MidiResult) {
-		this.cmd = theCommand; this.result = result; this.status = result.status;
+		this.cmd = theCommand;
+		this.result = result;
+		this.status = result.status;
 	}
 }
 
-async function waitForMidiResult(theCommand: SysExCommand, handler: Function, timeout: number = 500) {
+async function waitForMidiResult(
+	theCommand: SysExCommand,
+	handler: Function,
+	timeout: number = 500
+) {
 	try {
 		let result: MidiResult = await waitForMidi(theCommand, timeout);
 
@@ -415,47 +463,81 @@ async function waitForMidiResult(theCommand: SysExCommand, handler: Function, ti
 	}
 }
 
-export async function sysExFileAndDo(theCommand: SysExCommand, filename: string, filedata: any, handler: Function, timeout: number = 7000): Promise<any> {
+export async function sysExFileAndDo(
+	theCommand: SysExCommand,
+	filename: string,
+	filedata: any,
+	handler: Function,
+	timeout: number = 7000
+): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
 	sysExFile(theCommand, filename, filedata);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;
-	} catch (e) { throw (e); }
+	} catch (e) {
+		throw e;
+	}
 }
 
-export async function sysExTwoFilenamesAndDo(theCommand: SysExCommand, filename1: string, filename2: string, handler: Function, timeout: number = 4000): Promise<any> {
+export async function sysExTwoFilenamesAndDo(
+	theCommand: SysExCommand,
+	filename1: string,
+	filename2: string,
+	handler: Function,
+	timeout: number = 4000
+): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
 	sysEx2Filenames(theCommand, filename1, filename2);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;
-	} catch (e) { throw (e) }
+	} catch (e) {
+		throw e;
+	}
 }
 
-export async function sysExFilenameAndDo(theCommand: SysExCommand, filename: string, handler: Function, timeout: number = 4000): Promise<any> {
+export async function sysExFilenameAndDo(
+	theCommand: SysExCommand,
+	filename: string,
+	handler: Function,
+	timeout: number = 4000
+): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
 	sysExFilename(theCommand, filename);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;
-	} catch (e) { throw e; }
+	} catch (e) {
+		throw e;
+	}
 }
 
-export async function sysExAndDo(theCommand: SysExCommand, handler: Function, timeout: number = 500, load: any = null, useChecksum: boolean = false): Promise<any> {
+export async function sysExAndDo(
+	theCommand: SysExCommand,
+	handler: Function,
+	timeout: number = 500,
+	load: any = null,
+	useChecksum: boolean = false
+): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
 	sysEx(theCommand, load, useChecksum);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;
-	} catch (e) { throw e; }
+	} catch (e) {
+		throw e;
+	}
 }
 
-async function sysExAndWait(theCommand: SysExCommand, timeout: number = 500): Promise<any> {
+async function sysExAndWait(
+	theCommand: SysExCommand,
+	timeout: number = 500
+): Promise<any> {
 	sysEx(theCommand);
 	return await waitForMidi(theCommand, timeout);
 }
@@ -464,7 +546,10 @@ async function sysExAndWait(theCommand: SysExCommand, timeout: number = 500): Pr
 
 export function sysExTestFill(hex: HexColour) {
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
-	sysEx(SysExCommand.LIGHTUP, [...futureExpansionBytes, ...colourToSysExArray(hex)]);
+	sysEx(SysExCommand.LIGHTUP, [
+		...futureExpansionBytes,
+		...colourToSysExArray(hex),
+	]);
 }
 
 export function sysExColourReset() {
@@ -488,13 +573,14 @@ function colourToSysExArray(hex: HexColour) {
 export function sysExTestPattern(arr: ColourArray) {
 	let patternSysExArray = [];
 
-	for (let hex of arr)
-		patternSysExArray.push(colourToSysExArray(hex));
+	for (let hex of arr) patternSysExArray.push(colourToSysExArray(hex));
 
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
 	sysEx(SysExCommand.LIGHTUP, [
 		...futureExpansionBytes,
-		...patternSysExArray.reduce(function (a, b) { return [...a, ...b] })
+		...patternSysExArray.reduce(function (a, b) {
+			return [...a, ...b];
+		}),
 	]);
 }
 

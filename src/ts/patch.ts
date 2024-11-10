@@ -190,7 +190,7 @@ export async function patchToDevice(sysExCommand: SysExCommand, uploadPatchName:
 						recoverFromError = true;
 						break;
 					} else
-						await sysExFilenameAndDo(SysExCommand.GETPATCHINFO, patch.name, (pinfo: BranchInfo /*, pname: string*/)=>patch.info = pinfo, 700);
+						await sysExFilenameAndDo(SysExCommand.GETPATCHINFO, patch.name, (pinfo: BranchInfo /*, pname: string*/)=>patch.info = pinfo, 5000);
 				} catch(e) {
 					if (e.status == SysExStatus.NO_ENTITY)
 					{

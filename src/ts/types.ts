@@ -1,21 +1,23 @@
 import type { Capabilities, Model } from "device";
 
 export type HexColour = number;
-export interface HexObject { h: number, s: number, v: number };
+export interface HexObject {
+	h: number;
+	s: number;
+	v: number;
+}
 
 export type ColourArray = HexColour[];
 export type Pattern = HexColour[];
 export type Palette = number[];
 
-export enum Hand
-{
+export enum Hand {
 	NONE = -1,
 	LEFT = 0,
 	RIGHT = 1,
 }
 
-export enum Control
-{
+export enum Control {
 	Generic,
 
 	Pad,
@@ -46,16 +48,15 @@ export enum Control
 	AccelY,
 	AccelZ,
 
-	Velpad=19,//FixThis!!!!!!!
+	Velpad = 19, //FixThis!!!!!!!
 	PolyAftertouch,
 
 	Total,
 
-	None=0xff
-};
+	None = 0xff,
+}
 
-export enum EncoderBehaviour
-{
+export enum EncoderBehaviour {
 	Absolute,
 	Relative64Zero,
 	Relative2Comp,
@@ -66,39 +67,55 @@ export enum EncoderBehaviour
 	ScaleKind,
 	InternalTempo,
 	Off = 0xff,
-};
+}
 
-export enum NewPatchDecision 
-{
+export enum NewPatchDecision {
 	CleanSlate,
 	Duplicate,
 	Template,
 	DiskMode,
 	Cancel,
 	Invalid,
-};
+}
 
-export interface NoPatchesObject
-{
+export enum BatteryStatus {
+	noBattery,
+	charging,
+	charged,,
+	discharging,
+	battLow,
+	critical,
+	unknown = 0xff,
+}
+
+export interface NoPatchesObject {
 	decision: NewPatchDecision;
 	template: string | null;
 	filename: string;
-};
+}
 
-export interface DeviceOrBankValue { value: number, isDeviceLevel: boolean};
+export interface DeviceOrBankValue {
+	value: number;
+	isDeviceLevel: boolean;
+}
 
-export interface StatusResult
-{
-	isCorrect: boolean,
-	class: number,
-	modelNumber: number,
-	modelID: number,
-	variant: number,
-	revision: number,
-	serialID: number,
-	deviceID: string,
-	serial: string,
-	version: string,
-	model: Model,
-	has: Capabilities
+export interface BatteryInfo {
+	status: BatteryStatus;
+	percent: number;
+}
+
+export interface StatusResult {
+	isCorrect: boolean;
+	class: number;
+	modelNumber: number;
+	modelID: number;
+	variant: number;
+	revision: number;
+	serialID: number;
+	deviceID: string;
+	serial: string;
+	version: string;
+	model: Model;
+	has: Capabilities;
+	battery: BatteryInfo;
 }
