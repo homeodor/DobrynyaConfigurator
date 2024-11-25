@@ -1,7 +1,11 @@
 {
 	"name": "dobrynyaconfigurator",
 	"private": true,
+<<<<<<< HEAD
 	"version": "1.0.93",
+=======
+	"version": "1.0.99",
+>>>>>>> db6d90c (Deploy action)
 	"build": {
 		"files": [
 			{

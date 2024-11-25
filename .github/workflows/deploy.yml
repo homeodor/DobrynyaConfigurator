@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+    # Manual trigger for any branch
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.6]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Build
+      run: |
+        npm version 1.1.${{ github.run_number }}.beta --allow-same-version --no-git-tag-version
+        npm install
+        npm run build
+
+    - name: Deploy
+      uses: burnett01/rsync-deployments@7.0.1
+      with:
+        switches: -avzr --delete
+        path: dist/
+        remote_path: ${{ secrets.DEPLOY_PATH_BETA }}
+        remote_host: ${{ secrets.DEPLOY_HOST }}
+        remote_port: ${{ secrets.DEPLOY_PORT }}
+        remote_user: ${{ secrets.DEPLOY_USER }}
+        remote_key: ${{ secrets.DEPLOY_KEY }}
+
