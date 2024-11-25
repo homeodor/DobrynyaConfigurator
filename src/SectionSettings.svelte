@@ -195,9 +195,9 @@
 					
 					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[0]}> Passthru (USB → MIDI)</label><!--/nobr--><br />
 					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Passthru (BLE → MIDI)</label><!--/nobr--><br />
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[2]}> Passthru (BLE → MIDI)</label><!--/nobr--><br />
 					{/if}
-					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[2]}> Send active sensing</label>
+					<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.midi.hwmidi.flag[1]}> Send active sensing</label>
 				</div>
 			</div>
 			
