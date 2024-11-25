@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { build, version } from "version";
+	import pJson from "../package.json";
 
 	import { UAParser } from "ua-parser-js";
 
@@ -395,7 +395,9 @@
 		href="https://github.com/homeodor/DobrynyaConfigurator/"
 		>MIDI Dobrynya configurator</a
 	>
-	{version} build {build}. © Alexander Golovanov, MMXXI—{romanize(
+	{pJson.version.split(".")[0]}.{pJson.version.split(".")[1]} build {pJson.version.split(
+		"."
+	)[2]}. © Alexander Golovanov, MMXXI—{romanize(
 		new Date().getFullYear()
 	)}.<br /><br />
 	<a href="https://www.mididobrynya.com/">mididobrynya.com</a>
