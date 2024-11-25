@@ -81,7 +81,7 @@ export enum NewPatchDecision {
 export enum BatteryStatus {
 	noBattery,
 	charging,
-	charged,,
+	charged,
 	discharging,
 	battLow,
 	critical,
