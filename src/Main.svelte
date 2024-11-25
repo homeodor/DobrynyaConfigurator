@@ -1,5 +1,5 @@
 <script lang="ts">	
-	import { build, version } from 'version';
+	import pJson from '../package.json';
 	
 	import type { NoPatchesObject } from 'types'
 	import { NewPatchDecision } from 'types'
@@ -273,7 +273,7 @@
 <p><a href="https://config.mididobrynya.com/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Get the latest firmware</a>
 </p>
 {/if} -->
-<div class="copyright" style="color:rgb(69 86 106);"><a style="color:inherit; border-color:rgba(69 86 106)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {version} build {build}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br /><br />
+<div class="copyright" style="color:rgb(69 86 106);"><a style="color:inherit; border-color:rgba(69 86 106)" href="https://github.com/homeodor/DobrynyaConfigurator/">MIDI Dobrynya configurator</a> {pJson.version.split(".")[0]}.{pJson.version.split(".")[1]} build {pJson.version.split(".")[2]}. © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br /><br />
 <a href="https://www.mididobrynya.com/">mididobrynya.com</a>
 </div>
 <Alert bind:this={alertJsonLoadFailed}>

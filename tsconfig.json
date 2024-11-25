@@ -5,6 +5,7 @@
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
   "lib": ["ES2021"],
   "compilerOptions": {
+      "resolveJsonModule": true,
       "paths": {
         "*": ["*", "./src/ts/*"]
       }
