@@ -58,6 +58,7 @@ export interface BranchSettings
 	subdbl: boolean,
 	subhold: boolean,
 	shhold: boolean,
+	infinite: boolean,
 	shdblsubbank: number,
 	desc: string,
 }

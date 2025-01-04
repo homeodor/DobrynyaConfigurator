@@ -470,6 +470,10 @@ export function versionCompareRaw(
 	return false;
 }
 
+function explodeVersionPart(incoming: string): string[] {
+	return incoming.trim().replace(/\0/g, "").split(".");
+}
+
 export function versionCompare(
 	currentVersion: string,
 	newVersion: VersionDataShort
@@ -478,11 +482,18 @@ export function versionCompare(
 
 	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
 
+	const incomingVersion = [
+		...explodeVersionPart(currVersionWithoutTime[0]),
+		...explodeVersionPart(currVersionWithoutTime[1]).reverse(),
+	];
+
+	if (incomingVersion[2] === "L")
+	{
+		return false;
+	}
+
 	return versionCompareRaw(
-		[
-			...currVersionWithoutTime[0].split("."),
-			...currVersionWithoutTime[1].split(".").reverse(),
-		],
+		incomingVersion,
 		structuredClone(newVersion.comparableVersion)
 	);
 }
