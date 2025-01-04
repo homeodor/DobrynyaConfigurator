@@ -414,15 +414,48 @@ export const ChipIDs = {
 	},
 };
 
+function fixOldVersion(version: string[] | number[]): number[] {
+	const versionToNumber: number[] = version.map((v: string | number) =>
+		typeof v === "string" ? parseInt(v) : v
+	);
+
+	if (versionToNumber.length == 5) {
+		return [
+			versionToNumber[0],
+			versionToNumber[1],
+			0,
+			versionToNumber[2],
+			versionToNumber[3],
+			versionToNumber[4],
+		];
+	}
+
+	if (versionToNumber.length == 3) {
+		return [
+			versionToNumber[0],
+			versionToNumber[1],
+			versionToNumber[2],
+			0,
+			0,
+			0,
+		];
+	}
+
+	return versionToNumber;
+}
+
 export function versionCompareRaw(
-	currVersionSplit: string[],
-	newVersionSplit: string[] | number[]
+	currVersionSplitIn: string[],
+	newVersionSplitIn: string[] | number[]
 ) {
+	const currVersionSplit = fixOldVersion(currVersionSplitIn);
+	const newVersionSplit = fixOldVersion(newVersionSplitIn);
+
 	if (currVersionSplit.length != newVersionSplit.length)
 		throw "Version lengths are not the same";
 
 	while (currVersionSplit.length) {
-		let pCurrent = parseInt(currVersionSplit.shift());
+		let pCurrent = currVersionSplit.shift();
 		let pNew = newVersionSplit.shift();
 
 		if (typeof pNew === "string") pNew = parseInt(pNew);
