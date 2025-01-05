@@ -404,33 +404,6 @@ dialog.prompt-or-alert[open] {
 	font-weight: bold;
 }
 
-.dobrynya-pad {
-	box-shadow:
-		17px 17px 34px #bdb4a9,
-		-17px -17px 34px #fffff3;
-	border-width: 12px;
-	border-style: solid;
-	margin: calc(0.01 * var(--size-value));
-	width: calc(0.155 * var(--size-value));
-	height: calc(0.155 * var(--size-value));
-	border-radius: calc((0.155 / 2) * var(--size-value));
-	color: var(--somewhat-yellow);
-	stroke: var(--somewhat-yellow);
-	font-size: calc(0.03 * var(--size-value));
-	transition: border-color linear 0s;
-}
-
-.dark .dobrynya-pad {
-	box-shadow:
-		17px 17px 34px #2d1f0ead,
-		-17px -17px 34px #5f503fd6;
-}
-.gray .dobrynya-pad {
-	box-shadow:
-		17px 17px 34px #1b1b1bad,
-		-17px -17px 34px #525252d6;
-}
-
 .dobrynya-outline.colourpaint .colourablecontrol {
 	cursor: var(--colourpaint-cursor), pointer;
 }
@@ -442,10 +415,6 @@ dialog.prompt-or-alert[open] {
 }
 .dobrynya-outline.colourpaint .dobrynya-pad > div {
 	visibility: hidden;
-}
-
-.dobrynya-outline-sharp .dobrynya-pad {
-	border-radius: calc((0.07 / 2) * var(--size-value));
 }
 
 .dobrynya-pad.ramp {

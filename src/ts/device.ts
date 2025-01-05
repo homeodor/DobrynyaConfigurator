@@ -487,8 +487,7 @@ export function versionCompare(
 		...explodeVersionPart(currVersionWithoutTime[1]).reverse(),
 	];
 
-	if (incomingVersion[2] === "L")
-	{
+	if (incomingVersion[2] === "L") {
 		return false;
 	}
 
