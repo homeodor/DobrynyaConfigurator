@@ -208,24 +208,19 @@
 
 	.dobrynya-pad.cherry {
 		position: relative;
-		border-radius: calc((0.02 / 2) * var(--size-value));
-		border-top-color: rgba(255, 255, 255, 0.1);
-		border-left-color: rgba(255, 255, 255, 0.1);
-		border-bottom-color: rgba(0, 0, 0, 0.3);
-		border-right-color: rgba(0, 0, 0, 0.3);
+		border-radius: calc((0.04 / 2) * var(--size-value));
+		border-top-color: var(--glow-colour);
+		border-left-color: var(--glow-colour);
+		border-bottom-color: hsl(from var(--glow-colour) h s calc(l * 0.7));
+		border-right-color: hsl(from var(--glow-colour) h s calc(l * 0.7));
 		border-bottom-width: 24px;
 	}
 
-	.dobrynya-pad .cherry-light {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 10%;
+	.dobrynya-pad.cherry {
 		background-color: var(--normal-colour);
 	}
 
-	.dobrynya-pad:hover .cherry-light {
+	.dobrynya-pad.cherry:hover {
 		background-color: var(--active-colour);
 	}
 
@@ -243,10 +238,10 @@
 
 	:global(.dobrynya-pad.cherry) {
 		box-shadow:
-			17px 17px 34px rgb(from var(--glow-colour) r g b / 0.2),
-			-17px 17px 34px rgb(from var(--glow-colour) r g b / 0.2),
-			17px -17px 34px rgb(from var(--glow-colour) r g b / 0.2),
-			-17px -17px 34px rgb(from var(--glow-colour) r g b / 0.2);
+			17px 17px 34px rgb(from var(--glow-colour) r g b / 0.1),
+			-17px 17px 34px rgb(from var(--glow-colour) r g b / 0.1),
+			17px -17px 34px rgb(from var(--glow-colour) r g b / 0.1),
+			-17px -17px 34px rgb(from var(--glow-colour) r g b / 0.1);
 	}
 
 	div.colourpaint {
