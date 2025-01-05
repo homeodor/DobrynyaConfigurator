@@ -6,6 +6,8 @@
 	import Overridable from "./widgets/Overridable.svelte";
 	import Halp from "./widgets/Halp.svelte";
 
+	// TODO: fix all the fucking type errors
+
 	import {
 		settings,
 		saveSettings,
@@ -88,6 +90,81 @@
 		>
 	</div>
 	<div id="settings" class="columnizer">
+		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
+			<fieldset id="se-wireless">
+				<legend>
+					<label
+						><input
+							type="checkbox"
+							class="appleswitch"
+							on:input={markSettingsUnsavedNow}
+							bind:checked={settings.ble.onoff.flag[0]}
+						/><mark></mark> Wireless</label
+					></legend
+				>
+
+			{#if !settings.ble.onoff.flag[0] && isSavedNow}
+			<p class="explain">
+				Enabling wireless requires a restart of Dobrynya.
+			</p>
+			{/if}
+
+				<div class="ce-block">
+					<h4>Power</h4>
+					<div class="checkboxblock">
+						<label
+							><input
+								disabled={!settings.ble.onoff.flag[0]}
+								type="radio"
+								bind:group={settings.ble.power.value}
+								value={1}
+							/> Low</label
+						><br />
+						<label
+							><input
+								disabled={!settings.ble.onoff.flag[0]}
+								type="radio"
+								bind:group={settings.ble.power.value}
+								value={2}
+							/> Normal</label
+						><br />
+						<label
+							><input
+								disabled={!settings.ble.onoff.flag[0]}
+								type="radio"
+								bind:group={settings.ble.power.value}
+								value={3}
+							/> High</label
+						>
+					</div>
+				</div>
+
+				<div class="ce-block">
+					<h4>Name</h4>
+					<input
+						type="text"
+						disabled
+						bind:value={settings.ble.name.text}
+					/>
+				</div>
+			</fieldset>
+		{/if}
+		<fieldset id="se-hid">
+			<legend>
+				<label
+					><input
+						type="checkbox"
+						class="appleswitch"
+						on:input={markSettingsUnsavedNow}
+						bind:checked={settings.input.flags.flag[0]}
+					/><mark></mark> Keyboard</label
+				></legend
+			>
+			<p class="explain">
+				By default Dobrynya acts
+				as a normal (a.k.a HID) keyboard. Changing this requires a restart of Dobrynya.
+			</p>
+		</fieldset>
 		<fieldset id="se-leds">
 			<legend for="se-leds">Light</legend>
 
@@ -334,23 +411,6 @@
 					{/if}
 				</div>
 			</div>
-
-			{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
-			<div class="ce-block">
-				<h4>Wireless power</h4>
-				<div class="checkboxblock">
-					<label><input type="radio" bind:group={settings.ble.power.value} value={0} /> On</label><br />
-					<label><input type="radio" bind:group={settings.ble.power.value} value={1} > Low</label><br />
-					<label><input type="radio" bind:group={settings.ble.power.value} value={2} > Normal</label><br />
-					<label><input type="radio" bind:group={settings.ble.power.value} value={3} > High</label>
-				</div>
-			</div>
-
-			<div class="ce-block">
-				<h4>Wireless name</h4>
-					<input type="text" disabled bind:value={settings.ble.name.text} />
-			</div>
-			{/if}
 
 			<div class="ce-block">
 				<h4>Classic MIDI</h4>

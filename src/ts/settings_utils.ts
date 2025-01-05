@@ -4,7 +4,7 @@ import { CaseColour } from "device";
 import { eightToSeven, SysExCommand } from "midi_utils";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
-import { writable, Writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 
 interface SettingsObjectItem {
 	length?: number;
@@ -13,12 +13,12 @@ interface SettingsObjectItem {
 	value?: number;
 	text?: string;
 	flag?: boolean[];
-	fixfunc?: Function;
+	fixfunc?: (v: number)=>number;
 }
 
 interface SettingsObject {
 	[index: string]: {
-		[index: string]: SettingsObjectItem;
+		[index: string]: SettingsObjectItem | number;
 	};
 }
 
@@ -150,6 +150,7 @@ function settingsModel(): SettingsObject {
 		},
 
 		input: {
+			offset: 0x30,
 			debouncepad: {},
 			debounceother: {},
 			smoothfader: {
@@ -165,13 +166,22 @@ function settingsModel(): SettingsObject {
 			direction: {
 				isFlag: true,
 			},
+			hapticevents: {
+				isFlag: true,
+				reserved: true,
+				length: 2,
+			},
+			flags: {
+				isFlag: true,
+			},
 			reserved1: {
 				reserved: true,
-				length: 7,
+				length: 4,
 			},
 		},
 
 		lowpower: {
+			offset: 0x40,
 			reserved1: {
 				reserved: true,
 				length: 4,
@@ -191,10 +201,13 @@ function settingsModel(): SettingsObject {
 		},
 
 		ble: {
+			offset: 0x50,
 			onoff: {
-				reserved: true,
+				isFlag: true,
 			},
-			power: {},
+			power: {
+				fixfunc: (v: number) => { return v < 1 || v > 3 ? 2 : v; },
+			},
 			name: {
 				fixfunc: fixDeviceName,
 				text: "",
@@ -227,7 +240,20 @@ export function parseSettingsData() {
 		if (i == "fakeparam") continue;
 
 		for (let j in window.settings[i]) {
-			let param = window.settings[i][j];
+
+			const param = window.settings[i][j];
+
+			if (typeof param === "number")
+			{
+				if (arp !== param)
+				{
+					throw new Error(`Offset failed: expected ${param}, got ${arp} at ${i}`);
+				}
+
+				console.warn(`Offset verified for ${i}`);
+
+				continue;
+			}
 
 			if (typeof param.length == "undefined") {
 				param.length = 1;
@@ -298,7 +324,11 @@ export async function saveSettings(
 
 	for (let i in window.settings) {
 		for (let j in window.settings[i]) {
-			let param: SettingsObjectItem = window.settings[i][j];
+			let param: SettingsObjectItem | number = window.settings[i][j];
+
+			if (typeof param === "number") {
+				continue;
+			}
 
 			let l = param.length;
 
