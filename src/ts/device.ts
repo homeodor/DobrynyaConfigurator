@@ -59,6 +59,7 @@ interface ModelHardware {
 	faders?: number;
 	pots?: number;
 	auxbuttons?: number;
+	accel?: number;
 	hasJoystick?: boolean;
 	midiOut: boolean;
 	ble: BLEAvailable;
@@ -82,7 +83,7 @@ export interface Model {
 }
 
 export interface Capabilities {
-	imu: boolean;
+	accel: boolean;
 	battery: boolean;
 	ble: boolean;
 	proximity: boolean;
@@ -93,7 +94,7 @@ export interface Capabilities {
 }
 
 export const capabilityFlags: string[] = [
-	"imu",
+	"accel",
 	"battery",
 	"ble",
 	"proximity",
@@ -125,7 +126,7 @@ export function defaultStatusResult(isC: boolean = false): StatusResult {
 		version: "",
 		model: { name: "", code: "" },
 		has: {
-			imu: false,
+			accel: false,
 			battery: false,
 			ble: false,
 			proximity: false,
@@ -164,6 +165,7 @@ export const models: Model[][] = [
 			template: "miniv2",
 			hardware: {
 				encoders: 2,
+				accel: 2,
 				midiOut: true,
 				ble: BLEAvailable.Internal,
 			},

@@ -16,6 +16,7 @@
 	export let data: BranchControl = {};
 	// export let isKeyOfScale = false;
 	export let scaleNote = fakeNoteOff;
+	export let showEmpty = false;
 
 	let noteName: string = "";
 	let noteIsFromScale: boolean = false;
@@ -37,7 +38,6 @@
 			isAuxModeEncoder =
 				data.encmode >= EncoderBehaviour.ScaleKey &&
 				data.encmode <= EncoderBehaviour.InternalTempo;
-			console.log("ENCMODE IS", data.encmode);
 		} else {
 			isRelative = isAuxModeEncoder = false;
 		}
@@ -91,6 +91,8 @@
 				{#if isRealCC}<CC {isRelative} />{/if}{ccToHuman(data.midi.cc)}
 			</div>
 		{/if}
+	{:else if showEmpty}
+		—
 	{/if}
 
 	{#if comboLow}

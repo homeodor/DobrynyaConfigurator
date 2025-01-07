@@ -13,37 +13,25 @@
 		MidiCtrl,
 	} from "midi_utils";
 	import { colourOff } from "colour_utils";
-	import { Hand, Control, EncoderBehaviour } from "types";
+	import { Hand, Control } from "types";
 	import type { DeviceOrBankValue } from "types";
 	import type { Patch, BranchControl } from "types_patch";
 	import { createPadsIfAbsent } from "data_utils";
 	import { ExpanderSanizer, expandData, sanizeData } from "data_expandsanize";
 	import { dispatchEditorClose } from "event_helpers";
-
-	import { patchChanged, quickCustom } from "event_helpers";
-
+	import { patchChanged } from "event_helpers";
 	import type { CurrentEditorState } from "patch";
-
 	import NoteEditor from "./NoteEditor.svelte";
 	import MidiControl from "./editor/MidiControl.svelte";
-	import EncoderShadowCC from "./editor/EncoderShadowCC.svelte";
 	import ColourWellsEditor from "./ColourWellsEditor.svelte";
 	import KeyboardEditor from "./KeyboardEditorDouble.svelte";
 	import Halp from "./widgets/Halp.svelte";
-
-	// import RangeWithInline from './widgets/RangeWithInline.svelte';
 	import Channel from "./widgets/Channel.svelte";
 	import Overridable from "./widgets/Overridable.svelte";
 	import Tick from "./widgets/Tick.svelte";
 	import { burstIsOn } from "./ts/bursts";
 	import BurstsDialog from "./editor/BurstsDialog.svelte";
-	// import Halp from './widgets/Halp.svelte';
-
-	// import UndoStack from './undo_stack'
-	// import { tweened } from 'svelte/motion';
-	//	import { cubicOut } from 'svelte/easing';
-
-	//	let dispatchEvent = createEventDispatcher();
+	import EncoderParameters from "./editor/EncoderParameters.svelte";
 
 	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
 	export let currentPatch: Patch;
@@ -67,13 +55,9 @@
 	let theControl: ControlDefinition;
 	let encoderIsRelative = false;
 	let encoderIsScaleOrTempo = false;
-	let encoderIsTempo = false;
-	let encoderIsScale = false;
 
 	let isKeyOfScale: boolean = false;
 	let scaleNote: number;
-	// let updateCCFromWhat: boolean = false;
-	// let updateWhatFromCC: boolean = false;
 
 	let encModePrev = -1;
 
@@ -85,13 +69,12 @@
 		burstIsOpen = true;
 	}
 
-	//	let isEncoderRotate: boolean = (controlKind == "encrotate");
-
 	const fullDataTreeModel: BranchControl = {
 		encmode: 0,
 		colour: [colourOff, colourOff],
 		combo: 0,
 		burst: 0,
+		filter: 0,
 		midi: {
 			ch: -1,
 			note: fakeNoteOff,
@@ -129,6 +112,12 @@
 
 	function setCorrectEditorData() {
 		switch (controlKind) {
+			case Control.AccelX:
+				editorData = currentPatch.accel[0];
+				break;
+			case Control.AccelY:
+				editorData = currentPatch.accel[1];
+				break;
 			case Control.EncRotate:
 				editorData = currentPatch.encoders[controlNumber];
 				break;
@@ -154,6 +143,12 @@
 				: {};
 
 		switch (controlKind) {
+			case Control.AccelX:
+				currentPatch.accel[0] = {};
+				break;
+			case Control.AccelY:
+				currentPatch.accel[1] = {};
+				break;
 			case Control.EncRotate:
 				currentPatch.encoders[controlNumber] = {};
 				break;
@@ -171,6 +166,12 @@
 		editorData = structuredClone(editorDataPrev);
 
 		switch (controlKind) {
+			case Control.AccelX:
+				currentPatch.accel[0] = editorData;
+				break;
+			case Control.AccelY:
+				currentPatch.accel[1] = editorData;
+				break;
 			case Control.EncRotate:
 				currentPatch.encoders[controlNumber] = editorData;
 				break;
@@ -193,16 +194,6 @@
 		keyboardEditor.update();
 		midiControlEditor?.unlock();
 		patchCanChange = true;
-	}
-
-	// async function setDefaultMinMaxAfterTick()
-	// {
-	// 	await tick();
-	// 	midiControlEditor?.setDefaultMinMax();
-	// }
-
-	function openBankSettings() {
-		quickCustom("drawer", { drawer: "banksettings" });
 	}
 
 	function maybeCloseTheEditor(ev: KeyboardEvent) {
@@ -259,12 +250,6 @@
 
 		encoderIsRelative = editorData.encmode >= 1 && editorData.encmode <= 3; // relative midi
 
-		encoderIsScale =
-			editorData.encmode >= EncoderBehaviour.ScaleKey &&
-			editorData.encmode <= EncoderBehaviour.ScaleKind;
-		encoderIsTempo = editorData.encmode === EncoderBehaviour.InternalTempo;
-		encoderIsScaleOrTempo = encoderIsScale || encoderIsTempo;
-
 		if (encModePrev != editorData.encmode) {
 			// check if encmode has been changed, and make some reasonable changes...
 			if (encoderIsRelative) {
@@ -281,7 +266,10 @@
 <svelte:body on:keydown={maybeCloseTheEditor} />
 
 <header>
-	<h2>{theControl.friendlyName} {controlNumber + 1}</h2>
+	<h2>
+		{theControl.friendlyName}{#if !theControl.nameIsUnique}
+			&nbsp;{controlNumber + 1}{/if}
+	</h2>
 	<div class="cancelerholder" style="text-align: right; font-weight: bold">
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<span class="revert" on:click={revert}>↺</span>
@@ -348,75 +336,15 @@
 	{/if}
 
 	{#if controlKind == Control.EncRotate}
-		<fieldset id="ce-options">
-			<legend>Behaviour</legend>
-			<div>
-				<select
-					on:input={patchMaybeChanged}
-					bind:value={editorData.encmode}
-				>
-					<optgroup label="Control Change">
-						<option value={EncoderBehaviour.Absolute}
-							>Absolute (normal)</option
-						>
-						<option value={EncoderBehaviour.Relative64Zero}
-							>Relative, 64 is zero</option
-						>
-						<option value={EncoderBehaviour.Relative2Comp}
-							>Relative, 2’s comp</option
-						>
-						<option value={EncoderBehaviour.RelativeSigned}
-							>Relative, signed</option
-						>
-					</optgroup>
-					<optgroup
-						label="Change scale"
-						disabled={!scaleIsOn && !encoderIsScale}
-					>
-						<option value={EncoderBehaviour.ScaleKey}>Key</option>
-						<option value={EncoderBehaviour.ScaleOctave}
-							>Octave</option
-						>
-						<option value={EncoderBehaviour.ScaleOffset}
-							>Offset</option
-						>
-						<option value={EncoderBehaviour.ScaleKind}>Kind</option>
-					</optgroup>
-					<!-- <optgroup label="Tempo">
-							<option value={EncoderBehaviour.InternalTempo}>Internal tempo</option>
-						</optgroup> -->
-				</select>
-				{#if !scaleIsOn && encoderIsScale}
-					<p class="warn explain" style="padding:0">
-						This encoder is set to change scale parameters, but no
-						scale is set.
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						You can change the scale in
-						<span class="unreal" on:click={openBankSettings}
-							>bank settings</span
-						>.
-					</p>
-				{:else if !encoderIsScale}
-					<p class="explain">
-						Encoder can be used to change scale parameters on the
-						fly. You can set the scale in
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<span class="unreal" on:click={openBankSettings}
-							>bank settings</span
-						>.
-					</p>
-				{/if}
-			</div>
-			<EncoderShadowCC
-				bind:cc={editorData.midi.cc}
-				bind:min={editorData.midi.min}
-				bind:max={editorData.midi.max}
-				bind:par={editorData.midi.par}
-				{encoderIsScaleOrTempo}
-				encoderIsTempo={editorData.encmode ===
-					EncoderBehaviour.InternalTempo}
-			/>
-		</fieldset>
+		<EncoderParameters
+			on:input={patchMaybeChanged}
+			{scaleIsOn}
+			bind:encmode={editorData.encmode}
+			bind:cc={editorData.midi.cc}
+			bind:min={editorData.midi.min}
+			bind:max={editorData.midi.max}
+			bind:par={editorData.midi.par}
+		/>
 	{/if}
 
 	<fieldset id="ce-midisettings">
@@ -441,7 +369,7 @@
 			bind:par={editorData.midi.par}
 			bind:rampu={editorData.midi.rampu}
 			bind:rampd={editorData.midi.rampd}
-			isDiscrete={theControl.discrete}
+			{theControl}
 			{encoderIsRelative}
 			encmode={editorData.encmode}
 			bind:this={midiControlEditor}
@@ -450,7 +378,7 @@
 	<!-- if not encoderScaleOrTempo -->
 	<KeyboardEditor
 		on:input={patchMaybeChanged}
-		{controlKind}
+		{theControl}
 		bind:value={editorData.combo}
 		bind:this={keyboardEditor}
 	/>

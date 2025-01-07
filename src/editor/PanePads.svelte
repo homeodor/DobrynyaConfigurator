@@ -6,6 +6,7 @@
 	import { deviceDefinition } from "src/ts/device";
 	import type { InvokeControlEventData } from "src/ts/event_helpers";
 	import { ColourPaintLayer } from "src/ts/colour_utils";
+	import Accelerometer from "./Accelerometer.svelte";
 
 	export let openEditor: (
 		element: HTMLElement,
@@ -18,12 +19,18 @@
 	export let colourPaintShowBank: boolean;
 	export let editorState: CurrentEditorState;
 
+	let pocket = false;
+
 	function openEditorForPad(ev: CustomEvent) {
 		openEditor(
 			ev.detail.target as HTMLElement,
 			ev.detail.controlKind as Control,
 			ev.detail.controlNo as number
 		);
+	}
+
+	$: {
+		pocket = $deviceDefinition.model.code == "pocket";
 	}
 </script>
 
@@ -32,6 +39,19 @@
 	data-control-name="Encoder"
 	data-control-type="encrotate"
 >
+	{#if pocket}
+		<div class="balance-accel-div">
+			<Accelerometer
+				dataAll={currentPatch.data.accel}
+				on:click={ev =>
+					openEditor(
+						ev.detail.accelElement,
+						ev.detail.control,
+						ev.detail.index
+					)}
+			/>
+		</div>
+	{/if}
 	<Encoder
 		on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 0)}
 		controlNo={0}
@@ -52,6 +72,10 @@
 			controlNo={3}
 			dataAll={currentPatch.data.encoders}
 		/>{/if}
+
+	{#if pocket}
+		<div class="balance-accel-div">&nbsp;</div>
+	{/if}
 </div>
 
 <Pads
@@ -62,3 +86,13 @@
 	{colourPaintMode}
 	{colourPaintShowBank}
 />
+
+<style>
+	.balance-accel-div {
+		flex-grow: 1;
+		flex-basis: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

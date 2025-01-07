@@ -242,7 +242,7 @@ bsw-holder li:not(.bsw-label) {
 
 #controleditor {
 	position: absolute;
-	z-index: 100;
+	z-index: 200;
 	background-color: rgb(63, 63, 63);
 	padding: 1em 2em;
 	width: 96%;
@@ -435,6 +435,7 @@ dialog.prompt-or-alert[open] {
 	font-size: calc(0.02 * var(--size-value));
 	color: #5b544d;
 	stroke: #5b544d;
+	flex: 0 0 auto;
 }
 
 .dark .dobrynya-encoder {
