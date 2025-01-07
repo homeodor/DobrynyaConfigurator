@@ -347,15 +347,8 @@ dialog.prompt-or-alert[open] {
 }
 
 #patternpreview,
-.patternpreview,
-.dobrynya-outline {
+.patternpreview {
 	background: linear-gradient(145deg, #fffff5, var(--somewhat-yellow));
-}
-.dobrynya-outline.dark {
-	background: linear-gradient(145deg, #403a32, #3d3328);
-}
-.dobrynya-outline.gray {
-	background: linear-gradient(145deg, #383838, #313131);
 }
 
 #ct-preview {
@@ -397,24 +390,11 @@ dialog.prompt-or-alert[open] {
 	flex-wrap: wrap;
 }
 .dobrynya-pad,
+.dobrynya-fader-thumb,
 .dobrynya-encoder {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	font-weight: bold;
-}
-
-.dobrynya-outline.colourpaint .colourablecontrol {
-	cursor: var(--colourpaint-cursor), pointer;
-}
-.dobrynya-outline:not(.colourpaint) .dobrynya-pad {
-	background: linear-gradient(145deg, #292c34, #22252c);
-}
-.dobrynya-outline.colourpaint .dobrynya-pad {
-	border: 0;
-}
-.dobrynya-outline.colourpaint .dobrynya-pad > div {
-	visibility: hidden;
 }
 
 .dobrynya-pad.ramp {
@@ -425,12 +405,6 @@ dialog.prompt-or-alert[open] {
 		.dobrynya-pad:hover .colourable-doubler { display:block; }
 		.colourable-doubler { display:none; position:absolute; top:-12px; left:-12px; width:100%; height:100%; z-index: 1; mix-blend-mode:hard-light; filter:blur(0.4em); border-radius:50%; border-width:12px; border-style: solid; box-sizing:content-box; }
 */
-
-.dobrynya-ctrl-internal {
-	text-align: center;
-	position: relative;
-	z-index: 10;
-}
 
 .dobrynya-pad:not(:nth-child(n + 5)) {
 	order: 3;
@@ -446,9 +420,9 @@ dialog.prompt-or-alert[open] {
 }
 
 .dobrynya-encoders {
-	/*margin-left:calc(0.05 * var(--size-value))*/
 	justify-content: center;
 }
+
 .dobrynya-encoder {
 	margin: calc(0.0375 * var(--size-value));
 	margin-top: calc(0.03 * var(--size-value));
@@ -462,11 +436,13 @@ dialog.prompt-or-alert[open] {
 	color: #5b544d;
 	stroke: #5b544d;
 }
+
 .dark .dobrynya-encoder {
 	box-shadow:
 		20px 20px 40px #2b2116,
 		-20px -20px 40px #574f46;
 }
+
 .gray .dobrynya-encoder {
 	box-shadow:
 		20px 20px 40px #171717,
@@ -479,18 +455,6 @@ dialog.prompt-or-alert[open] {
 	stroke: #beac9b;
 }
 
-.dobrynya-outline-microv2 .dobrynya-micro-noencoder,
-.dobrynya-outline-microsharp .dobrynya-micro-noencoder {
-	display: none;
-}
-
-#dobrynya-outline-miniv2 {
-	--size-value: 100vh;
-	width: calc(0.8 * var(--size-value));
-	height: calc(0.9 * var(--size-value));
-	margin-top: 0;
-	margin-bottom: calc(0.1 * var(--size-value));
-}
 #dobrynya-outline-miniv2 .dobrynya-pads {
 	margin-left: calc(0.05 * var(--size-value));
 }
@@ -891,53 +855,4 @@ input[disabled] + mark span.explain {
 	vertical-align: middle;
 	margin-left: 0.5rem;
 	margin-bottom: 0.15rem;
-}
-
-.dobrynya-outline {
-	display: inline-block;
-	position: relative;
-
-	border-radius: calc(0.053 * var(--size-value));
-	box-shadow:
-		rgb(38, 46, 55) 1px 1px,
-		rgb(38, 46, 55) 2px 2px,
-		rgb(38, 46, 55) 3px 3px,
-		rgb(38, 46, 55) 4px 4px,
-		rgb(38, 46, 55) 5px 5px,
-		rgb(38, 46, 55) 6px 6px,
-		rgb(38, 46, 55) 7px 7px,
-		rgb(38, 46, 55) 8px 8px,
-		rgb(38, 46, 55) 9px 9px,
-		rgb(38, 46, 55) 10px 10px,
-		rgb(38, 46, 55) 11px 11px,
-		rgb(38, 46, 55) 12px 12px,
-		rgb(38, 46, 55) 13px 13px,
-		rgb(38, 46, 55) 14px 14px,
-		rgb(38, 46, 55) 15px 15px,
-		rgb(38, 46, 55) 16px 16px,
-		rgb(38, 46, 55) 17px 17px,
-		rgb(38, 46, 55) 18px 18px,
-		rgb(38, 46, 55) 19px 19px,
-		rgb(38, 46, 55) 20px 20px,
-		rgb(38, 46, 55) 21px 21px,
-		rgb(38, 46, 55) 22px 22px,
-		rgb(38, 46, 55) 23px 23px,
-		rgb(38, 46, 55) 24px 24px,
-		rgb(38, 46, 55) 25px 25px,
-		rgb(38, 46, 55) 26px 26px,
-		rgb(38, 46, 55) 27px 27px,
-		rgb(38, 47, 56) 28px 28px,
-		rgb(39, 47, 57) 29px 29px,
-		rgb(39, 48, 57) 30px 30px,
-		rgb(40, 49, 58) 31px 31px,
-		rgb(40, 49, 59) 32px 32px,
-		rgb(41, 50, 60) 33px 33px,
-		rgb(41, 50, 60) 34px 34px,
-		rgb(42, 51, 61) 35px 35px,
-		rgb(42, 52, 62) 36px 36px,
-		rgb(43, 52, 63) 37px 37px,
-		rgb(43, 53, 63) 38px 38px,
-		rgb(44, 53, 64) 39px 39px,
-		rgb(44, 54, 65) 40px 40px,
-		rgb(45, 55, 66) 41px 41px;
 }

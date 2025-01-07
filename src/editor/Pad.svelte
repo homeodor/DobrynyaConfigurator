@@ -142,6 +142,7 @@
 		cherry =
 			$deviceDefinition.model.code.includes("pocket") ||
 			$deviceDefinition.model.code.includes("aurora");
+			
 		sharp = $deviceDefinition.model.code.includes("sharp");
 	}
 	//
@@ -188,6 +189,10 @@
 		stroke: var(--somewhat-yellow);
 		font-size: calc(0.03 * var(--size-value));
 		transition: border-color linear 0s;
+	}
+
+	.dobrynya-pad:not(.colourpaint) {
+		background: linear-gradient(145deg, #292c34, #22252c);
 	}
 
 	:global(.dark .dobrynya-pad) {
