@@ -134,6 +134,11 @@
 
 		const theTabs = Array.from(tabs.children);
 
+		if (theTabs.length === 0)
+		{
+			return;
+		}
+
 		theTabs.forEach((el: HTMLDivElement) =>
 			el.classList.remove("selected")
 		);
@@ -178,13 +183,13 @@
 		const thePanes = Array.from(panes.children);
 		thePanes.forEach(card => observer.observe(card));
 
-		thePanes[1]?.scrollIntoView({
-			behavior: "instant",
-			block: "nearest",
-			inline: "start",
-		});
+		// thePanes[1]?.scrollIntoView({
+		// 	behavior: "instant",
+		// 	block: "nearest",
+		// 	inline: "start",
+		// });
 
-		setTab(1);
+		// setTab(1);
 
 		return () => observer.disconnect(); // Cleanup observer
 	});
@@ -210,12 +215,12 @@
 >
 	<menu bind:this={tabs}>
 		<!-- note that at lease one tab must have a selected class to work-->
-		<button class="tab selected" on:click={retab}>Faders & Joystick</button>
-		<button class="tab" on:click={retab}>Encoders & Pads</button>
+		<!-- <button class="tab selected" on:click={retab}>Faders & Joystick</button> -->
+		<!-- <button class="tab" on:click={retab}>Encoders & Pads</button> -->
 	</menu>
 
 	<ul bind:this={panes}>
-		<li data-card="jopa"><PaneJopa /></li>
+		<!-- <li data-card="jopa"><PaneJopa /></li> -->
 		<li data-card="pads">
 			<PanePads
 				{openEditor}
