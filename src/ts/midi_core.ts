@@ -588,6 +588,10 @@ export function sysExDiskMode() {
 	sysEx(SysExCommand.REBOOT_MSC);
 }
 
+export function sysExEsp32Bootloader() {
+	sysEx(SysExCommand.REBOOT_ESP32);
+}
+
 export function sysExBootloader(withMSC: boolean = false) {
 	sysEx(withMSC ? SysExCommand.REBOOT_BOOTMSC : SysExCommand.REBOOT_BOOT);
 }

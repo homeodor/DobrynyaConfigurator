@@ -66,6 +66,9 @@ export enum SysExCommand {
 	REBOOT_MSC,
 	REBOOT_BOOT,
 	REBOOT_BOOTMSC,
+	FORMATDISK = 0x64,
+	ERASEFLASH = 0x65,
+	REBOOT_ESP32 = 0x66,
 }
 
 export enum SysExStatus {
