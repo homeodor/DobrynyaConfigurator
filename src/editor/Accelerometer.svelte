@@ -35,14 +35,14 @@
 		<div class="accelerometer">
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div class="axis" on:click={dispatchClick}>
-				<img src={accelArrow} alt="accelerometer" />
+				<div>X <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
 					<InnerControl showEmpty={true} data={dataAll[0]} />
 				</div>
 			</div>
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div class="axis axis-vertical" on:click={dispatchClick}>
-				<img src={accelArrow} alt="accelerometer" />
+				<div>Y <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
 					<InnerControl showEmpty={true} data={dataAll[1]} />
 				</div>
@@ -55,7 +55,7 @@
 	fieldset {
 		position: relative;
 		margin-left: 1em;
-		padding: 0 1.5em 0.5em 1.5em;
+		padding: 0 0.8em 0.5em 0.8em;
 		border-color: rgba(92, 92, 92, 0.14);
 		background-color: rgba(0, 0, 0, 0.08);
 		border-width: 3px;
@@ -115,7 +115,7 @@
 
 	.axis {
 		cursor: pointer;
-		height: calc(0.0284 * 2 * var(--size-value));
+		height: calc(0.014 * 2 * var(--size-value));
 		align-items: center;
 	}
 
@@ -124,7 +124,7 @@
 	}
 
 	div img {
-		height: 2em; /* reference value */
-		height: calc(0.0284 * var(--size-value));
+		height: 0.8em; /* reference value */
+		height: calc(0.014 * var(--size-value));
 	}
 </style>

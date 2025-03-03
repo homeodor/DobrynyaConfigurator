@@ -218,7 +218,6 @@
 		border-left-color: var(--glow-colour);
 		border-bottom-color: hsl(from var(--glow-colour) h s calc(l * 0.7));
 		border-right-color: hsl(from var(--glow-colour) h s calc(l * 0.7));
-		border-bottom-width: 24px;
 	}
 
 	.dobrynya-pad.cherry {

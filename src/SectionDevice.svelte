@@ -17,6 +17,7 @@
 
 	import { importantFactorySettings } from "settings_utils";
 	import imageMiniV2 from "../i/devices/miniv2.webp";
+	import imagePocket from "../i/devices/pocket.webp";
 	import imageMicroV2Dark from "../i/devices/microv2_dark.webp";
 	import imageMicroV2Light from "../i/devices/microv2_light.webp";
 	import type { StatusResult } from "types";
@@ -52,6 +53,9 @@
 				case "microv2":
 					imageURL = isDark ? imageMicroV2Dark : imageMicroV2Light;
 					break;
+				case "pocket":
+					imageURL = imagePocket;
+					break;
 			}
 		}
 	}
@@ -59,6 +63,7 @@
 
 <svelte:head>
 	<link rel="preload" href={imageMiniV2} as="image" />
+	<link rel="preload" href={imagePocket} as="image" />
 	<link rel="preload" href={imageMicroV2Dark} as="image" />
 	<link rel="preload" href={imageMicroV2Light} as="image" />
 </svelte:head>
