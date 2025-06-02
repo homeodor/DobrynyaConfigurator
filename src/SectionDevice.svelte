@@ -23,6 +23,8 @@
 	import type { StatusResult } from "types";
 	import Opensource from "./Opensource.svelte";
 	import { CaseColour } from "device";
+	import { sysExStorageMode } from "./ts/midi_core";
+	import Halp from "./widgets/Halp.svelte";
 
 	let imageURL = imageMiniV2;
 
@@ -99,6 +101,21 @@
 		<h4>Processor</h4>
 		<div>{chipName}</div>
 	</div>
+
+	{#if $importantFactorySettings.batteryCapacity}
+		<h3>Extra</h3>
+		<div>
+			<button on:click={sysExStorageMode}
+				>Storage mode <Halp
+					>This sets the device's charger into the storage mode. Once
+					you unplug USB, the device will power off and switch off its
+					battery to extend its life. The device can then only be
+					powered on by plugging USB again{#if $importantFactorySettings.boardRevision && $importantFactorySettings.boardRevision != "5.0"}
+						or pressing Reset{/if}.
+				</Halp></button
+			>
+		</div>
+	{/if}
 
 	{#if !showOpenSource}
 		<!-- svelte-ignore a11y-click-events-have-key-events -->

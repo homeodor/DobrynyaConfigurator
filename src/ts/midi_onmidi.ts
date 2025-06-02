@@ -123,8 +123,6 @@ export function interpretMidiEvent(
 
 			let pureData = sevenToEight(d).data;
 
-			console.log(pureData);
-
 			let output: StatusResult = defaultStatusResult();
 
 			output.isCorrect = pureData[0] == 0x1 ? true : false;

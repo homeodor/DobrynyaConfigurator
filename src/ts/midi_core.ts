@@ -595,3 +595,11 @@ export function sysExEsp32Bootloader() {
 export function sysExBootloader(withMSC: boolean = false) {
 	sysEx(withMSC ? SysExCommand.REBOOT_BOOTMSC : SysExCommand.REBOOT_BOOT);
 }
+
+export function sysExCalibrateAccel() {
+	sysEx(SysExCommand.CALIBRATEACCEL);
+}
+
+export function sysExStorageMode() {
+	sysEx(SysExCommand.STORAGEMODE);
+}

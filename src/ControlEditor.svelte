@@ -32,6 +32,7 @@
 	import { burstIsOn } from "./ts/bursts";
 	import BurstsDialog from "./editor/BurstsDialog.svelte";
 	import EncoderParameters from "./editor/EncoderParameters.svelte";
+	import { sysExCalibrateAccel } from "./ts/midi_core";
 
 	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
 	export let currentPatch: Patch;
@@ -382,6 +383,18 @@
 		bind:value={editorData.combo}
 		bind:this={keyboardEditor}
 	/>
+	{#if controlKind == Control.AccelX || controlKind == Control.AccelY || controlKind == Control.AccelZ}
+		<fieldset id="ce-reset">
+			<legend>Calibrate</legend>
+			<div class="ce-block">
+				<button on:click={sysExCalibrateAccel}>Calibrate</button>
+			</div>
+			<div class="explain">
+				Lay your device flat and press the button to calibrate the
+				accelerometer. It will calibrate both X and Y axes.
+			</div>
+		</fieldset>
+	{/if}
 	<fieldset id="ce-reset">
 		<legend>Reset</legend>
 		<div class="ce-block">
