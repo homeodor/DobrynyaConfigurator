@@ -16,6 +16,7 @@
 	} from "settings_utils";
 
 	import { deviceDefinition, BLEAvailable } from "device";
+	import AppleSwitch from "./widgets/AppleSwitch.svelte";
 
 	export let isOnline: boolean;
 
@@ -45,7 +46,7 @@
 
 	//	parseSettingsData();
 
-	function timeToValue(v: string): number | boolean {
+	function timeToValue(v: string): number | false {
 		v = v.trim();
 
 		if (!v) return false;
@@ -78,6 +79,10 @@
 	function valueToMs(v: number): string {
 		return String(v) + " ms";
 	}
+
+	$: {
+		settings.leds.brightnesschill.value = settings.leds.brightness.value;
+	}
 </script>
 
 <section id="tab-settings">
@@ -103,70 +108,24 @@
 					></legend
 				>
 
-			{#if !settings.ble.onoff.flag[0] && isSavedNow}
-			<p class="explain">
-				Enabling wireless requires a restart of Dobrynya.
-			</p>
-			{/if}
+				{#if !settings.ble.onoff.flag[0] && isSavedNow}
+					<p class="explain">
+						Enabling wireless requires a restart of Dobrynya.
+					</p>
+				{/if}
 
-				<div class="ce-block">
-					<h4>Power</h4>
-					<div class="checkboxblock">
-						<label
-							><input
-								disabled={!settings.ble.onoff.flag[0]}
-								type="radio"
-								bind:group={settings.ble.power.value}
-								value={1}
-							/> Low</label
-						><br />
-						<label
-							><input
-								disabled={!settings.ble.onoff.flag[0]}
-								type="radio"
-								bind:group={settings.ble.power.value}
-								value={2}
-							/> Normal</label
-						><br />
-						<label
-							><input
-								disabled={!settings.ble.onoff.flag[0]}
-								type="radio"
-								bind:group={settings.ble.power.value}
-								value={3}
-							/> High</label
-						>
-					</div>
-				</div>
-
-				<div class="ce-block">
+				<!-- <div class="ce-block">
 					<h4>Name</h4>
 					<input
 						type="text"
 						disabled
 						bind:value={settings.ble.name.text}
 					/>
-				</div>
+				</div> -->
 			</fieldset>
 		{/if}
-		<fieldset id="se-hid">
-			<legend>
-				<label
-					><input
-						type="checkbox"
-						class="appleswitch"
-						on:input={markSettingsUnsavedNow}
-						bind:checked={settings.input.flags.flag[0]}
-					/><mark></mark> Keyboard</label
-				></legend
-			>
-			<p class="explain">
-				By default Dobrynya acts
-				as a normal (a.k.a HID) keyboard. Changing this requires a restart of Dobrynya.
-			</p>
-		</fieldset>
 		<fieldset id="se-leds">
-			<legend for="se-leds">Light</legend>
+			<legend>Light</legend>
 
 			<h3>Play mode</h3>
 
@@ -264,7 +223,7 @@
 				</div>
 			</div>
 
-			<div class="ce-block">
+			<!-- <div class="ce-block">
 				<h4>Brightness</h4>
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
@@ -272,7 +231,7 @@
 					max={255}
 					defValue={30}
 				/>
-			</div>
+			</div> -->
 
 			<div class="ce-block">
 				<h4>Go idle after</h4>
@@ -310,7 +269,7 @@
 		</fieldset>
 
 		<fieldset id="se-midi">
-			<legend for="se-midi">MIDI</legend>
+			<legend>Basic MIDI</legend>
 
 			<div class="ce-block">
 				<h4>
@@ -340,84 +299,106 @@
 					defValue={127}
 				/>
 			</div>
+		</fieldset>
 
-			<div class="ce-block">
-				<h4>Output</h4>
-				<p class="explain">
-					System Exclusive messages are always enabled and work only
-					through USB MIDI. {#if $deviceDefinition.has.ble}Classic
-						MIDI is required for Wireless MIDI to work.{/if}
-				</p>
-				<div class="checkboxblock">
-					<label
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.outputs.flag[0]}
-						/> USB</label
-					><br />
-					<label
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.outputs.flag[1]}
-						/> Classic MIDI</label
-					><br />
-					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
-						<label
-							><input
-								type="checkbox"
-								on:input={markSettingsUnsavedNow}
-								disabled={$deviceDefinition.model.hardware
-									.ble == BLEAvailable.External &&
-									!settings.midi.outputs.flag[1]}
-								bind:checked={settings.midi.outputs.flag[2]}
-							/> Wireless</label
-						>
-					{/if}
-				</div>
+		<fieldset id="se-midi">
+			<legend>Inputs & Outputs</legend>
+
+			<div>
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>MIDI In</th>
+							<th>MIDI Out</th>
+							<th>Keyboard</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>USB</td>
+							<td
+								><input
+									type="checkbox"
+									bind:checked={settings.midi.inputs.flag[0]}
+								/></td
+							>
+							<td
+								><input
+									type="checkbox"
+									bind:checked={settings.midi.outputs.flag[0]}
+								/></td
+							>
+							<td
+								><input
+									type="checkbox"
+									on:input={markSettingsUnsavedNow}
+									bind:checked={settings.input.flags.flag[0]}
+								/></td
+							>
+						</tr>
+						<tr>
+							<td>Classic</td>
+							<td></td>
+							<td
+								><input
+									type="checkbox"
+									bind:checked={settings.midi.outputs.flag[1]}
+								/></td
+							>
+						</tr>
+						{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+							<tr>
+								<td>Wireless</td>
+								<td
+									><input
+										type="checkbox"
+										bind:checked={settings.midi.inputs
+											.flag[2]}
+									/></td
+								>
+								<td
+									><input
+										type="checkbox"
+										on:input={markSettingsUnsavedNow}
+										disabled={$deviceDefinition.model
+											.hardware.ble ==
+											BLEAvailable.External &&
+											!settings.midi.outputs.flag[1]}
+										bind:checked={settings.midi.outputs
+											.flag[2]}
+									/></td
+								>
+								<td
+									><input
+										disabled
+										class="disabled"
+										type="checkbox"
+										on:input={markSettingsUnsavedNow}
+										bind:checked={settings.input.flags
+											.flag[1]}
+									/></td
+								>
+							</tr>
+						{/if}
+					</tbody>
+				</table>
 			</div>
 
-			<div class="ce-block">
-				<h4>Input</h4>
-				<p class="explain">
-					System Exclusive messages are always enabled and work only
-					through USB MIDI.
-				</p>
-				<div class="checkboxblock">
-					<label
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.inputs.flag[0]}
-						/> USB</label
-					><br />
-					<label style="display:none"
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.inputs[1]}
-						/> Classic MIDI - no MIDI inputs on Dobrynyas, left as a
-						placeholder</label
-					><!--br  /-->
-					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
-						<label
-							><input
-								type="checkbox"
-								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.midi.inputs.flag[2]}
-							/> Wireless</label
-						>
-					{/if}
-				</div>
-			</div>
+			<p class="explain">
+				System Exclusive messages are always enabled and work only
+				through USB MIDI. {#if $deviceDefinition.has.ble}Classic MIDI is
+					required for Wireless MIDI to work.{/if}
+			</p>
+			<p class="explain">
+				Changing keyboard settings requires a restart of Dobrynya.
+			</p>
+		</fieldset>
+
+		<fieldset>
+			<legend>Advanced MIDI</legend>
 
 			<div class="ce-block">
-				<h4>Classic MIDI</h4>
-				<p class="explain">
-					These settings work regardless of the Input/Output settings
-				</p>
-
 				<h4>Passthru USB → MIDI</h4>
 				<Channel
 					on:change={markSettingsUnsavedNow}
@@ -437,31 +418,17 @@
 					/>
 				{/if}
 				<!-- <nobr> -->
-				<div class="checkboxblock">
-					<label
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.hwmidi.flag[0]}
-						/> Passthru (USB → MIDI)</label
-					><!--/nobr--><br />
-					{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
-						<label
-							><input
-								type="checkbox"
-								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.midi.hwmidi.flag[2]}
-							/> Passthru (Wireless → MIDI)</label
-						><!--/nobr--><br />
-					{/if}
-					<label
-						><input
-							type="checkbox"
-							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.midi.hwmidi.flag[1]}
-						/> Send active sensing</label
-					>
-				</div>
+				<label
+					><input
+						type="checkbox"
+						on:input={markSettingsUnsavedNow}
+						bind:checked={settings.midi.hwmidi.flag[1]}
+					/> Send active sensing over classic</label
+				>
+
+				<p class="explain">
+					These settings work regardless of the Input/Output settings
+				</p>
 			</div>
 
 			{#if !$deviceDefinition.model.hardware.midiOut}
@@ -479,7 +446,7 @@
 		</fieldset>
 
 		<fieldset id="se-inputs">
-			<legend for="se-inputs">Controls</legend>
+			<legend>Controls</legend>
 
 			<div class="ce-block">
 				<h4>
@@ -527,7 +494,7 @@
 
 		{#if $deviceDefinition.has.haptic}
 			<fieldset id="se-haptic">
-				<legend for="se-haptic">Haptic</legend>
+				<legend>Haptic</legend>
 
 				<div class="ce-block">
 					<h4>Events with feedback</h4>
@@ -594,3 +561,20 @@
 		{/if}
 	</div>
 </section>
+
+<style>
+	table {
+		display: inline-table;
+	}
+	th {
+		font-size: 90%;
+		padding-right: 0.5em;
+	}
+	td {
+		text-align: left;
+	}
+	td:first-child {
+		text-align: right;
+		padding-right: 0.5em;
+	}
+</style>

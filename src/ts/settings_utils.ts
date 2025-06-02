@@ -18,7 +18,7 @@ interface SettingsObjectItem {
 
 interface SettingsObject {
 	[index: string]: {
-		[index: string]: SettingsObjectItem | number;
+		[index: string]: SettingsObjectItem;
 	};
 }
 
