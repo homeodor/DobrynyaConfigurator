@@ -14,7 +14,6 @@
 		i: number
 	) => void;
 	export let currentPatch: CurrentPatchInfo;
-	export let paintData: InvokeControlEventData;
 	export let colourPaintMode: ColourPaintLayer;
 	export let colourPaintShowBank: boolean;
 	export let editorState: CurrentEditorState;
@@ -80,7 +79,7 @@
 
 <Pads
 	on:click={openEditorForPad}
-	on:paint={ev => (paintData = ev.detail)}
+	on:paint
 	bank={currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]}
 	pattern={currentPatch.data.info.pattern}
 	{colourPaintMode}

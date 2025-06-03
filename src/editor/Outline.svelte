@@ -223,8 +223,8 @@
 		<!-- <li data-card="jopa"><PaneJopa /></li> -->
 		<li data-card="pads">
 			<PanePads
+				on:paint
 				{openEditor}
-				{paintData}
 				{currentPatch}
 				{colourPaintMode}
 				{colourPaintShowBank}

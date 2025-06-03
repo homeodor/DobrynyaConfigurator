@@ -102,7 +102,7 @@
 		let patchNameRequested =
 			typeof ev === "string" ? ev : (ev.detail?.name ?? ev.target.value);
 		// use the value directly if it is a string, otherwise either take the detail.name from CustomEvent or target.value from Select event
-		closeEditor();
+		outline?.closeEditor();
 
 		let confirmationDialog =
 			typeof ev === "string" && ev === currentPatch.name
@@ -666,9 +666,11 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			{#if drawer == "banksettings"}
 				<div class="drawerwrapper" id="dw-wrapper-banksettings">
 					<DrawerBank
-						bind:currentBank={currentPatch.data.padbanks[
-							editorState.hand
-						][editorState.bank]}
+						bind:currentBank={
+							currentPatch.data.padbanks[editorState.hand][
+								editorState.bank
+							]
+						}
 						{deviceLevelChannel}
 					/>
 				</div>
@@ -680,9 +682,11 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 						bind:colourPaintMode
 						bind:colourPaintShowBank
 						{paintData}
-						bind:bank={currentPatch.data.padbanks[editorState.hand][
-							editorState.bank
-						]}
+						bind:bank={
+							currentPatch.data.padbanks[editorState.hand][
+								editorState.bank
+							]
+						}
 						bind:pattern={currentPatch.data.info.pattern}
 					/>
 				</div>
@@ -690,9 +694,11 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 			{#if drawer == "banktemplates"}
 				<div class="drawerwrapper" id="dw-wrapper-banktemplates">
 					<DrawerTemplate
-						bind:currentBank={currentPatch.data.padbanks[
-							editorState.hand
-						][editorState.bank]}
+						bind:currentBank={
+							currentPatch.data.padbanks[editorState.hand][
+								editorState.bank
+							]
+						}
 						{numberOfActiveBanks}
 					/>
 				</div>
@@ -711,7 +717,7 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 		<Outline
 			bind:this={outline}
 			{currentPatch}
-			{paintData}
+			on:paint={ev => (paintData = ev.detail)}
 			{colourPaintMode}
 			{colourPaintShowBank}
 			{editorState}
