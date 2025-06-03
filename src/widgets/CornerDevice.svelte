@@ -24,7 +24,7 @@
 		{$deviceDefinition.model.name}
 	</div>
 
-	{#if $batteryInfo.status !== BatteryStatus.noBattery && $batteryInfo.status !== BatteryStatus.unknown}
+	{#if $batteryInfo.status !== BatteryStatus.noBattery && $batteryInfo.status !== BatteryStatus.unknown && false}
 		<div class="battery">
 			{#if $batteryInfo.status === BatteryStatus.charging}
 				<img src={batteryCharging} alt="Charging" />
