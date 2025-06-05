@@ -8,6 +8,7 @@ export const patchTemplates = {
 		settings: {},
 		encoders: [{}, {}],
 		padbanks: [[{}, {}, {}, {}]],
+		accel: [{}, {}],
 	},
 	miniv2: {
 		info: {

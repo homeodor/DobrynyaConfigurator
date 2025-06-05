@@ -8,17 +8,13 @@
 
 	export let dataAll: BranchControl[];
 
-	if (typeof dataAll == "undefined") {
-		dataAll = [{}, {}];
-	}
-
 	const dispatch = createEventDispatcher();
 
-	function dispatchClick(ev) {
+	function dispatchClick(ev: MouseEvent) {
 		const element = ev.currentTarget as HTMLElement;
 		const index = Array.from(
-				document.querySelectorAll(".accelerometer .axis")
-			).indexOf(element);
+			document.querySelectorAll(".accelerometer .axis")
+		).indexOf(element);
 		const control = index ? Control.AccelY : Control.AccelX;
 
 		dispatch("click", {
@@ -27,6 +23,8 @@
 			control,
 		});
 	}
+
+	$: dataAll = dataAll !== undefined ? dataAll : [{}, {}];
 </script>
 
 <fieldset class="accelerometer-uber-container">
