@@ -1,7 +1,7 @@
 import { WaitingBlock } from "waitingblock";
 import { SysExCommand, SysExStatus } from "midi_utils";
 import type { MidiResult } from "midi_utils";
-import { interpretMidiEvent, onMIDIMessage } from "midi_onmidi";
+import { SysExParser } from "./sysex_parser";
 import type { HexColour, ColourArray, Hand } from "types";
 import { batteryInfo } from "./stores";
 
@@ -43,6 +43,8 @@ function dobrynyaEvent(evKind: string, data: object = {}) {
 	return evKind != "gone";
 }
 
+const generalSysExParser = new SysExParser();
+
 async function checkDobrynyaIsHere() {
 	if (!midi) return;
 
@@ -60,7 +62,8 @@ async function checkDobrynyaIsHere() {
 		return entry.name.startsWith("MIDI Dobrynya ");
 	});
 
-	if (portIn) portIn.addEventListener("midimessage", onMIDIMessage);
+	if (portIn)
+		portIn.addEventListener("midimessage", generalSysExParser.onMessage);
 
 	if (!portOut) {
 		dobrynyaWasHere = false;
@@ -95,7 +98,6 @@ async function checkDobrynyaIsHere() {
 		}
 
 		batteryInfo.set(result.data.battery);
-		
 	} catch (e) {
 		dobrynyaWasHere = false;
 		console.debug(e);
@@ -396,6 +398,8 @@ async function waitForMidi(
 ): Promise<MidiResult> {
 	if (!portIn) throw "No midi port found";
 
+	const parser = new SysExParser();
+	
 	return new Promise((resolve, reject) => {
 		let failTimeout = setTimeout(
 			() => reject({ reason: "timeout" }),
@@ -404,7 +408,9 @@ async function waitForMidi(
 
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
-			let result: MidiResult | boolean = interpretMidiEvent(ev);
+
+
+			let result: MidiResult | boolean = parser.interpretMidiEvent(ev);
 
 			if (result === false) return; // we don’t know what it was...
 			if (

@@ -37,5 +37,5 @@ window.theApp = theApp;
 window.expandersSanizers = new Map();
 
 window.addEventListener("error", (event) => {
-  alert(`Sorry, the app crashed. Please reload the window.\n${log.textContent}${event.type}: ${event.message}\n`);
+  alert(`Sorry, the app crashed. Please reload the window.\n${event.type}: ${event.message}\n`);
 });
