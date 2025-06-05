@@ -342,7 +342,7 @@
 		<p>If the device is showing green light (and your OS has installed all the drivers), it is likely ready for firmware uploading.
 			A virtual drive called DBR_BOOT should appear on your system.</p>
 		<ol>
-			<li><a href="https://config.mididobrynya.com/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Download the latest firmware</a></li>
+			<li><a href="https://dobrynyadev.kt8.ru//firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Download the latest firmware</a></li>
 			<li>Copy it to the drive called <code>DBR_BOOT</code></li>
 			<li>Your OS might complain about improper disk removal. It’s okay.</li>
 			<li>Your device reboots and has a new shiny firmware! Congrats!</li>
@@ -389,19 +389,19 @@
 				<td class="code">SAMD21G17A-dbr-microv2-17</td>
 				<td>Micro V2</td>
 				<td>2106...</td>
-				<td><a href="https://config.mididobrynya.com/firmware/microv2-17/latest/">Download</a></td>
+				<td><a href="https://dobrynyadev.kt8.ru//firmware/microv2-17/latest/">Download</a></td>
 			</tr>
 			<tr>
 				<td class="code">SAMD21G17A-dbr-miniv2-17</td>
 				<td>Mini V2</td>
 				<td>3106...</td>
-				<td><a href="https://config.mididobrynya.com/firmware/miniv2-17/latest/">Download</a></td>
+				<td><a href="https://dobrynyadev.kt8.ru//firmware/miniv2-17/latest/">Download</a></td>
 			</tr>
 			<tr>
 				<td class="code">SAMD21G18A-dbr-miniv2-18</td>
 				<td>Mini V2</td>
 				<td>3105...</td>
-				<td><a href="https://config.mididobrynya.com/firmware/miniv2-18/latest/">Download</a></td>
+				<td><a href="https://dobrynyadev.kt8.ru//firmware/miniv2-18/latest/">Download</a></td>
 			</tr>
 		</table>
 		<h2>Copy the firmware to the drive</h2>
@@ -451,7 +451,7 @@
 	{/if}
 	</button></p>
 	{#if $deviceDefinition.model.code}
-	<p class="explain">Alternatively, you can <a href="https://config.mididobrynya.com/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">download the firmware file</a> manually.</p>
+	<p class="explain">Alternatively, you can <a href="https://dobrynyadev.kt8.ru/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">download the firmware file</a> manually.</p>
 	{/if}
 </fieldset>
 {/if}
