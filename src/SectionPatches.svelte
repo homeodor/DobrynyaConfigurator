@@ -276,7 +276,7 @@
 			)
 				return "This is a legacy patch, but it still works fine.";
 			else
-				return `This patch has been designed for MIDI Dobrynya ${models[dbrClassID][dbrModelID]}.`;
+				return `This patch has been designed for MIDI Dobrynya ${models[dbrClassID][dbrModelID].name}.`;
 		}
 
 		return "This patch has been designed for another Dobrynya.";
