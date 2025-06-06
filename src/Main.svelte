@@ -407,6 +407,15 @@
 </Alert>
 
 <style>
+	/* geologica-latin-wght-normal */
+	@font-face {
+		font-family: "Geologica Variable";
+		font-style: normal;
+		font-display: swap;
+		font-weight: 100 900;
+		src: url(/geologica.ttf) format("truetype-variations");
+	}
+
 	.newfirmware:not(.sel) {
 		border-bottom: 2px solid green;
 	}

@@ -51,6 +51,7 @@
 		"vite-plugin-mkcert": "^1.6.4"
 	},
 	"dependencies": {
+		"@fontsource-variable/geologica": "^5.2.5",
 		"@rollup/plugin-typescript": "^8.3.2",
 		"bson": "^4.6.4",
 		"electron-json-storage": "^4.5.0",
