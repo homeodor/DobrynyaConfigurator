@@ -12,7 +12,6 @@
 		getNoteInCurrentScale,
 		MidiCtrl,
 	} from "midi_utils";
-	import { colourOff } from "colour_utils";
 	import { Hand, Control } from "types";
 	import type { DeviceOrBankValue } from "types";
 	import type { Patch, BranchControl } from "types_patch";
@@ -33,6 +32,7 @@
 	import BurstsDialog from "./editor/BurstsDialog.svelte";
 	import EncoderParameters from "./editor/EncoderParameters.svelte";
 	import { sysExCalibrateAccel } from "./ts/midi_core";
+	import { type ColourArray, HexColour } from "./ts/hexcolour";
 
 	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
 	export let currentPatch: Patch;
@@ -48,7 +48,7 @@
 	let patchCanChange: Boolean = false;
 
 	export let globalChannel: DeviceOrBankValue;
-	export let globalColours: number[] = [colourOff, colourOff];
+	export let globalColours: ColourArray = [HexColour.off(), HexColour.off()];
 	export let globalVelocity: DeviceOrBankValue;
 
 	export let scaleIsOn: boolean;
@@ -72,7 +72,7 @@
 
 	const fullDataTreeModel: BranchControl = {
 		encmode: 0,
-		colour: [colourOff, colourOff],
+		colour: [HexColour.k_off, HexColour.k_off],
 		combo: 0,
 		burst: 0,
 		filter: 0,
@@ -95,6 +95,7 @@
 	export function sanizeNow() {
 		sanizeData(fullDataTreeModel, editorData);
 	}
+
 	export function expandNow() {
 		expandData(fullDataTreeModel, editorData);
 	}
@@ -102,11 +103,11 @@
 	let disableResetToBankColours = false;
 
 	let expanderSanizer = new ExpanderSanizer(
-		// @ts-ignore
 		{
-			model: fullDataTreeModel, // data will be attached in reactive block
+			model: fullDataTreeModel,
+			data: null,
 		},
-		() => {} // cleanup function
+		() => {}
 	);
 
 	onDestroy(() => expanderSanizer.kill());
@@ -246,8 +247,8 @@
 		expanderSanizer.expand(editorData);
 
 		disableResetToBankColours =
-			editorData.colour[0] == colourOff &&
-			editorData.colour[1] == colourOff;
+			editorData.colour[0] == HexColour.k_off &&
+			editorData.colour[1] == HexColour.k_off;
 
 		encoderIsRelative = editorData.encmode >= 1 && editorData.encmode <= 3; // relative midi
 
@@ -304,7 +305,8 @@
 				disabled={disableResetToBankColours}
 				on:click={patchMaybeChanged}
 				on:click={() =>
-					(editorData.colour[0] = editorData.colour[1] = colourOff)}
+					(editorData.colour[0] = editorData.colour[1] =
+						HexColour.k_off)}
 				class="auxaction">Reset to bank colours</button
 			>
 			<div class="checkboxholder">

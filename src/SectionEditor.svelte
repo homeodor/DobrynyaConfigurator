@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, createEventDispatcher, tick } from "svelte";
+	import { createEventDispatcher } from "svelte";
 
 	import { openPatternEditor } from "event_helpers";
 	import type { InvokeControlEventData } from "event_helpers";
@@ -26,7 +26,7 @@
 	import Alert from "./widgets/Alert.svelte";
 	import GotIt from "./widgets/GotIt.svelte";
 
-	import { Control, Hand, NewPatchDecision } from "types";
+	import { Hand, NewPatchDecision } from "types";
 	import {
 		NameFailsBecause,
 		checkIfPatchNameIsValid,
@@ -40,7 +40,6 @@
 		ColourPaintLayer,
 		randomPattern,
 		hueShiftPattern,
-		hexToCSS,
 	} from "colour_utils";
 	import { CaseColour, deviceDefinition } from "device";
 
@@ -59,6 +58,7 @@
 	import { currentPatch, newPatch, patchAction, editorState } from "patch";
 	import PanePads from "./editor/PanePads.svelte";
 	import Outline from "./editor/Outline.svelte";
+	import { HexColour } from "./ts/hexcolour";
 
 	let numberOfActiveBanks = 0;
 
@@ -411,7 +411,9 @@ export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { dat
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<span
 							data-colour="0"
-							style="background-color: {hexToCSS(colour)}"
+							style="background-color: {new HexColour(
+								colour
+							).toCSS()}"
 							on:click={openPatternEditor}
 						></span>
 					{/each}

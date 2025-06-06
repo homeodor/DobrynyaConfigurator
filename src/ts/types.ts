@@ -1,14 +1,5 @@
 import type { Capabilities, Model } from "device";
 
-export type HexColour = number;
-export interface HexObject {
-	h: number;
-	s: number;
-	v: number;
-}
-
-export type ColourArray = HexColour[];
-export type Pattern = HexColour[];
 export type Palette = number[];
 
 export enum Hand {

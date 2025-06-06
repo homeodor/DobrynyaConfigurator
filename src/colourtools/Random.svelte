@@ -8,20 +8,20 @@
 
 	import { getRandomIntInclusive } from "basic";
 	import { numberOfPads } from "data_utils";
-	import { colourOff, ColourPaintLayer } from "colour_utils";
+	import { ColourPaintLayer } from "colour_utils";
 
 	import {
 		ctStart,
 		ctFinish,
 		ctExit,
 		assembleLayerFromHexes,
-		colourIsExplicitlySet,
 	} from "./common";
 	import type { CTData, HexArrays } from "./common";
 
 	import PreviewSingle from "./PreviewSingle.svelte";
 	import OkCancel from "../widgets/OkCancel.svelte";
 	import Halp from "../widgets/Halp.svelte";
+	import { HexColour } from "src/ts/hexcolour";
 	// import Preview from './Preview.svelte'
 
 	export let ctData: CTData;
@@ -135,11 +135,8 @@
 			affectLayers.push(ColourPaintLayer.Pattern);
 		}
 
-		//
-		// console.log("Affect layers", affectLayers);
-
-		let hMin = params.hueMin;
-		let hMax = params.hueMax;
+		const hMin = params.hueMin;
+		const hMax = params.hueMax;
 
 		let hRandomMin = hMin;
 		let hRandomMax = hMax;
@@ -152,7 +149,7 @@
 			hFixRange = hMin - hMax - 1;
 		}
 
-		let sMin: number =
+		const sMin: number =
 			params.satMin < params.satMax ? params.satMin : params.satMax;
 		let sMax: number =
 			params.satMin < params.satMax ? params.satMax : params.satMin;
@@ -163,25 +160,31 @@
 
 		let saveHues: number[] | null = null;
 
-		let isShy: boolean = params.keepColours;
+		const isShy: boolean = params.keepColours;
 
 		for (let currLayer of affectLayers) {
+			if (currLayer === ColourPaintLayer.Off) {
+				throw new Error(
+					"randomFill includes ColourPaintLayer.Off in affected layers"
+				);
+			}
+
 			let genH: number[] = [],
 				genS: number[] = [],
 				genV: number[] = [];
 
 			for (let i = 0; i < 16; i++) {
-				let possibleRandomHue = getRandomIntInclusive(
+				const possibleRandomHue = getRandomIntInclusive(
 					hRandomMin,
 					hRandomMax,
 					generateRandom()
 				);
-				let possibleRandomSat = getRandomIntInclusive(
+				const possibleRandomSat = getRandomIntInclusive(
 					sMin,
 					sMax,
 					generateRandom()
 				);
-				let possibleRandomVal = getRandomIntInclusive(
+				const possibleRandomVal = getRandomIntInclusive(
 					vMin,
 					vMax,
 					generateRandom()
@@ -189,21 +192,26 @@
 
 				genH[i] = saveHues ? saveHues[i] : possibleRandomHue;
 
-				if (hMin > hMax && !saveHues && genH[i] > hMax)
-					// inverted range, we need to fix it here
+				if (hMin > hMax && !saveHues && genH[i] > hMax) {
 					genH[i] += hFixRange;
+					// inverted range, we need to fix it here
+				}
 
-				if (params.satMode == ParamSatVal.Max) genS[i] = sMax;
-				else if (params.satMode == ParamSatVal.Reasonable)
+				if (params.satMode == ParamSatVal.Max) {
+					genS[i] = sMax;
+				} else if (params.satMode == ParamSatVal.Reasonable) {
 					genS[i] = currLayer == 0 ? sMin : sMax;
-				else if (params.satMode == ParamSatVal.Random)
+				} else if (params.satMode == ParamSatVal.Random) {
 					genS[i] = possibleRandomSat;
+				}
 
-				if (params.valMode == ParamSatVal.Max) genV[i] = vMax;
-				else if (params.valMode == ParamSatVal.Reasonable)
+				if (params.valMode == ParamSatVal.Max) {
+					genV[i] = vMax;
+				} else if (params.valMode == ParamSatVal.Reasonable) {
 					genV[i] = currLayer == 0 ? vMin : vMax;
-				else if (params.valMode == ParamSatVal.Random)
+				} else if (params.valMode == ParamSatVal.Random) {
 					genV[i] = possibleRandomVal;
+				}
 			}
 
 			if (params.matchHue && !saveHues) {
@@ -211,32 +219,27 @@
 				for (let i = 0; i < 16; i++) saveHues[i] = genH[i];
 			}
 
-			// console.log(genH,genS,genV);
-
-			//		if (currLayer == -1) currentHex.pattern = []; else currentHex.pads[currLayer] = [];
-
 			for (let i = 0; i < numberOfPads; i++) {
 				let currValue =
 					currLayer == ColourPaintLayer.Pattern
 						? currentHex.pattern[i]
 						: currentHex.pads[currLayer][i];
 
-				if (colourIsExplicitlySet(currValue, currLayer) && isShy)
-					continue;
+				if (currValue.isExplicit(currLayer) && isShy) continue;
 
-				let theHex = (genH[i] << 8) | (genS[i] << 4) | genV[i];
+				let theHex = new HexColour(genH[i], genS[i], genV[i]);
 
-				if (theHex == colourOff) theHex = 0;
-
-				// console.log(theHex.toString(16));
+				if (theHex.isOff()) {
+					theHex = HexColour.black();
+				}
 
 				if (currLayer == ColourPaintLayer.Pattern) {
 					console.log(`Putting ${theHex} into pattern ${i}`);
 					currentHex.pattern[i] = theHex;
-				} else currentHex.pads[currLayer][i] = theHex;
+				} else {
+					currentHex.pads[currLayer][i] = theHex;
+				}
 			}
-
-			//		colourPaintToData(isShy, finalArray, currLayer);
 		}
 
 		preview.idle = assembleLayerFromHexes(

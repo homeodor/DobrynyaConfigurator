@@ -10,7 +10,11 @@
 	import type { Patch } from "types_patch";
 	import type SectionEditor from "./SectionEditor.svelte";
 
-	import { sysExEsp32Bootloader, sysExFilenameAndDo, sysExTwoFilenamesAndDo } from "midi_core";
+	import {
+		sysExEsp32Bootloader,
+		sysExFilenameAndDo,
+		sysExTwoFilenamesAndDo,
+	} from "midi_core";
 	import { SysExCommand } from "midi_utils";
 
 	import iconTune from "../i/patchtune.svg";
@@ -29,7 +33,6 @@
 		getNewPatchName,
 	} from "editor";
 	import { sortPatchList, patchAsFileFromData, getPatch } from "data_utils";
-	import { hexToCSS } from "colour_utils";
 	import { sysExDiskMode, sysExBootloader } from "midi_core";
 	import type { PatchInfoItem } from "types_patch";
 
@@ -42,6 +45,7 @@
 	import { hueShiftPattern } from "colour_utils";
 
 	import { deviceDefinition } from "device";
+	import { HexColour } from "./ts/hexcolour";
 
 	export let patchesInfo: PatchInfoItem[];
 	export let editor: SectionEditor;
@@ -345,9 +349,9 @@
 								{#each patch.info.pattern as colour}
 									<span
 										data-colour="0"
-										style="background-color: {hexToCSS(
+										style="background-color: {new HexColour(
 											colour
-										)}"
+										).toCSS()}"
 									></span>
 								{/each}
 							{/if}

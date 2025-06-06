@@ -7,8 +7,7 @@
 	import { getIconURL, getIconCSS } from "icons";
 	import {
 		ColourPaintLayer,
-		colourOff,
-		hexToCSS,
+		k_coloursPerPad,
 		randomPattern,
 	} from "colour_utils";
 	import {
@@ -21,7 +20,7 @@
 
 	import { Control } from "types";
 	import type { InvokeControlEventData } from "event_helpers";
-	import type { BranchBank } from "types_patch";
+	import type { BranchBank, Colourable } from "types_patch";
 	import {
 		getCurrentHexes,
 		assembleLayerFromHexes,
@@ -37,21 +36,31 @@
 	import CTRandom from "./colourtools/Random.svelte";
 	import CTFade from "./colourtools/Fade.svelte";
 	import CTCopy from "./colourtools/Copy.svelte";
+	import {
+		type BucketEventDetail,
+		type ColourArray,
+		HexColour,
+	} from "./ts/hexcolour";
 
 	export let paintData: InvokeControlEventData = null;
 
 	export let bank: BranchBank;
-	export let pattern: number[];
+	export let pattern: ColourArray;
 
 	export let colourPaintMode: ColourPaintLayer;
 	export let colourPaintShowBank: boolean;
 
-	export let colourDataModel = {
-		colour: [colourOff, colourOff],
+	export let colourDataModel: Colourable = {
+		colour: [HexColour.k_off, HexColour.k_off],
 	};
 
-	export let colourDataModelBank = {
-		colour: [colourOff, colourOff, colourOff, colourOff],
+	export let colourDataModelBank: Colourable = {
+		colour: [
+			HexColour.k_off,
+			HexColour.k_off,
+			HexColour.k_off,
+			HexColour.k_off,
+		],
 	};
 
 	let mainColourWell: ColourWell,
@@ -59,8 +68,8 @@
 		buttonRandom: HTMLButtonElement,
 		buttonMakeBank: HTMLButtonElement; // used to open with keyboard
 
-	let hex: number;
-	let prevHex: number = colourOff;
+	let hex = HexColour.off();
+	let prevHex = HexColour.off();
 	let hexCSS: string;
 
 	enum Tool {
@@ -147,10 +156,13 @@
 		}
 
 		if (ev.key == "Shift") {
-			if (tool === Tool.Paintbrush && hex != colourOff)
+			if (tool === Tool.Paintbrush && hex.isOn()) {
 				setCursor("bucket");
-			if (tool === Tool.Eraser || hex == colourOff)
+			}
+
+			if (tool === Tool.Eraser || hex.isOff()) {
 				setCursor("filldelete");
+			}
 		}
 	}
 
@@ -198,14 +210,13 @@
 		updateCursor();
 	}
 
-	function fixHex(theHex: number) {
+	function fixHex(theHex: HexColour): HexColour {
 		return tool == Tool.Paintbrush
-			? (colourPaintMode == ColourPaintLayer.Pattern ||
-					theHex != colourOff) &&
-				(theHex & 0xf) == 0
-				? 0
-				: theHex // if brightness == 0, make it simply black, with the exception of colourOff in non-pattern mode
-			: colourOff;
+			? (colourPaintMode == ColourPaintLayer.Pattern || theHex.isOn()) &&
+				theHex.isBlack()
+				? HexColour.black()
+				: theHex
+			: HexColour.off();
 	}
 
 	export function paintEvent(data: InvokeControlEventData) {
@@ -214,8 +225,11 @@
 		let hexFixed = fixHex(hex);
 
 		if (tool == Tool.Eyedropper) {
-			if (data.altKey && "ultimateHex" in data) hex = data.ultimateHex;
-			else if ("hex" in data) hex = data.hex;
+			if (data.altKey && "ultimateHex" in data) {
+				hex = data.ultimateHex;
+			} else if ("hex" in data) {
+				hex = data.hex;
+			}
 
 			updateCursor();
 		} else {
@@ -236,7 +250,7 @@
 								bank.pads[i],
 								() => {
 									bank.pads[i].colour[colourPaintMode] =
-										hexFixed;
+										hexFixed.hex;
 								}
 							);
 						}
@@ -253,18 +267,20 @@
 		}
 	}
 
-	let confirmHexOff: any;
+	let confirmHexOff: Confirm;
 
 	async function currentToBankColour(ev: MouseEvent) {
-		if (hex == colourOff && !(await confirmHexOff.confirm())) return;
+		if (hex.isOff() && !(await confirmHexOff.confirm())) {
+			return;
+		}
 
-		let altOffset = ev.altKey ? 2 : 0; // set music key / key active colour if alt is pressed
+		let altOffset = ev.altKey ? k_coloursPerPad : 0; // set music key / key active colour if alt is pressed
 
 		createObjectIfAbsent(bank, "bank");
 		expandSetSanize(
 			colourDataModelBank,
 			bank.bank,
-			() => (bank.bank.colour[colourPaintMode + altOffset] = hex)
+			() => (bank.bank.colour[colourPaintMode + altOffset] = hex.hex)
 		);
 	}
 
@@ -273,7 +289,7 @@
 		colourPaintMode = $lastColourPaintLayer;
 		hex = $lastColourPaintHex;
 	});
-	
+
 	onDestroy(() => {
 		lastColourPaintLayer.set(colourPaintMode);
 		colourPaintMode = ColourPaintLayer.Off;
@@ -284,8 +300,8 @@
 		pattern = pattern;
 	} // this triggers the UI update
 
-	function updateBucket(ev: CustomEvent) {
-		bucketCSS = [hexToCSS(ev.detail.hex), hexToCSS(ev.detail.hex2)];
+	function updateBucket(ev: CustomEvent<BucketEventDetail>) {
+		bucketCSS = [ev.detail.hex.toCSS(), ev.detail.hex2.toCSS()];
 	}
 
 	let colourPaintModeBankName = "";
@@ -349,7 +365,7 @@
 	let openCtModal = "notacc";
 	let openCtModalPrev = "notacc";
 
-	let bucketCSS = [hexToCSS(hex), hexToCSS(hex)];
+	let bucketCSS = [hex.toCSS(), hex.toCSS()];
 
 	$: {
 		if (openCtModal != openCtModalPrev && openCtModal != "notacc") {
@@ -359,7 +375,7 @@
 
 		if (prevHex != hex) {
 			prevHex = ctData.hex = hex; // overwrite the ctData.hex only if the colour well changed
-			bucketCSS = [hexToCSS(hex), hexToCSS(hex)];
+			bucketCSS = [hex.toCSS(), hex.toCSS()];
 		}
 
 		ctData.bank = bank;
@@ -368,7 +384,7 @@
 
 		isPattern = colourPaintMode === ColourPaintLayer.Pattern;
 
-		hexCSS = hexToCSS(hex);
+		hexCSS = hex.toCSS();
 
 		if (paintData) {
 			paintData = paintEvent(paintData);
@@ -414,8 +430,8 @@
 				class="nocolour"
 			></span>)</nobr
 		>
-		means no explicit colour is set (the colour is “off”). Bank colours can
-		also be set in the
+		means no explicit colour is set (the colour is “off”). Bank colours can also
+		be set in the
 		<span class="unreal openbanksettings">bank settings</span> tab.
 	</p>
 

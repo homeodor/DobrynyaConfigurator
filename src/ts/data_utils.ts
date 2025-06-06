@@ -2,20 +2,30 @@ import { isEmpty } from "basic";
 import { ExpanderSanizer } from "data_expandsanize";
 
 import type { Model } from "device";
-import type { Pattern } from "types";
 import type {
 	Patch,
 	PatchLegacy,
 	PatchInfoItem,
 	BranchBank,
 	BranchControl,
+	PadOrButton,
 } from "types_patch";
 
 export const numberOfPads = 16;
 
-export function getEmptyPadDataArray() {
+export function getEmptyPadDataArray(): PadOrButton[] {
 	const emptyPadDataArray = [];
-	for (let i = 0; i < numberOfPads; i++) emptyPadDataArray.push({});
+	for (let i = 0; i < numberOfPads; i++) {
+		emptyPadDataArray.push({});
+	}
+	return emptyPadDataArray;
+}
+
+export function getEmptyPatternArray(): number[] {
+	const emptyPadDataArray = [];
+	for (let i = 0; i < numberOfPads; i++) {
+		emptyPadDataArray.push(0);
+	}
 	return emptyPadDataArray;
 }
 
@@ -55,8 +65,8 @@ export function sortPatchList(aX: PatchInfoItem, bX: PatchInfoItem): number {
 	let a = aX.name.toLowerCase();
 	let b = bX.name.toLowerCase();
 
-	let i;
-	let codeA;
+	let i: number;
+	let codeA: number;
 	let codeB = 1;
 	let posA = 0;
 	let posB = 0;
@@ -216,13 +226,7 @@ export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model) {
 	// fixing absent keys...
 
 	createObjectIfAbsent(currentPatch, "info");
-	createObjectIfAbsent(
-		currentPatch.info,
-		"pattern",
-		getEmptyPadDataArray().forEach(
-			(_: any, k: number, a: Pattern) => (a[k] = 0)
-		)
-	); // add pattern array if it is not present, filled with zeroes
+	createObjectIfAbsent(currentPatch.info, "pattern", getEmptyPatternArray()); // add pattern array if it is not present, filled with zeroes
 	createObjectIfAbsent(currentPatch, "settings");
 
 	for (let fixDevicePresence of [
@@ -281,5 +285,3 @@ export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model) {
 		});
 	});
 }
-
-// export function sleep (ms = 1) { return new Promise((rs, rj) => setTimeout(_ => rs(), ms) }

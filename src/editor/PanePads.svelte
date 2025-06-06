@@ -7,6 +7,7 @@
 	import type { InvokeControlEventData } from "src/ts/event_helpers";
 	import { ColourPaintLayer } from "src/ts/colour_utils";
 	import Accelerometer from "./Accelerometer.svelte";
+	import { HexColour } from "src/ts/hexcolour";
 
 	export let openEditor: (
 		element: HTMLElement,
@@ -81,7 +82,7 @@
 	on:click={openEditorForPad}
 	on:paint
 	bank={currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]}
-	pattern={currentPatch.data.info.pattern}
+	pattern={currentPatch.data.info.pattern.map(c => new HexColour(c))}
 	{colourPaintMode}
 	{colourPaintShowBank}
 />

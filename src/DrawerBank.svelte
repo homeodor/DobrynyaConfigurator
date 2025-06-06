@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
 
-	import { colourOff } from "colour_utils";
 	import {
 		scales,
 		fakeNoteOff,
@@ -27,10 +26,17 @@
 	import Halp from "./widgets/Halp.svelte";
 
 	import ColourWellsBank from "./ColourWellsBank.svelte";
+	import { HexColour } from "./ts/hexcolour";
+	import { type BranchBankBank } from "./ts/types_patch";
 
-	const bankSettingsModel = {
+	const bankSettingsModel: BranchBankBank = {
 		ch: -1,
-		colour: [colourOff, colourOff, colourOff, colourOff],
+		colour: [
+			HexColour.k_off,
+			HexColour.k_off,
+			HexColour.k_off,
+			HexColour.k_off,
+		],
 		keyinfo: -1,
 		lightshow: 0,
 		vel: 127,
@@ -71,12 +77,14 @@
 	let channelIsGlobal = false;
 
 	let expanderSanizer = new ExpanderSanizer(
-		// @ts-ignore
 		{
-			model: bankSettingsModel, // data will be attached in reactive block
+			model: bankSettingsModel,
+			data: null,
 		},
 		() => {
-			if (isEmpty(currentBank.bank)) delete currentBank.bank;
+			if (isEmpty(currentBank.bank)) {
+				delete currentBank.bank;
+			}
 		} // cleanup function
 	);
 
@@ -270,10 +278,7 @@
 			<div class="ce-block">
 				<h4 class:disabled={!scaleEnabled}>Scale mode</h4>
 				<!-- Note that Select had on:input={patchChanged}, but it created a loop that broke the switching! -->
-				<select
-					bind:value={scale.mode}
-					disabled={!scaleEnabled}
-				>
+				<select bind:value={scale.mode} disabled={!scaleEnabled}>
 					{#each scales as scaleDef, i}
 						<option value={i}
 							>{Notes[scale.key]} {scaleDef.name}</option

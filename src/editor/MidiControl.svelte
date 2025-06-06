@@ -90,22 +90,11 @@
 	}
 
 	function convertRelativeToAbsolute(v: number) {
-		// console.warn(`Converting ${v} to ${(v >= 0) ? v : (Math.abs(v) | 0x40)}`);
 		return v >= 0 ? v : Math.abs(v) | 0x40; // always signed value
-		//		if (encmode == EncoderBehaviour.Relative64Zero) { console.log(v); return v + 64; }
-		//		if (v >= 0) return v;
-		//		if (encmode == EncoderBehaviour.Relative2Comp)  return 128 + v;
-		//		if (encmode == EncoderBehaviour.RelativeSigned) return Math.abs(v) | 0x40;
-		//		return Math.abs(v);
 	}
 
 	function convertAbsoluteToRelative(v: number) {
 		return v < 64 ? v : -(v - 64);
-		// if (encmode == EncoderBehaviour.Relative64Zero) return v - 64;
-		// if (v < 64) return v;
-		// if (encmode == EncoderBehaviour.Relative2Comp)  return v - 128;
-		// if (encmode == EncoderBehaviour.RelativeSigned) return -(v - 63);
-		// return v % 64;
 	}
 
 	export function setDefaultMinMax() {
@@ -136,8 +125,6 @@
 	}
 
 	export function init() {
-		// decompose the values
-		console.debug("INIT", cc, what, min, max, par);
 		encmodePrev = encmode; // should not matter at the startup
 
 		// cc
@@ -191,8 +178,6 @@
 	}
 
 	$: {
-		console.debug("Updating editor");
-
 		if (!locked) {
 			if (encmode != encmodePrev) {
 				if (encmode <= EncoderBehaviour.RelativeSigned) {
@@ -285,8 +270,6 @@
 					<option value={255}>System reset</option>
 				</optgroup>
 			{/if}
-			<!-- <option value="129">Global Velocity</option>
-			<option value="133">Global Channel</option>								 -->
 		</select>
 	</div>
 
@@ -322,9 +305,9 @@
 					bind:checked={isToggle}
 				/>
 				<mark></mark>Release latches value <Halp>
-					Normally releasing the tilt mode will reset the
-					parameter to the default (“flat”) value. If this option is
-					enabled, the last value will be kept after the release.
+					Normally releasing the tilt mode will reset the parameter to
+					the default (“flat”) value. If this option is enabled, the
+					last value will be kept after the release.
 				</Halp>
 			</label>
 		</div>
@@ -509,8 +492,6 @@
 						on:close={() => (rampIsOpen = false)}
 					/>
 				{/if}
-				<!-- 			
-	<div class="controlexplanation">Плавное изменение параметра от минимума до максимума и обратно</div> -->
 			</div>
 		{/if}
 	{/if}

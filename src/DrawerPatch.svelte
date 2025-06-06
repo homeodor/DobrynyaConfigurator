@@ -103,8 +103,9 @@
 								on:input={patchChangedOverTick}
 								type="checkbox"
 								class="appleswitch"
-								bind:checked={currentPatch.data.settings
-									.infinite}
+								bind:checked={
+									currentPatch.data.settings.infinite
+								}
 							/>
 							<mark
 								>Infinite bank switching
@@ -227,8 +228,9 @@
 								on:input={patchChangedOverTick}
 								type="checkbox"
 								class="appleswitch"
-								bind:checked={currentPatch.data.settings
-									.subhold}
+								bind:checked={
+									currentPatch.data.settings.subhold
+								}
 							/>
 							<mark>Hold to show a sub-bank</mark>
 						</label>

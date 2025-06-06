@@ -39,6 +39,7 @@
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
 		"@tsconfig/svelte": "^3.0.0",
 		"@types/js-cookie": "^3.0.2",
+		"@types/webmidi": "^3.0.1",
 		"concurrently": "^7.2.2",
 		"electron": "^21.2.1",
 		"electron-builder": "^23.6.0",

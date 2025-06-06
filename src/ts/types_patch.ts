@@ -1,4 +1,6 @@
-import type { ColourArray, Palette, EncoderBehaviour } from "types";
+import type { Palette, EncoderBehaviour } from "types";
+
+export type PatchColourArray = number[];
 
 export interface BranchMidi {
 	ch?: number;
@@ -12,31 +14,34 @@ export interface BranchMidi {
 	rampd?: number;
 }
 
-export interface BranchControl {
+export interface Colourable {
+	colour?: PatchColourArray;
+}
+
+export interface BranchControl extends Colourable {
 	encmode?: EncoderBehaviour;
-	colour?: ColourArray;
 	combo?: number;
 	burst?: number;
 	filter?: number;
 	midi?: BranchMidi;
 }
 
-interface PadOrButton {
-	colour?: ColourArray;
+export interface PadOrButton extends Colourable {
 	combo?: number;
 	midi?: BranchMidi;
 }
 
+export interface BranchBankBank extends Colourable {
+	keyinfo?: number;
+	ch?: number;
+	vel?: number;
+	midi?: BranchMidi;
+	lightshow?: number;
+	desc?: string;
+}
+
 export interface BranchBank {
-	bank?: {
-		keyinfo?: number;
-		colour?: ColourArray;
-		ch?: number;
-		vel?: number;
-		midi?: BranchMidi;
-		lightshow?: number;
-		desc?: string;
-	};
+	bank?: BranchBankBank;
 	pads?: PadOrButton[];
 }
 
@@ -64,7 +69,6 @@ export interface BranchSettingsLegacy extends BranchSettings {
 }
 
 export interface BranchJoystickBank {
-	colour?: ColourArray;
 	midi?: BranchMidi;
 	directions: BranchControl[];
 }

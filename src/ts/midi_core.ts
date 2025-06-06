@@ -2,8 +2,9 @@ import { WaitingBlock } from "waitingblock";
 import { SysExCommand, SysExStatus } from "midi_utils";
 import type { MidiResult } from "midi_utils";
 import { SysExParser } from "./sysex_parser";
-import type { HexColour, ColourArray, Hand } from "types";
+import type { Hand } from "types";
 import { batteryInfo } from "./stores";
+import { type ColourArray, HexColour } from "./hexcolour";
 
 let midi: MIDIAccess | null = null;
 let portOut: MIDIOutput | null = null;
@@ -399,7 +400,7 @@ async function waitForMidi(
 	if (!portIn) throw "No midi port found";
 
 	const parser = new SysExParser();
-	
+
 	return new Promise((resolve, reject) => {
 		let failTimeout = setTimeout(
 			() => reject({ reason: "timeout" }),
@@ -408,7 +409,6 @@ async function waitForMidi(
 
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
-
 
 			let result: MidiResult | boolean = parser.interpretMidiEvent(ev);
 
@@ -554,7 +554,7 @@ export function sysExTestFill(hex: HexColour) {
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
 	sysEx(SysExCommand.LIGHTUP, [
 		...futureExpansionBytes,
-		...colourToSysExArray(hex),
+		...hex.toSysExArray(),
 	]);
 }
 
@@ -562,24 +562,10 @@ export function sysExColourReset() {
 	midiSendTerminated(sysExArray(SysExCommand.LIGHTUP, SysExStatus.RESET));
 }
 
-function colourToSysExArray(hex: HexColour) {
-	let testFillArray = [hex >> 8, hex & 0xff, 0];
-	if (testFillArray[0] & 0x80) {
-		testFillArray[0] &= 0x7f;
-		testFillArray[2] |= 0x2;
-	}
-	if (testFillArray[1] & 0x80) {
-		testFillArray[1] &= 0x7f;
-		testFillArray[2] |= 0x1;
-	}
-
-	return testFillArray;
-}
-
 export function sysExTestPattern(arr: ColourArray) {
 	let patternSysExArray = [];
 
-	for (let hex of arr) patternSysExArray.push(colourToSysExArray(hex));
+	for (let hex of arr) patternSysExArray.push(hex.toSysExArray());
 
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
 	sysEx(SysExCommand.LIGHTUP, [

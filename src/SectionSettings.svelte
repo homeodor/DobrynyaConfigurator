@@ -353,8 +353,9 @@
 								<td
 									><input
 										type="checkbox"
-										bind:checked={settings.midi.inputs
-											.flag[2]}
+										bind:checked={
+											settings.midi.inputs.flag[2]
+										}
 									/></td
 								>
 								<td
@@ -365,8 +366,9 @@
 											.hardware.ble ==
 											BLEAvailable.External &&
 											!settings.midi.outputs.flag[1]}
-										bind:checked={settings.midi.outputs
-											.flag[2]}
+										bind:checked={
+											settings.midi.outputs.flag[2]
+										}
 									/></td
 								>
 								<td
@@ -375,8 +377,9 @@
 										class="disabled"
 										type="checkbox"
 										on:input={markSettingsUnsavedNow}
-										bind:checked={settings.input.flags
-											.flag[1]}
+										bind:checked={
+											settings.input.flags.flag[1]
+										}
 									/></td
 								>
 							</tr>

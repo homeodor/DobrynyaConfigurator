@@ -47,9 +47,9 @@
 		display: flex;
 	}
 
-    .cornerdevice > div {
-        padding: 0.5em;
-    }
+	.cornerdevice > div {
+		padding: 0.5em;
+	}
 
 	.bootloader {
 		background-color: #a3a831;

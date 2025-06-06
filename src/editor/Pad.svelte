@@ -1,13 +1,7 @@
 <script lang="ts">
-	import {
-		hexToCSS,
-		gracefulGetColour,
-		ColourPaintLayer,
-		colourOff,
-	} from "colour_utils";
+	import { gracefulGetColour, ColourPaintLayer } from "colour_utils";
 	import type { BranchControl } from "types_patch";
 	import { Control } from "types";
-	import type { HexColour } from "types";
 	import { filterInvoke } from "event_helpers";
 	import type {
 		InvokeControlEvent,
@@ -17,6 +11,7 @@
 
 	import { createEventDispatcher } from "svelte";
 	import { deviceDefinition } from "src/ts/device";
+	import { type ColourArray, HexColour } from "src/ts/hexcolour";
 
 	export let colourPaintShowBank: boolean;
 	export let colourPaintMode: ColourPaintLayer;
@@ -24,8 +19,8 @@
 	export let controlNo: number;
 	export let data: BranchControl;
 
-	export let pattern: number;
-	export let globalColours: number[];
+	export let pattern: HexColour;
+	export let globalColours: ColourArray;
 	export let isKeyOfScale: boolean = false;
 	export let scaleNote: number = 0;
 
@@ -34,7 +29,7 @@
 	let cherry = false;
 	let sharp = false;
 
-	let padColours = [];
+	let padColours: ColourArray = [];
 
 	let activeColour: string = "transparent";
 	let normalColour: string = "transparent";
@@ -45,8 +40,8 @@
 
 	let moreData: { noColour: boolean } = { noColour: false };
 
-	let hex = colourOff;
-	let ultimateHex = 0;
+	let hex = HexColour.off();
+	let ultimateHex = HexColour.black();
 
 	let theDiv: HTMLDivElement;
 
@@ -95,14 +90,23 @@
 
 		padColours = [];
 
-		if (data?.colour) padColours = data.colour;
+		if (data?.colour) {
+			padColours = data.colour.map(c => new HexColour(c));
+		}
 
-		activeColour = hexToCSS(
-			gracefulGetColour(1, padColours, globalColours, isKeyOfScale)
-		);
-		normalColour = hexToCSS(
-			gracefulGetColour(0, padColours, globalColours, isKeyOfScale)
-		);
+		activeColour = gracefulGetColour(
+			1,
+			padColours,
+			globalColours,
+			isKeyOfScale
+		).toCSS();
+
+		normalColour = gracefulGetColour(
+			0,
+			padColours,
+			globalColours,
+			isKeyOfScale
+		).toCSS();
 
 		moreData.noColour = false;
 
@@ -118,20 +122,20 @@
 					false,
 					moreData
 				);
-				hex = padColours[colourPaintMode] ?? colourOff;
+				hex = !padColours[colourPaintMode].isBlack()
+					? new HexColour(padColours[colourPaintMode])
+					: HexColour.off();
 			} else {
 				backgroundHex = hex = ultimateHex = pattern;
 			}
 
-			if ((ultimateHex & 0xf) == 0) ultimateHex = 0;
+			ultimateHex = ultimateHex.normalize();
 
-			colourpaintColour = hexToCSS(
-				backgroundHex == colourOff ? 0 : backgroundHex
-			);
+			colourpaintColour = backgroundHex.toCSS(true);
 			backgroundColour = `background-color: ${colourpaintColour}`;
 		} else {
-			hex = colourOff; // not needed in non-colourpaint
-			ultimateHex = 0; // same
+			hex = HexColour.off(); // not needed in non-colourpaint
+			ultimateHex = HexColour.black(); // same
 			backgroundColour = "";
 			colourpaintColour = "transparent";
 		}
@@ -142,7 +146,7 @@
 		cherry =
 			$deviceDefinition.model.code.includes("pocket") ||
 			$deviceDefinition.model.code.includes("aurora");
-			
+
 		sharp = $deviceDefinition.model.code.includes("sharp");
 	}
 	//
@@ -162,7 +166,10 @@
 	class:colourpaint
 	class:sharp
 	class:cherry
-	style="{backgroundColour}; --normal-colour: {normalColour}; --active-colour: {activeColour}; --colourpaint-colour: {colourpaintColour}"
+	style="{backgroundColour}; --normal-colour: {normalColour ??
+		'darkgray'}; --active-colour: {activeColour ??
+		normalColour ??
+		'darkgray'}; --colourpaint-colour: {colourpaintColour}"
 	class:ramp={data?.midi?.rampu || data?.midi?.rampd}
 >
 	{#if cherry}

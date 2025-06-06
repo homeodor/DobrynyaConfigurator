@@ -1,9 +1,9 @@
-import { SysExStatus, SysExCommand } from 'midi_utils'
-import WaitingBlockDialog from '../WaitingBlock.svelte'
+import { SysExStatus, SysExCommand } from "midi_utils";
+import WaitingBlockDialog from "../WaitingBlock.svelte";
 
-let dialog = new WaitingBlockDialog(
-	{ target: document.getElementById("waitingblockholder") }
-);
+let dialog = new WaitingBlockDialog({
+	target: document.getElementById("waitingblockholder"),
+});
 
 // There is A LOT of bullshit in this file
 // A LOT of errors and typos!
@@ -11,25 +11,20 @@ let dialog = new WaitingBlockDialog(
 // It works.
 // So maybe I’ll look at it later and clean it up. For now be warned
 
-export class WaitingBlock
-{
-//	static #timeout;
+export class WaitingBlock {
+	//	static #timeout;
 	static #isBlocked: boolean = false;
 	static #unlockWith: SysExCommand = null;
-	
-	static init()
-	{
-//		m_el = document.getElementById("blocker");
+
+	static init() {
+		//		m_el = document.getElementById("blocker");
 	}
-	
-	static error(err = null)
-	{
-		
+
+	static error(err = null) {
 		let text: string;
 		let commandText: string = "";
-		
-		switch (WaitingBlock.#unlockWith)
-		{
+
+		switch (WaitingBlock.#unlockWith) {
 			case SysExCommand.STATUS:
 				commandText = "Get status";
 				break;
@@ -65,8 +60,8 @@ export class WaitingBlock
 				break;
 			case SysExCommand.COPYPATCH:
 				commandText = "Copy patch";
-				break;  // 0xC
-			
+				break; // 0xC
+
 			case SysExCommand.GETSETTINGS:
 				commandText = "Get settings";
 				break;
@@ -91,7 +86,7 @@ export class WaitingBlock
 			case SysExCommand.GETPRESENTDEVICES:
 				commandText = "Get devices present";
 				break; // 0x17
-			
+
 			case SysExCommand.INVOKECONTROL:
 				commandText = "Invoke control";
 				break;
@@ -104,7 +99,7 @@ export class WaitingBlock
 			case SysExCommand.LOADBANK:
 				commandText = "Load bank";
 				break; // 0x23
-			
+
 			case SysExCommand.LIGHTUP:
 				commandText = "Light up";
 				break;
@@ -114,7 +109,7 @@ export class WaitingBlock
 			case SysExCommand.PALETTE:
 				commandText = "Get palettes";
 				break; // 0x42
-			
+
 			case SysExCommand.REBOOT:
 				commandText = "Reboot";
 				break;
@@ -130,82 +125,90 @@ export class WaitingBlock
 			default:
 				break;
 		}
-		
+
 		WaitingBlock.#unlockWith = null; // иначе не разблокируется кнопка ОКАУ
-		
+
 		console.log(WaitingBlock.#unlockWith);
-		
-		switch (err)
-		{
+
+		switch (err) {
 			case SysExStatus.TIMEOUT:
-				text = "The operation timed out. Please check that the device is connected and working."; break;
+				text =
+					"The operation timed out. Please check that the device is connected and working.";
+				break;
 			case SysExStatus.GENERICERROR:
-				text = "Some generic error happened. Please try again."; break;				
+				text = "Some generic error happened. Please try again.";
+				break;
 			case SysExStatus.NO_FILE:
-				text = "The file requested hasn’t been found."; break;						
+				text = "The file requested hasn’t been found.";
+				break;
 			case SysExStatus.NO_FILESYSTEM:
-				text = "The device has no filesystem, or the filesystem is damaged."; break;
+				text =
+					"The device has no filesystem, or the filesystem is damaged.";
+				break;
 			case SysExStatus.NO_ENTITY:
-				text = "Cannot find the required information in the patch."; break;
+				text = "Cannot find the required information in the patch.";
+				break;
 			case SysExStatus.FILE_EXISTS:
-				text = "The file you are trying to save already exists."; break;
+				text = "The file you are trying to save already exists.";
+				break;
 			case SysExStatus.CANT_RENAME:
-				text = "Cannot rename the patch. Please try again."; break;
+				text = "Cannot rename the patch. Please try again.";
+				break;
 			case SysExStatus.WRONG_CHECKSUM:
-				text = "File integrity check failed. Please try again."; break;
+				text = "File integrity check failed. Please try again.";
+				break;
 			case SysExStatus.WRONG_LENGTH:
-				text = "The file has wrong length."; break;
+				text = "The file has wrong length.";
+				break;
 			case SysExStatus.WRONG_FILENAME:
-				text = "The requested filename is wrong."; break;
+				text = "The requested filename is wrong.";
+				break;
 			case SysExStatus.FILENAME_TOO_LONG:
-				text = "The requested file has a filename that is too long."; break;
-			case SysExStatus.NOT_IMPLEMENTED:
-			{
+				text = "The requested file has a filename that is too long.";
+				break;
+			case SysExStatus.NOT_IMPLEMENTED: {
 				WaitingBlock.unblock();
 				return; // so what.
 			}
 			default:
-				text = "An unknown error has occured. Please try again."; break;
+				text = "An unknown error has occured. Please try again.";
+				break;
 		}
-		
+
 		dialog.error(commandText, text);
 	}
-	
-	static timeout()
-	{
+
+	static timeout() {
 		WaitingBlock.error(SysExStatus.TIMEOUT);
 	}
-	
-	static block(unblockWith = null)
-	{
+
+	static block(unblockWith = null) {
 		console.log("Unblock with ", unblockWith);
 		WaitingBlock.#unlockWith = unblockWith;
 		WaitingBlock.#isBlocked = true;
 		dialog.block();
 	}
-	
-	static unblockOrError(cmd: SysExCommand, status)
-	{
+
+	static unblockOrError(cmd: SysExCommand, status) {
 		if (
 			cmd == SysExCommand.STATUS ||
 			WaitingBlock.#isBlocked == false ||
 			WaitingBlock.#unlockWith == null ||
 			cmd != WaitingBlock.#unlockWith
-		) return; // ???? хз
-		
-		if (status == SysExStatus.OK)
-			WaitingBlock.unblock(cmd);
-		else
-			WaitingBlock.error(status);
+		)
+			return; // ???? хз
+
+		if (status == SysExStatus.OK) WaitingBlock.unblock(cmd);
+		else WaitingBlock.error(status);
 	}
-	
-	static unblock(unblock = null)
-	{
+
+	static unblock(unblock = null) {
 		if (
 			WaitingBlock.#isBlocked == false ||
 			(unblock && unblock != WaitingBlock.#unlockWith)
-			) return;
-		
+		)
+			return;
+
 		dialog.unblock();
 		WaitingBlock.#unlockWith = null;
 		WaitingBlock.#isBlocked = false;

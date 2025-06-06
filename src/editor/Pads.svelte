@@ -4,10 +4,10 @@
 	import Pad from "./Pad.svelte";
 
 	import type { ColourPaintLayer } from "colour_utils";
-	import type { Pattern } from "types";
 	import type { BranchBank, BranchControl } from "types_patch";
 	import { getNoteInCurrentScale } from "midi_utils";
 	import { numberOfPads } from "data_utils";
+	import type { Pattern } from "src/ts/hexcolour";
 
 	export let pattern: Pattern;
 	export let bank: BranchBank;

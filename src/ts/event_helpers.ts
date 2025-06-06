@@ -1,8 +1,9 @@
 import type { MidiResult } from "midi_utils";
-import type { Hand, Control, HexColour } from "types";
+import type { Hand, Control } from "types";
 
 import { lastColourPaintLayer } from "stores";
 import { ColourPaintLayer } from "colour_utils";
+import { HexColour } from "./hexcolour";
 
 export interface InvokeControlEventData {
 	target: HTMLElement;

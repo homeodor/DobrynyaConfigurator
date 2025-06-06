@@ -13,7 +13,7 @@ interface SettingsObjectItem {
 	value?: number;
 	text?: string;
 	flag?: boolean[];
-	fixfunc?: (v: number)=>number;
+	fixfunc?: (v: number) => number;
 }
 
 interface SettingsObject {
@@ -206,7 +206,9 @@ function settingsModel(): SettingsObject {
 				isFlag: true,
 			},
 			power: {
-				fixfunc: (v: number) => { return v < 1 || v > 3 ? 2 : v; },
+				fixfunc: (v: number) => {
+					return v < 1 || v > 3 ? 2 : v;
+				},
 			},
 			name: {
 				fixfunc: fixDeviceName,
@@ -240,14 +242,13 @@ export function parseSettingsData() {
 		if (i == "fakeparam") continue;
 
 		for (let j in window.settings[i]) {
-
 			const param = window.settings[i][j];
 
-			if (typeof param === "number")
-			{
-				if (arp !== param)
-				{
-					throw new Error(`Offset failed: expected ${param}, got ${arp} at ${i}`);
+			if (typeof param === "number") {
+				if (arp !== param) {
+					throw new Error(
+						`Offset failed: expected ${param}, got ${arp} at ${i}`
+					);
 				}
 
 				console.warn(`Offset verified for ${i}`);
