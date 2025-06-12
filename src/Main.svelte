@@ -385,7 +385,7 @@
 
 <p>
 	<!-- {#if $deviceDefinition.model.code}
-<p><a href="https://dobrynyadev.kt8.ru//firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Get the latest firmware</a>
+<p><a href="https://dobrynyadev.kt8.ru/firmware/{getFullModelCode($deviceDefinition.model)}/latest/">Get the latest firmware</a>
 </p>
 {/if} -->
 </p>
