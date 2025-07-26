@@ -1,6 +1,5 @@
 import { WaitingBlock } from "waitingblock";
-import { SysExCommand, SysExStatus } from "midi_utils";
-import type { MidiResult } from "midi_utils";
+import { type Result, Command, Status } from "configurator";
 import { SysExParser } from "./sysex_parser";
 import type { HexColour, ColourArray, Hand } from "types";
 import { batteryInfo } from "./stores";
@@ -21,7 +20,7 @@ export const flipConnected = function () {
 	else disablePing();
 	return isConnected;
 };
-export const resetConnected = function () {};
+export const resetConnected = function () { };
 
 export let online = true;
 
@@ -71,13 +70,13 @@ async function checkDobrynyaIsHere() {
 	}
 
 	try {
-		let result: MidiResult = await sysExAndWait(SysExCommand.STATUS, 300);
+		let result: Result = await sysExAndWait(Command.STATUS, 300);
 
-		if (result.status == SysExStatus.OLD_FIRMWARE) {
+		if (result.status == Status.OLD_FIRMWARE) {
 			// we do not load anything really, we just want the version info and the serial
-			result = await sysExAndWait(SysExCommand.GETSERIAL, 300);
+			result = await sysExAndWait(Command.GETSERIAL, 300);
 			result.data.version = (
-				await sysExAndWait(SysExCommand.GETVERSION, 300)
+				await sysExAndWait(Command.GETVERSION, 300)
 			).data;
 		}
 
@@ -268,7 +267,7 @@ function sysExFilenameSanize(filename: string, message: number[]): number[] {
 }
 
 function sysEx2Filenames(
-	cmd: SysExCommand,
+	cmd: Command,
 	filename1: string,
 	filename2: string
 ) {
@@ -279,7 +278,7 @@ function sysEx2Filenames(
 	sysEx(cmd, message);
 }
 
-function sysExFile(cmd: SysExCommand, filename: string, filedata: Uint8Array) {
+function sysExFile(cmd: Command, filename: string, filedata: Uint8Array) {
 	// if (lockMidi) return;
 
 	let message: number[] = sysExFilenameSanize(filename, []);
@@ -307,15 +306,15 @@ function sysExFile(cmd: SysExCommand, filename: string, filedata: Uint8Array) {
 	sysEx(cmd, message, true);
 }
 
-function sysExArray(cmd: SysExCommand, status = SysExStatus.REQUEST): number[] {
-	if (status == SysExStatus.USECHECKSUM) status |= SysExStatus.USECHECKSUM;
+function sysExArray(cmd: Command, status = Status.REQUEST): number[] {
+	if (status == Status.USECHECKSUM) status |= Status.USECHECKSUM;
 	return [0xf0, 0x0, 0x39, 0x40, 0x77, 0x76, 0x0, 0x0, 0x0, 0x0, cmd, status];
 }
 
 export function sysExLockPatchSwitching(lockOrUnlock: boolean) {
 	let message = sysExArray(
-		SysExCommand.LOCKPATCHSWITCHING,
-		lockOrUnlock ? SysExStatus.REQUEST : SysExStatus.RESET
+		Command.LOCKPATCHSWITCHING,
+		lockOrUnlock ? Status.REQUEST : Status.RESET
 	);
 	midiSendTerminated(message);
 }
@@ -333,23 +332,23 @@ function sysEx28bit(value: number): number[] {
 	return arr;
 }
 
-// function sysExWake() { sysEx(SysExCommand.WAKE); }
+// function sysExWake() { sysEx(Command.WAKE); }
 
 export function sysExBank(hand: Hand, shift: boolean, bank: number) {
-	sysEx(SysExCommand.LOADBANK, [
+	sysEx(Command.LOADBANK, [
 		(shift == true ? 0x10 : 0x0) | (hand & 0xf),
 		bank & 0x7f,
 	]);
 }
 
 function sysEx(
-	cmd: SysExCommand,
+	cmd: Command,
 	load: any = null,
 	usechecksum: boolean = false
 ) {
 	//	if (lockMidi) return;
 	let message: number[] = usechecksum
-		? sysExArray(cmd, SysExStatus.USECHECKSUM | SysExStatus.REQUEST)
+		? sysExArray(cmd, Status.USECHECKSUM | Status.REQUEST)
 		: sysExArray(cmd);
 
 	let checksumposition: number = 0;
@@ -385,8 +384,8 @@ function sysEx(
 	midiSendTerminated(message);
 }
 
-function sysExFilename(cmd: SysExCommand, load: string) {
-	console.log("Command is ", SysExCommand[cmd]);
+function sysExFilename(cmd: Command, load: string) {
+	console.log("Command is ", Command[cmd]);
 	const message = sysExArray(cmd);
 	for (let si of load) {
 		message.push(si.charCodeAt(0) % 128);
@@ -398,7 +397,7 @@ function sysExFilename(cmd: SysExCommand, load: string) {
 async function waitForMidi(
 	theCommand = null,
 	timeout = 500
-): Promise<MidiResult> {
+): Promise<Result> {
 	if (!portIn) throw "No midi port found";
 
 	const parser = new SysExParser();
@@ -412,19 +411,19 @@ async function waitForMidi(
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
 
-			let result: MidiResult | boolean = parser.interpretMidiEvent(ev);
+			let result: Result | boolean = parser.interpretMidiEvent(ev);
 
 			if (result === false) return; // we don’t know what it was...
 			if (
 				theCommand !== null &&
-				(result as MidiResult).command &&
-				(result as MidiResult).command !== theCommand
+				(result as Result).command &&
+				(result as Result).command !== theCommand
 			)
 				return;
 
 			portIn.removeEventListener("midimessage", theListener);
 
-			resolve(result as MidiResult);
+			resolve(result as Result);
 		};
 
 		portIn.addEventListener("midimessage", theListener);
@@ -432,11 +431,11 @@ async function waitForMidi(
 }
 
 export class MidiResultException {
-	cmd: SysExCommand;
-	result: MidiResult;
-	status: SysExStatus;
+	cmd: Command;
+	result: Result;
+	status: Status;
 
-	constructor(theCommand: SysExCommand, result: MidiResult) {
+	constructor(theCommand: Command, result: Result) {
 		this.cmd = theCommand;
 		this.result = result;
 		this.status = result.status;
@@ -444,12 +443,12 @@ export class MidiResultException {
 }
 
 async function waitForMidiResult(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	handler: Function,
 	timeout: number = 500
 ) {
 	try {
-		let result: MidiResult = await waitForMidi(theCommand, timeout);
+		let result: Result = await waitForMidi(theCommand, timeout);
 
 		if (!result.success) {
 			WaitingBlock.unblockOrError(theCommand, result.status);
@@ -465,14 +464,14 @@ async function waitForMidiResult(
 
 		return true;
 	} catch (e) {
-		WaitingBlock.unblockOrError(theCommand, SysExStatus.TIMEOUT);
+		WaitingBlock.unblockOrError(theCommand, Status.TIMEOUT);
 		enablePing();
 		throw e;
 	}
 }
 
 export async function sysExFileAndDo(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	filename: string,
 	filedata: any,
 	handler: Function,
@@ -490,7 +489,7 @@ export async function sysExFileAndDo(
 }
 
 export async function sysExTwoFilenamesAndDo(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	filename1: string,
 	filename2: string,
 	handler: Function,
@@ -508,7 +507,7 @@ export async function sysExTwoFilenamesAndDo(
 }
 
 export async function sysExFilenameAndDo(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	filename: string,
 	handler: Function,
 	timeout: number = 4000
@@ -525,7 +524,7 @@ export async function sysExFilenameAndDo(
 }
 
 export async function sysExAndDo(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	handler: Function,
 	timeout: number = 500,
 	load: any = null,
@@ -543,7 +542,7 @@ export async function sysExAndDo(
 }
 
 async function sysExAndWait(
-	theCommand: SysExCommand,
+	theCommand: Command,
 	timeout: number = 500
 ): Promise<any> {
 	sysEx(theCommand);
@@ -554,14 +553,14 @@ async function sysExAndWait(
 
 export function sysExTestFill(hex: HexColour) {
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
-	sysEx(SysExCommand.LIGHTUP, [
+	sysEx(Command.LIGHTUP, [
 		...futureExpansionBytes,
 		...colourToSysExArray(hex),
 	]);
 }
 
 export function sysExColourReset() {
-	midiSendTerminated(sysExArray(SysExCommand.LIGHTUP, SysExStatus.RESET));
+	midiSendTerminated(sysExArray(Command.LIGHTUP, Status.RESET));
 }
 
 function colourToSysExArray(hex: HexColour) {
@@ -584,7 +583,7 @@ export function sysExTestPattern(arr: ColourArray) {
 	for (let hex of arr) patternSysExArray.push(colourToSysExArray(hex));
 
 	const futureExpansionBytes = [0, 0, 0]; // hand and other data
-	sysEx(SysExCommand.LIGHTUP, [
+	sysEx(Command.LIGHTUP, [
 		...futureExpansionBytes,
 		...patternSysExArray.reduce(function (a, b) {
 			return [...a, ...b];
@@ -593,21 +592,21 @@ export function sysExTestPattern(arr: ColourArray) {
 }
 
 export function sysExDiskMode() {
-	sysEx(SysExCommand.REBOOT_MSC);
+	sysEx(Command.REBOOT_MSC);
 }
 
 export function sysExEsp32Bootloader() {
-	sysEx(SysExCommand.REBOOT_ESP32);
+	sysEx(Command.REBOOT_ESP32);
 }
 
 export function sysExBootloader(withMSC: boolean = false) {
-	sysEx(withMSC ? SysExCommand.REBOOT_BOOTMSC : SysExCommand.REBOOT_BOOT);
+	sysEx(withMSC ? Command.REBOOT_BOOTMSC : Command.REBOOT_BOOT);
 }
 
 export function sysExCalibrateAccel() {
-	sysEx(SysExCommand.CALIBRATEACCEL);
+	sysEx(Command.CALIBRATEACCEL);
 }
 
 export function sysExStorageMode() {
-	sysEx(SysExCommand.STORAGEMODE);
+	sysEx(Command.STORAGEMODE);
 }

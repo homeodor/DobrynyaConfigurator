@@ -1,7 +1,8 @@
 import { WaitingBlock } from "waitingblock";
 import { sysExAndDo } from "midi_core";
 import { CaseColour } from "device";
-import { eightToSeven, SysExCommand } from "midi_utils";
+import { eightToSeven } from "midi_utils";
+import { Command } from "configurator";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
 import { writable, type Writable } from "svelte/store";
@@ -13,7 +14,7 @@ interface SettingsObjectItem {
 	value?: number;
 	text?: string;
 	flag?: boolean[];
-	fixfunc?: (v: number)=>number;
+	fixfunc?: (v: number) => number;
 }
 
 interface SettingsObject {
@@ -243,10 +244,8 @@ export function parseSettingsData() {
 
 			const param = window.settings[i][j];
 
-			if (typeof param === "number")
-			{
-				if (arp !== param)
-				{
+			if (typeof param === "number") {
+				if (arp !== param) {
 					throw new Error(`Offset failed: expected ${param}, got ${arp} at ${i}`);
 				}
 
@@ -362,9 +361,9 @@ export async function saveSettings(
 	while (b8.length > settingsLength) b8.pop();
 	while (b8.length < settingsLength) b8.push(0xff);
 
-	WaitingBlock.block(SysExCommand.SAVESETTINGS);
+	WaitingBlock.block(Command.SAVESETTINGS);
 	await sysExAndDo(
-		SysExCommand.SAVESETTINGS,
+		Command.SAVESETTINGS,
 		() => {
 			if (uploadButton) uploadButton.ok();
 			isSaved = true;
@@ -377,14 +376,14 @@ export async function saveSettings(
 
 export async function getSettingsFromDevice() {
 	await sysExAndDo(
-		SysExCommand.GETSETTINGS,
+		Command.GETSETTINGS,
 		(d: Uint8Array) => (settingsRawData = d)
 	);
 	parseSettingsData();
 }
 
 export async function getPalettesFromDevice() {
-	await sysExAndDo(SysExCommand.PALETTE, (d: Uint8Array) => {});
+	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => { });
 }
 
 export async function fixSettings(settingsLength: number) {
@@ -410,7 +409,7 @@ function ffMeansZero(v: number) {
 }
 
 export async function getFactorySettings() {
-	await sysExAndDo(SysExCommand.GETFACTORYSETTINGS, (d: Uint8Array) => {
+	await sysExAndDo(Command.GETFACTORYSETTINGS, (d: Uint8Array) => {
 		// does not work for pocket?!
 		console.log("FACTORY: ", d);
 
@@ -435,8 +434,8 @@ export async function getFactorySettings() {
 
 		importantFactorySettingsNew.boardRevision =
 			boardRevision[0] !== 0 &&
-			boardRevision[0] !== 0xff &&
-			boardRevision[1] !== 0xff
+				boardRevision[0] !== 0xff &&
+				boardRevision[1] !== 0xff
 				? `${boardRevision[0]}.${boardRevision[1]}`
 				: null;
 

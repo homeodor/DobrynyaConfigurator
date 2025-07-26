@@ -15,7 +15,7 @@
 		sysExFilenameAndDo,
 		sysExTwoFilenamesAndDo,
 	} from "midi_core";
-	import { SysExCommand } from "midi_utils";
+	import { Command } from "configurator";
 
 	import iconTune from "../i/patchtune.svg";
 	import iconDuplicate from "../i/patchduplicate.svg";
@@ -73,7 +73,7 @@
 	async function getPatchData(name: string): Promise<Patch> {
 		let result: Patch;
 		await sysExFilenameAndDo(
-			SysExCommand.READPATCH,
+			Command.READPATCH,
 			name,
 			(data: Patch) => (result = data)
 		);
@@ -110,7 +110,7 @@
 
 		try {
 			await sysExTwoFilenamesAndDo(
-				SysExCommand.RENAMEPATCH,
+				Command.RENAMEPATCH,
 				name,
 				newValue,
 				() => {}
@@ -222,7 +222,7 @@
 		}
 
 		// setTimeout(()=>{ patchEl.innerHTML = ""; }, 200);
-		await sysExFilenameAndDo(SysExCommand.DELETEPATCH, name, () => {
+		await sysExFilenameAndDo(Command.DELETEPATCH, name, () => {
 			let patchEl = (element as HTMLButtonElement).closest(
 				".patchlist-item"
 			);

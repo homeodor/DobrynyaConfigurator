@@ -12,9 +12,7 @@
 		sysExBank,
 		sysExColourReset,
 	} from "midi_core";
-	import { SysExCommand } from "midi_utils";
-	import type { MidiResult } from "midi_utils";
-	import ControlEditor from "./ControlEditor.svelte";
+	import { type Result, Command } from "configurator";
 
 	import DrawerBank from "./DrawerBank.svelte";
 	import DrawerPatch from "./DrawerPatch.svelte";
@@ -26,7 +24,7 @@
 	import Alert from "./widgets/Alert.svelte";
 	import GotIt from "./widgets/GotIt.svelte";
 
-	import { Control, Hand, NewPatchDecision } from "types";
+	import { Hand, NewPatchDecision } from "types";
 	import {
 		NameFailsBecause,
 		checkIfPatchNameIsValid,
@@ -123,7 +121,7 @@
 		if (patchSelector) patchSelector.value = patchNameRequested;
 
 		await sysExFilenameAndDo(
-			SysExCommand.READPATCH,
+			Command.READPATCH,
 			patchNameRequested,
 			(data: Patch, filename: string) => {
 				patchAction(data, filename);
@@ -149,7 +147,7 @@
 
 	async function uploadThePatch() {
 		await patchToDevice(
-			SysExCommand.OVERWRITEPATCH,
+			Command.OVERWRITEPATCH,
 			currentPatch.name,
 			() =>
 				//(data: any, filename: string) =>
@@ -372,10 +370,10 @@
 	}
 
 	function handleSysExPush(ev: CustomEvent) {
-		let midiResult: MidiResult = ev.detail.data;
+		let midiResult: Result = ev.detail.data;
 
 		switch (midiResult.command) {
-			case SysExCommand.READPATCH:
+			case Command.READPATCH:
 				patchAction(midiResult.data, midiResult.filename);
 				break;
 		}
@@ -396,7 +394,7 @@
 
 <!-- export function deviceRefusedToChangePatches() { quickNormal("patchlock"); }
 export function invokeControl(kind: number, no: number) { quickCustom("invoke", {controlKind: kind, controlNo: no}); }
-export function pushFromSysEx(data: MidiResult) { quickCustom('sysexpush', { data: data }) } -->
+export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: data }) } -->
 
 {#if currentPatch?.data && openSection == "editor"}
 	<section id="tab-config">

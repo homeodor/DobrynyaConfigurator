@@ -17,7 +17,7 @@
 		sysExLockPatchSwitching,
 		sysExBootloader,
 	} from "midi_core";
-	import { SysExStatus } from "midi_utils";
+	import { Status } from "configurator";
 	import {
 		fixSettings,
 		getSettingsFromDevice,
@@ -171,7 +171,7 @@
 			await getPalettesFromDevice();
 		} catch (ex) {
 			console.warn("Getting palettes is not implemented");
-			if (ex.status != SysExStatus.NOT_IMPLEMENTED) {
+			if (ex.status != Status.NOT_IMPLEMENTED) {
 				throw ex;
 			}
 		}
@@ -182,7 +182,7 @@
 				break;
 			} catch (e) {
 				console.log(e);
-				if (e.status != SysExStatus.NO_FILE) {
+				if (e.status != Status.NO_FILE) {
 					throw e;
 				}
 				WaitingBlock.unblock();

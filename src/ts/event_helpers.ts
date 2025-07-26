@@ -1,4 +1,4 @@
-import type { MidiResult } from "midi_utils";
+import type { Result } from "configurator";
 import type { Hand, Control, HexColour } from "types";
 
 import { lastColourPaintLayer } from "stores";
@@ -42,7 +42,7 @@ export function invokeControl(kind: number, no: number) {
 export function invokeBank(hand: Hand, bankNo: number, isShift: boolean) {
 	quickCustom("invokebank", { hand: hand, bankNo: bankNo, isShift: isShift });
 }
-export function pushFromSysEx(data: MidiResult) {
+export function pushFromSysEx(data: Result) {
 	quickCustom("sysexpush", { data: data });
 }
 export function section(name: string) {

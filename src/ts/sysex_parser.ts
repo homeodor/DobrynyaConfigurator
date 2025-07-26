@@ -7,7 +7,7 @@ import {
 	ChipIDs,
 } from "./device";
 import { isConnected, sysExableStringToUTF8 } from "./midi_core";
-import { type MidiResult, SysExStatus, SysExCommand } from "./midi_utils";
+import { type Result, Status, Command } from "./configurator";
 import { type StatusResult, BatteryStatus } from "./types";
 import {
 	pushFromSysEx,
@@ -29,14 +29,14 @@ export class SysExParser {
 		this.interpretMidiEvent = this.interpretMidiEvent.bind(this);
 	}
 
-	public interpretMidiEvent(event: MIDIMessageEvent): MidiResult | boolean {
+	public interpretMidiEvent(event: MIDIMessageEvent): Result | boolean {
 		const d = this.assemble(event.data);
 
 		if (!d) {
 			return false;
 		}
 
-		let midiResult: MidiResult = {
+		let midiResult: Result = {
 			command: d[10],
 			status: d[11] & 0x3f,
 			model:
@@ -46,16 +46,16 @@ export class SysExParser {
 			hasControlSum: (d[11] & 0x40) == 0x40,
 			filename: "",
 			data: null,
-			success: (d[11] & 0x3f) == SysExStatus.OK,
+			success: (d[11] & 0x3f) == Status.OK,
 		};
 
 		switch (midiResult.command) {
-			case SysExCommand.STATUS: {
+			case Command.STATUS: {
 				if (!midiResult.success) break;
 
 				if (d.length <= 14) {
 					// old fw
-					midiResult.status = SysExStatus.OLD_FIRMWARE;
+					midiResult.status = Status.OLD_FIRMWARE;
 					break;
 				}
 
@@ -103,7 +103,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.PATCHLIST: {
+			case Command.PATCHLIST: {
 				if (!midiResult.success) break;
 
 				midiResult.data = [];
@@ -140,7 +140,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.GETPATCHINFO: {
+			case Command.GETPATCHINFO: {
 				if (!midiResult.success) break;
 
 				let s2eResult = this.sevenToEight(d, true);
@@ -159,7 +159,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.READPATCHTHROUGH: {
+			case Command.READPATCHTHROUGH: {
 				if (!midiResult.success) break;
 
 				let s2eResult = this.sevenToEight(d, true);
@@ -172,7 +172,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.READPATCH: {
+			case Command.READPATCH: {
 				if (!midiResult.success) break;
 
 				let s2eResult = this.sevenToEight(d, true);
@@ -191,7 +191,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.GETSERIAL: {
+			case Command.GETSERIAL: {
 				// this is relevant for old firmwares that do not send the serial in status response
 				if (!midiResult.success) break;
 
@@ -209,7 +209,7 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.GETVERSION: {
+			case Command.GETVERSION: {
 				// this is relevant for old firmwares that do not send the serial in status response
 				if (!midiResult.success) break; // nothing to do then
 
@@ -225,8 +225,8 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.GETFACTORYSETTINGS: // not used in the Configurator
-			case SysExCommand.GETSETTINGS: {
+			case Command.GETFACTORYSETTINGS: // not used in the Configurator
+			case Command.GETSETTINGS: {
 				if (!midiResult.success) break;
 				midiResult.data = this.sevenToEight(d).data; // just pass (almost) raw data
 				break;
@@ -247,7 +247,7 @@ export class SysExParser {
 			return false;
 		}
 
-		let midiResult: MidiResult = {
+		let midiResult: Result = {
 			command: d[10],
 			status: d[11] & 0x3f,
 			model:
@@ -258,13 +258,13 @@ export class SysExParser {
 			filename: "",
 			data: null,
 			success:
-				(d[11] & 0x3f) == SysExStatus.REQUEST ||
-				(d[11] & 0x3f) == SysExStatus.PUSH,
+				(d[11] & 0x3f) == Status.REQUEST ||
+				(d[11] & 0x3f) == Status.PUSH,
 		};
 
 		switch (midiResult.command) {
-			case SysExCommand.READPATCH: {
-				if (midiResult.status != SysExStatus.PUSH) break;
+			case Command.READPATCH: {
+				if (midiResult.status != Status.PUSH) break;
 
 				let temporaryArray = this.sevenToEight(d, true);
 
@@ -283,16 +283,16 @@ export class SysExParser {
 				break;
 			}
 
-			case SysExCommand.LOCKPATCHSWITCHING:
-				if (midiResult.status == SysExStatus.REQUEST)
+			case Command.LOCKPATCHSWITCHING:
+				if (midiResult.status == Status.REQUEST)
 					deviceRefusedToChangePatches();
 				break;
-			case SysExCommand.INVOKECONTROL:
-				if (midiResult.status == SysExStatus.REQUEST)
+			case Command.INVOKECONTROL:
+				if (midiResult.status == Status.REQUEST)
 					invokeControl(d[12], d[13]);
 				break;
-			case SysExCommand.LOADBANK:
-				if (midiResult.status == SysExStatus.REQUEST)
+			case Command.LOADBANK:
+				if (midiResult.status == Status.REQUEST)
 					invokeBank(d[12] & 0xf, d[13], (d[12] & 0x10) == 0x10);
 				break;
 		}

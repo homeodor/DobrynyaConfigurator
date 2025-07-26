@@ -1,4 +1,4 @@
-import { SysExStatus, SysExCommand } from 'midi_utils'
+import { Status, Command } from 'configurator'
 import WaitingBlockDialog from '../WaitingBlock.svelte'
 
 let dialog = new WaitingBlockDialog(
@@ -11,201 +11,192 @@ let dialog = new WaitingBlockDialog(
 // It works.
 // So maybe I’ll look at it later and clean it up. For now be warned
 
-export class WaitingBlock
-{
-//	static #timeout;
+export class WaitingBlock {
+	//	static #timeout;
 	static #isBlocked: boolean = false;
-	static #unlockWith: SysExCommand = null;
-	
-	static init()
-	{
-//		m_el = document.getElementById("blocker");
+	static #unlockWith: Command = null;
+
+	static init() {
+		//		m_el = document.getElementById("blocker");
 	}
-	
-	static error(err = null)
-	{
-		
+
+	static error(err = null) {
+
 		let text: string;
 		let commandText: string = "";
-		
-		switch (WaitingBlock.#unlockWith)
-		{
-			case SysExCommand.STATUS:
+
+		switch (WaitingBlock.#unlockWith) {
+			case Command.STATUS:
 				commandText = "Get status";
 				break;
-			case SysExCommand.FREESPACE:
+			case Command.FREESPACE:
 				commandText = "Get free space";
 				break;
-			case SysExCommand.PATCHLIST:
+			case Command.PATCHLIST:
 				commandText = "Get patch list";
 				break;
-			case SysExCommand.READPATCH:
+			case Command.READPATCH:
 				commandText = "Read the patch";
 				break;
-			case SysExCommand.WRITEPATCH:
+			case Command.WRITEPATCH:
 				commandText = "Write the patch";
 				break;
-			case SysExCommand.OVERWRITEPATCH:
+			case Command.OVERWRITEPATCH:
 				commandText = "Overwrite the patch";
 				break;
-			case SysExCommand.DELETEPATCH:
+			case Command.DELETEPATCH:
 				commandText = "Delete the patch";
 				break;
-			case SysExCommand.READPATCHTHROUGH:
+			case Command.READPATCHTHROUGH:
 				commandText = "Read patch through";
 				break;
-			case SysExCommand.GETPATCHINFO:
+			case Command.GETPATCHINFO:
 				commandText = "Get patch info";
 				break;
-			case SysExCommand.LOADPATCH:
+			case Command.LOADPATCH:
 				commandText = "Load patch";
 				break;
-			case SysExCommand.RENAMEPATCH:
+			case Command.RENAMEPATCH:
 				commandText = "Rename patch";
 				break;
-			case SysExCommand.COPYPATCH:
+			case Command.COPYPATCH:
 				commandText = "Copy patch";
 				break;  // 0xC
-			
-			case SysExCommand.GETSETTINGS:
+
+			case Command.GETSETTINGS:
 				commandText = "Get settings";
 				break;
-			case SysExCommand.SAVESETTINGS:
+			case Command.SAVESETTINGS:
 				commandText = "Save settings";
 				break;
-			case SysExCommand.GETCHIPID:
+			case Command.GETCHIPID:
 				commandText = "Get chip ID";
 				break;
-			case SysExCommand.GETSERIAL:
+			case Command.GETSERIAL:
 				commandText = "Get serial number";
 				break;
-			case SysExCommand.GETFIRMWAREMODEL:
+			case Command.GETFIRMWAREMODEL:
 				commandText = "Get firmware model";
 				break;
-			case SysExCommand.GETFACTORYSETTINGS:
+			case Command.GETFACTORYSETTINGS:
 				commandText = "Get factory settings";
 				break;
-			case SysExCommand.GETVERSION:
+			case Command.GETVERSION:
 				commandText = "Get firmware version";
 				break;
-			case SysExCommand.GETPRESENTDEVICES:
+			case Command.GETPRESENTDEVICES:
 				commandText = "Get devices present";
 				break; // 0x17
-			
-			case SysExCommand.INVOKECONTROL:
+
+			case Command.INVOKECONTROL:
 				commandText = "Invoke control";
 				break;
-			case SysExCommand.LOCKPATCHSWITCHING:
+			case Command.LOCKPATCHSWITCHING:
 				commandText = "Lock patch switching";
 				break;
-			case SysExCommand.WAKE:
+			case Command.WAKE:
 				commandText = "Wakeup";
 				break;
-			case SysExCommand.LOADBANK:
+			case Command.LOADBANK:
 				commandText = "Load bank";
 				break; // 0x23
-			
-			case SysExCommand.LIGHTUP:
+
+			case Command.LIGHTUP:
 				commandText = "Light up";
 				break;
-			case SysExCommand.BURST:
+			case Command.BURST:
 				commandText = "Burst";
 				break;
-			case SysExCommand.PALETTE:
+			case Command.PALETTE:
 				commandText = "Get palettes";
 				break; // 0x42
-			
-			case SysExCommand.REBOOT:
+
+			case Command.REBOOT:
 				commandText = "Reboot";
 				break;
-			case SysExCommand.REBOOT_MSC:
+			case Command.REBOOT_MSC:
 				commandText = "Reboot to disk";
 				break;
-			case SysExCommand.REBOOT_BOOT:
+			case Command.REBOOT_BOOT:
 				commandText = "Reboot to bootloader";
 				break;
-			case SysExCommand.REBOOT_BOOTMSC:
+			case Command.REBOOT_BOOTMSC:
 				commandText = "Reboot to bootloader with virtual drive";
 				break;
 			default:
 				break;
 		}
-		
+
 		WaitingBlock.#unlockWith = null; // иначе не разблокируется кнопка ОКАУ
-		
+
 		console.log(WaitingBlock.#unlockWith);
-		
-		switch (err)
-		{
-			case SysExStatus.TIMEOUT:
+
+		switch (err) {
+			case Status.TIMEOUT:
 				text = "The operation timed out. Please check that the device is connected and working."; break;
-			case SysExStatus.GENERICERROR:
-				text = "Some generic error happened. Please try again."; break;				
-			case SysExStatus.NO_FILE:
-				text = "The file requested hasn’t been found."; break;						
-			case SysExStatus.NO_FILESYSTEM:
+			case Status.GENERICERROR:
+				text = "Some generic error happened. Please try again."; break;
+			case Status.NO_FILE:
+				text = "The file requested hasn’t been found."; break;
+			case Status.NO_FILESYSTEM:
 				text = "The device has no filesystem, or the filesystem is damaged."; break;
-			case SysExStatus.NO_ENTITY:
+			case Status.NO_ENTITY:
 				text = "Cannot find the required information in the patch."; break;
-			case SysExStatus.FILE_EXISTS:
+			case Status.FILE_EXISTS:
 				text = "The file you are trying to save already exists."; break;
-			case SysExStatus.CANT_RENAME:
+			case Status.CANT_RENAME:
 				text = "Cannot rename the patch. Please try again."; break;
-			case SysExStatus.WRONG_CHECKSUM:
+			case Status.WRONG_CHECKSUM:
 				text = "File integrity check failed. Please try again."; break;
-			case SysExStatus.WRONG_LENGTH:
+			case Status.WRONG_LENGTH:
 				text = "The file has wrong length."; break;
-			case SysExStatus.WRONG_FILENAME:
+			case Status.WRONG_FILENAME:
 				text = "The requested filename is wrong."; break;
-			case SysExStatus.FILENAME_TOO_LONG:
+			case Status.FILENAME_TOO_LONG:
 				text = "The requested file has a filename that is too long."; break;
-			case SysExStatus.NOT_IMPLEMENTED:
-			{
-				WaitingBlock.unblock();
-				return; // so what.
-			}
+			case Status.NOT_IMPLEMENTED:
+				{
+					WaitingBlock.unblock();
+					return; // so what.
+				}
 			default:
 				text = "An unknown error has occured. Please try again."; break;
 		}
-		
+
 		dialog.error(commandText, text);
 	}
-	
-	static timeout()
-	{
-		WaitingBlock.error(SysExStatus.TIMEOUT);
+
+	static timeout() {
+		WaitingBlock.error(Status.TIMEOUT);
 	}
-	
-	static block(unblockWith = null)
-	{
+
+	static block(unblockWith = null) {
 		console.log("Unblock with ", unblockWith);
 		WaitingBlock.#unlockWith = unblockWith;
 		WaitingBlock.#isBlocked = true;
 		dialog.block();
 	}
-	
-	static unblockOrError(cmd: SysExCommand, status)
-	{
+
+	static unblockOrError(cmd: Command, status) {
 		if (
-			cmd == SysExCommand.STATUS ||
+			cmd == Command.STATUS ||
 			WaitingBlock.#isBlocked == false ||
 			WaitingBlock.#unlockWith == null ||
 			cmd != WaitingBlock.#unlockWith
 		) return; // ???? хз
-		
-		if (status == SysExStatus.OK)
+
+		if (status == Status.OK)
 			WaitingBlock.unblock(cmd);
 		else
 			WaitingBlock.error(status);
 	}
-	
-	static unblock(unblock = null)
-	{
+
+	static unblock(unblock = null) {
 		if (
 			WaitingBlock.#isBlocked == false ||
 			(unblock && unblock != WaitingBlock.#unlockWith)
-			) return;
-		
+		) return;
+
 		dialog.unblock();
 		WaitingBlock.#unlockWith = null;
 		WaitingBlock.#isBlocked = false;

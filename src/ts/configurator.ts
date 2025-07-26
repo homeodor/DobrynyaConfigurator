@@ -1,0 +1,82 @@
+export enum Command {
+    NONE = 0x0,
+    STATUS,
+    FREESPACE,
+    PATCHLIST,
+    READPATCH,
+    WRITEPATCH,
+    OVERWRITEPATCH,
+    DELETEPATCH,
+    READPATCHTHROUGH,
+    GETPATCHINFO,
+    LOADPATCH,
+    RENAMEPATCH,
+    COPYPATCH, // 0xC
+
+    GETSETTINGS = 0x10,
+    SAVESETTINGS,
+    GETCHIPID,
+    GETSERIAL,
+    GETFIRMWAREMODEL,
+    GETFACTORYSETTINGS,
+    GETVERSION,
+    GETPRESENTDEVICES, // 0x17
+
+    INVOKECONTROL = 0x20,
+    LOCKPATCHSWITCHING,
+    WAKE,
+    LOADBANK,
+    STORAGEMODE,
+    CALIBRATEACCEL,
+
+    LIGHTUP = 0x40,
+    BURST,
+    PALETTE, // 0x42
+
+    REBOOT = 0x60,
+    REBOOT_MSC,
+    REBOOT_BOOT,
+    REBOOT_BOOTMSC,
+    FORMATDISK = 0x64,
+    ERASEFLASH = 0x65,
+    REBOOT_ESP32 = 0x66,
+}
+
+export enum Status {
+    NONE,
+    OK,
+    REQUEST,
+    RESET,
+    COMPLETE,
+    PUSH,
+    ACK,
+    PARTIAL,
+    GENERICERROR = 0x10,
+    NO_FILE,
+    NO_FILESYSTEM,
+    NO_ENTITY,
+    FILE_EXISTS,
+    CANT_RENAME,
+    WRONG_CHECKSUM,
+    WRONG_LENGTH,
+    WRONG_FILENAME,
+    FILENAME_TOO_LONG,
+    NOT_IMPLEMENTED,
+    NOT_SUPPORTED,
+    HARDWARE_ERROR,
+    NO_CHECKSUM,
+
+    USECHECKSUM = 0x40,
+    TIMEOUT = -1,
+    OLD_FIRMWARE = -2,
+}
+
+export interface Result {
+    command: Command;
+    status: Status;
+    model: any; // change to smth meaningful?
+    hasControlSum: boolean;
+    filename: string;
+    data: any;
+    success: boolean;
+}
