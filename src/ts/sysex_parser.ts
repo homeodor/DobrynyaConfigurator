@@ -7,8 +7,8 @@ import {
 	ChipIDs,
 } from "./device";
 import { isConnected, sysExableStringToUTF8 } from "./midi_core";
-import { MidiResult, SysExStatus, SysExCommand } from "./midi_utils";
-import { StatusResult, BatteryStatus } from "./types";
+import { type MidiResult, SysExStatus, SysExCommand } from "./midi_utils";
+import { type StatusResult, BatteryStatus } from "./types";
 import {
 	pushFromSysEx,
 	deviceRefusedToChangePatches,
@@ -26,7 +26,7 @@ const headerLength: number = 12;
 export class SysExParser {
 	constructor() {
 		this.onMessage = this.onMessage.bind(this);
-        this.interpretMidiEvent = this.interpretMidiEvent.bind(this);
+		this.interpretMidiEvent = this.interpretMidiEvent.bind(this);
 	}
 
 	public interpretMidiEvent(event: MIDIMessageEvent): MidiResult | boolean {
@@ -325,8 +325,6 @@ export class SysExParser {
 	}
 
 	private assemble(d: Uint8Array): Uint8Array | null {
-		console.log("MIDI DATA!");
-
 		if (d[d.length - 1] != 0xf7) {
 			this.dataStash.push(...d);
 			console.warn(

@@ -10,7 +10,11 @@
 	import type { Patch } from "types_patch";
 	import type SectionEditor from "./SectionEditor.svelte";
 
-	import { sysExEsp32Bootloader, sysExFilenameAndDo, sysExTwoFilenamesAndDo } from "midi_core";
+	import {
+		sysExEsp32Bootloader,
+		sysExFilenameAndDo,
+		sysExTwoFilenamesAndDo,
+	} from "midi_core";
 	import { SysExCommand } from "midi_utils";
 
 	import iconTune from "../i/patchtune.svg";
@@ -53,9 +57,15 @@
 		isThePatch: boolean,
 		openDrawer: boolean = false
 	) {
-		if (isThePatch) changeSection("editor");
-		else await editor.selectPatch(name);
-		if (openDrawer) quickCustom("drawer", { drawer: "patchsettings" });
+		if (isThePatch) {
+			changeSection("editor");
+		} else {
+			await editor.selectPatch(name);
+		}
+
+		if (openDrawer) {
+			quickCustom("drawer", { drawer: "patchsettings" });
+		}
 	}
 
 	let justUploadedName = "";

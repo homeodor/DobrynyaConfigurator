@@ -98,13 +98,16 @@
 		ev: Event | CustomEvent | string,
 		quiet: boolean = false
 	) {
-		// @ts-ignore
-		let patchNameRequested =
-			typeof ev === "string" ? ev : (ev.detail?.name ?? ev.target.value);
+		const patchNameRequested =
+			typeof ev === "string"
+				? ev
+				: ((ev as CustomEvent).detail?.name ??
+					(ev.target as HTMLSelectElement).value);
 		// use the value directly if it is a string, otherwise either take the detail.name from CustomEvent or target.value from Select event
+
 		outline?.closeEditor();
 
-		let confirmationDialog =
+		const confirmationDialog =
 			typeof ev === "string" && ev === currentPatch.name
 				? confirmDiscardThis
 				: confirmDiscard;
@@ -137,8 +140,11 @@
 	}
 
 	function uploadOrRevert(ev: MouseEvent) {
-		if (ev.altKey) selectPatch(currentPatch.name);
-		else uploadThePatch();
+		if (ev.altKey) {
+			selectPatch(currentPatch.name);
+		} else {
+			uploadThePatch();
+		}
 	}
 
 	async function uploadThePatch() {

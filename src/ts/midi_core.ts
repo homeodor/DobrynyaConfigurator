@@ -386,8 +386,11 @@ function sysEx(
 }
 
 function sysExFilename(cmd: SysExCommand, load: string) {
-	var message = sysExArray(cmd);
-	for (let si of load) message.push(si.charCodeAt(0) % 128);
+	console.log("Command is ", SysExCommand[cmd]);
+	const message = sysExArray(cmd);
+	for (let si of load) {
+		message.push(si.charCodeAt(0) % 128);
+	}
 	message.push(0);
 	midiSendTerminated(message);
 }
@@ -399,7 +402,7 @@ async function waitForMidi(
 	if (!portIn) throw "No midi port found";
 
 	const parser = new SysExParser();
-	
+
 	return new Promise((resolve, reject) => {
 		let failTimeout = setTimeout(
 			() => reject({ reason: "timeout" }),
@@ -408,7 +411,6 @@ async function waitForMidi(
 
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
-
 
 			let result: MidiResult | boolean = parser.interpretMidiEvent(ev);
 
