@@ -95,7 +95,7 @@
 		>
 	</div>
 	<div id="settings" class="columnizer">
-		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
+		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
 			<fieldset id="se-wireless">
 				<legend>
 					<label
@@ -304,6 +304,10 @@
 		<fieldset id="se-midi">
 			<legend>Inputs & Outputs</legend>
 
+			<p class="explain">
+				Changing keyboard settings requires a restart of Dobrynya.
+			</p>
+
 			<div>
 				<table>
 					<thead>
@@ -353,8 +357,9 @@
 								<td
 									><input
 										type="checkbox"
-										bind:checked={settings.midi.inputs
-											.flag[2]}
+										bind:checked={
+											settings.midi.inputs.flag[2]
+										}
 									/></td
 								>
 								<td
@@ -365,18 +370,18 @@
 											.hardware.ble ==
 											BLEAvailable.External &&
 											!settings.midi.outputs.flag[1]}
-										bind:checked={settings.midi.outputs
-											.flag[2]}
+										bind:checked={
+											settings.midi.outputs.flag[2]
+										}
 									/></td
 								>
 								<td
 									><input
-										disabled
-										class="disabled"
 										type="checkbox"
 										on:input={markSettingsUnsavedNow}
-										bind:checked={settings.input.flags
-											.flag[1]}
+										bind:checked={
+											settings.input.flags.flag[1]
+										}
 									/></td
 								>
 							</tr>
@@ -390,9 +395,26 @@
 				through USB MIDI. {#if $deviceDefinition.has.ble}Classic MIDI is
 					required for Wireless MIDI to work.{/if}
 			</p>
-			<p class="explain">
-				Changing keyboard settings requires a restart of Dobrynya.
-			</p>
+
+			{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+				<h4>
+					<label
+						><input
+							type="checkbox"
+							class="appleswitch"
+							on:input={markSettingsUnsavedNow}
+							bind:checked={settings.input.flags.flag[2]}
+						/><mark></mark> Allow double keyboard connection</label
+					><br />
+				</h4>
+
+				<p class="explain">
+					By default, if connected over wireless, the keypresses won't
+					be sent over USB.
+				</p>
+			{/if}
+
+			<hr style="opacity: 0.1" />
 		</fieldset>
 
 		<fieldset>
