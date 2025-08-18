@@ -152,6 +152,33 @@
 				</h4>
 			{/if}
 
+			{#if $deviceDefinition.model.hardware.eyes}
+				<h3>Eyes</h3>
+				<h4>
+					<label
+						><input
+							type="checkbox"
+							class="appleswitch"
+							on:input={markSettingsUnsavedNow}
+							bind:checked={settings.leds.flags.flag[1]}
+						/><mark></mark> Shake makes the eyes flash</label
+					><br />
+				</h4>
+				<h4>
+					<label
+						><input
+							type="checkbox"
+							class="appleswitch"
+							on:input={markSettingsUnsavedNow}
+							bind:checked={settings.leds.flags.flag[2]}
+						/><mark></mark> Eyes show device status</label
+					><br />
+				</h4>
+				<p class="explain">
+					That is: wireless connection, battery low and charging
+				</p>
+			{/if}
+
 			{#if $deviceDefinition.has.decolight}
 				<h3>Decorative light</h3>
 
