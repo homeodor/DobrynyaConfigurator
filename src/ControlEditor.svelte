@@ -13,11 +13,15 @@
 		MidiCtrl,
 	} from "./ts/midi_utils";
 	import { colourOff } from "./ts/colour_utils";
-	import { Hand, Control } from "./ts/types";
-	import type { DeviceOrBankValue } from "./ts/types";
+	import { Hand, Control, EncoderBehaviour } from "./ts/types";
+	import type { DeviceOrBankValue, HexColour } from "./ts/types";
 	import type { Patch, BranchControl } from "./ts/types_patch";
 	import { createPadsIfAbsent } from "./ts/data_utils";
-	import { ExpanderSanizer, expandData, sanizeData } from "./ts/data_expandsanize";
+	import {
+		ExpanderSanizer,
+		expandData,
+		sanizeData,
+	} from "./ts/data_expandsanize";
 	import { dispatchEditorClose } from "./ts/event_helpers";
 	import { patchChanged } from "./ts/event_helpers";
 	import type { CurrentEditorState } from "./ts/patch";
@@ -33,40 +37,66 @@
 	import BurstsDialog from "./editor/BurstsDialog.svelte";
 	import EncoderParameters from "./editor/EncoderParameters.svelte";
 	import { sysExCalibrateAccel } from "./ts/midi_core";
+	import { assertDefined } from "./ts/basic";
 
 	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
-	export let currentPatch: Patch;
 
-	export let controlKind: Control = Control.Pad;
-	export let controlNumber: number = 0;
-	export let editorState: CurrentEditorState;
+	let {
+		currentPatch,
+		controlKind,
+		controlNumber,
+		editorState,
+		globalChannel,
+		globalColours,
+		globalVelocity,
+		scaleIsOn,
+	}: {
+		currentPatch: Patch;
+		controlKind: Control;
+		controlNumber: number;
+		editorState: CurrentEditorState;
+		globalChannel: DeviceOrBankValue;
+		globalColours: HexColour[];
+		globalVelocity: DeviceOrBankValue;
+		scaleIsOn: boolean;
+	} = $props();
 
-	let prevControlKind: Control = Control.Generic;
-	let prevControlNumber: number = -1;
-	let prevHand: Hand = Hand.NONE;
-	let prevBank: number = -1;
-	let patchCanChange: Boolean = false;
+	let patchCanChange = $state(false);
 
-	export let globalChannel: DeviceOrBankValue;
-	export let globalColours: number[] = [colourOff, colourOff];
-	export let globalVelocity: DeviceOrBankValue;
+	// let prevControlKind: Control = Control.Generic;
+	// let prevControlNumber: number = -1;
+	// let prevHand: Hand = Hand.NONE;
+	// let prevBank: number = -1;
 
-	export let scaleIsOn: boolean;
+	let theControl = $derived.by<ControlDefinition>(() => {
+		const kind = controlKind;
 
-	let theControl: ControlDefinition;
-	let encoderIsRelative = false;
+		const result = controls.find(v => {
+			return v.control == kind;
+		});
+
+		if (result === undefined) {
+			throw new Error(`Control definition ${kind} could not be found`);
+		}
+
+		return result;
+	});
+
 	let encoderIsScaleOrTempo = false;
 
-	let isKeyOfScale: boolean = false;
-	let scaleNote: number;
+	let isKeyOfScale = $state<boolean>(false);
+	let scaleNote = $state<number>(-1);
 
 	let encModePrev = -1;
 
-	let midiControlEditor: MidiControl;
-	let keyboardEditor: KeyboardEditor;
+	let midiControlEditor = $state<MidiControl>();
+	let keyboardEditor = $state<KeyboardEditor>();
 
-	let burstIsOpen = false;
-	function openBurstEditor() {
+	let burstIsOpen = $state<boolean>(false);
+
+	function openBurstEditor(ev: MouseEvent) {
+		ev.preventDefault();
+		ev.stopPropagation();
 		burstIsOpen = true;
 	}
 
@@ -89,8 +119,15 @@
 		},
 	};
 
-	let editorData: BranchControl;
-	let editorDataPrev: BranchControl;
+	let editorData = $state<BranchControl>();
+	let editorDataPrev = $state<BranchControl>();
+
+	let encoderIsRelative = $derived<boolean>(
+		editorData !== undefined &&
+			editorData.encmode !== undefined &&
+			editorData.encmode >= EncoderBehaviour.Relative64Zero &&
+			editorData.encmode <= EncoderBehaviour.RelativeSigned
+	);
 
 	export function sanizeNow() {
 		sanizeData(fullDataTreeModel, editorData);
@@ -99,7 +136,11 @@
 		expandData(fullDataTreeModel, editorData);
 	}
 
-	let disableResetToBankColours = false;
+	let disableResetToBankColours = $derived(
+		editorData &&
+			editorData.colour![0] == colourOff &&
+			editorData.colour![1] == colourOff
+	);
 
 	let expanderSanizer = new ExpanderSanizer(
 		// @ts-ignore
@@ -112,12 +153,22 @@
 	onDestroy(() => expanderSanizer.kill());
 
 	function setCorrectEditorData() {
+		if (currentPatch === undefined) {
+			throw new Error("currentPatch has been undefined");
+		}
+
 		switch (controlKind) {
 			case Control.AccelX:
-				editorData = currentPatch.accel[0];
+				editorData = assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[0];
 				break;
 			case Control.AccelY:
-				editorData = currentPatch.accel[1];
+				editorData = assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[1];
 				break;
 			case Control.EncRotate:
 				editorData = currentPatch.encoders[controlNumber];
@@ -126,9 +177,11 @@
 				createPadsIfAbsent(
 					currentPatch.padbanks[editorState.hand][editorState.bank]
 				);
-				editorData =
+				editorData = assertDefined(
 					currentPatch.padbanks[editorState.hand][editorState.bank]
-						.pads[controlNumber];
+						.pads,
+					"Pads must be defined"
+				)[controlNumber];
 				break;
 			}
 		}
@@ -145,41 +198,54 @@
 
 		switch (controlKind) {
 			case Control.AccelX:
-				currentPatch.accel[0] = {};
+				assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[0] = {};
 				break;
 			case Control.AccelY:
-				currentPatch.accel[1] = {};
+				assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[1] = {};
 				break;
 			case Control.EncRotate:
 				currentPatch.encoders[controlNumber] = {};
 				break;
 			case Control.Pad:
-				currentPatch.padbanks[editorState.hand][editorState.bank].pads[
-					controlNumber
-				] = setTo;
+				assertDefined(
+					currentPatch.padbanks[editorState.hand][editorState.bank]
+						.pads,
+					"Pads must be defined"
+				)[controlNumber] = setTo;
 				break;
 		}
 
+		patchMaybeChanged();
 		dispatchEditorClose();
 	}
 
 	function revert() {
-		editorData = structuredClone(editorDataPrev);
+		editorData = structuredClone(
+			assertDefined(editorDataPrev, "editorDataPrev is undefined")
+		);
 
 		switch (controlKind) {
 			case Control.AccelX:
-				currentPatch.accel[0] = editorData;
+				assertDefined(currentPatch.accel)[0] = editorData;
 				break;
 			case Control.AccelY:
-				currentPatch.accel[1] = editorData;
+				assertDefined(currentPatch.accel)[1] = editorData;
 				break;
 			case Control.EncRotate:
 				currentPatch.encoders[controlNumber] = editorData;
 				break;
 			case Control.Pad:
-				currentPatch.padbanks[editorState.hand][editorState.bank].pads[
-					controlNumber
-				] = editorData;
+				assertDefined(
+					currentPatch.padbanks[editorState.hand][editorState.bank]
+						.pads,
+					"Pads must be defined"
+				)[controlNumber] = editorData;
 				break;
 		}
 	}
@@ -192,7 +258,7 @@
 		// TODO: fix it! Remove the ? in the next lines to see the effect
 
 		midiControlEditor?.init();
-		keyboardEditor.update();
+		keyboardEditor?.update();
 		midiControlEditor?.unlock();
 		patchCanChange = true;
 	}
@@ -207,61 +273,46 @@
 		if (patchCanChange) patchChanged();
 	}
 
-	$: {
-		if (
-			editorState.hand != prevHand ||
-			controlKind != prevControlKind ||
-			controlNumber != prevControlNumber ||
-			editorState.bank != prevBank
-		) {
-			patchCanChange = false;
+	$effect(() => {
+		const hand = editorState.hand;
+		const bank = editorState.bank;
+		const kind = controlKind;
+		const number = controlNumber;
 
-			if (controlKind == Control.Pad) {
-				let noteData = getNoteInCurrentScale(
-					controlNumber,
-					currentPatch.padbanks[editorState.hand][editorState.bank]
-				);
-				isKeyOfScale = noteData.isKeyOfScale; // will return false if no scale set
-				scaleNote = noteData.key; // will return -1 if no scale is set
-			} else {
-				isKeyOfScale = false;
-				scaleNote = -1;
-			}
+		patchCanChange = false;
 
-			theControl = controls.find(v => {
-				return v.control == controlKind;
-			});
-			expanderSanizer.sanize();
-			setCorrectEditorData();
-			expanderSanizer.expand(editorData);
-			prevHand = editorState.hand;
-			prevControlKind = controlKind;
-			prevControlNumber = controlNumber;
-			prevBank = editorState.bank;
-			encModePrev = -1;
-			editorData = editorData; // svelte
-			initEditorAfterTick();
+		if (kind == Control.Pad) {
+			let noteData = getNoteInCurrentScale(
+				number,
+				currentPatch.padbanks[hand][bank]
+			);
+			isKeyOfScale = noteData.isKeyOfScale; // will return false if no scale set
+			scaleNote = noteData.key; // will return -1 if no scale is set
+		} else {
+			isKeyOfScale = false;
+			scaleNote = -1;
 		}
 
+		expanderSanizer.sanize();
+		setCorrectEditorData();
 		expanderSanizer.expand(editorData);
+		encModePrev = -1;
+		editorData = editorData; // svelte
+		initEditorAfterTick();
+	});
 
-		disableResetToBankColours =
-			editorData.colour[0] == colourOff &&
-			editorData.colour[1] == colourOff;
+	$effect(() => {
+		const editorDataNow = editorData;
+		expanderSanizer.expand(editorData);
+	});
 
-		encoderIsRelative = editorData.encmode >= 1 && editorData.encmode <= 3; // relative midi
-
-		if (encModePrev != editorData.encmode) {
-			// check if encmode has been changed, and make some reasonable changes...
-			if (encoderIsRelative) {
-				if (editorData.midi.cc > 127) editorData.midi.cc = 1;
-
-				initEditorAfterTick();
+	$effect(() => {
+		if (encoderIsRelative) {
+			if (editorData!.midi!.cc! > 127) {
+				editorData!.midi!.cc! = 1;
 			}
-
-			encModePrev = editorData.encmode;
 		}
-	}
+	});
 </script>
 
 <svelte:body on:keydown={maybeCloseTheEditor} />
@@ -272,23 +323,23 @@
 			&nbsp;{controlNumber + 1}{/if}
 	</h2>
 	<div class="cancelerholder" style="text-align: right; font-weight: bold">
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<span class="revert" on:click={revert}>↺</span>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<span class="close" on:click={dispatchEditorClose}><Tick /></span>
+		<button class="unbutton revert" onclick={revert}>↺</button>
+		<button class="unbutton close" onclick={dispatchEditorClose} tabindex="0"
+			><Tick /></button
+		>
 	</div>
 </header>
 
 <main id="ce-main" class="columnizer">
-	{#if theControl.notes}
+	{#if theControl.notes && editorData?.midi}
 		<NoteEditor
-			bind:midiNote={editorData.midi.note}
-			bind:velocity={editorData.midi.vel}
+			bind:midiNote={editorData.midi.note!}
+			bind:velocity={editorData.midi.vel!}
 			{globalVelocity}
 			{scaleNote}
 		/>
 	{/if}
-	{#if theControl.colours}
+	{#if theControl.colours && editorData?.colour && editorData?.burst}
 		<fieldset
 			id="ce-colours"
 			class="capability-colour conditional cond-pad cond-joystick"
@@ -302,16 +353,15 @@
 			/>
 			<button
 				disabled={disableResetToBankColours}
-				on:click={patchMaybeChanged}
-				on:click={() =>
-					(editorData.colour[0] = editorData.colour[1] = colourOff)}
+				onclick={() => {
+					patchMaybeChanged();
+					editorData!.colour![0] = editorData!.colour![1] = colourOff;
+				}}
 				class="auxaction">Reset to bank colours</button
 			>
 			<div class="checkboxholder">
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<label
-					on:click|stopPropagation|preventDefault={openBurstEditor}
-				>
+				<label onclick={openBurstEditor}>
 					<input
 						checked={burstIsOn(editorData.burst)}
 						class="appleswitch"
@@ -336,58 +386,64 @@
 		</fieldset>
 	{/if}
 
-	{#if controlKind == Control.EncRotate}
-		<EncoderParameters
+	{#if editorData?.midi}
+		{#if controlKind == Control.EncRotate && editorData?.encmode !== undefined}
+			<EncoderParameters
+				on:input={patchMaybeChanged}
+				{scaleIsOn}
+				bind:encmode={editorData.encmode}
+				bind:cc={editorData.midi.cc!}
+				bind:min={editorData.midi.min!}
+				bind:max={editorData.midi.max!}
+				bind:par={editorData.midi.par!}
+			/>
+		{/if}
+
+		<fieldset id="ce-midisettings">
+			<legend>Settings</legend>
+			<div class="">
+				<h4>Channel <Overridable /></h4>
+				<Channel
+					on:input={patchMaybeChanged}
+					bind:value={editorData.midi.ch}
+					channelDefault={globalChannel.value & 0xf}
+					channelDefaultName={globalChannel.isDeviceLevel
+						? "Device default"
+						: "Bank default"}
+				/>
+			</div>
+		</fieldset>
+		{#if !encoderIsScaleOrTempo && editorData.encmode !== undefined}
+			<MidiControl
+				bind:cc={editorData.midi.cc!}
+				bind:min={editorData.midi.min!}
+				bind:max={editorData.midi.max!}
+				bind:par={editorData.midi.par!}
+				bind:rampu={editorData.midi.rampu!}
+				bind:rampd={editorData.midi.rampd!}
+				{theControl}
+				{encoderIsRelative}
+				encmode={editorData.encmode}
+				bind:this={midiControlEditor}
+			/>
+		{/if}
+	{/if}
+	<!-- if not encoderScaleOrTempo -->
+
+	{#if editorData?.combo != undefined}
+		<KeyboardEditor
 			on:input={patchMaybeChanged}
-			{scaleIsOn}
-			bind:encmode={editorData.encmode}
-			bind:cc={editorData.midi.cc}
-			bind:min={editorData.midi.min}
-			bind:max={editorData.midi.max}
-			bind:par={editorData.midi.par}
+			{theControl}
+			bind:value={editorData.combo}
+			bind:this={keyboardEditor}
 		/>
 	{/if}
 
-	<fieldset id="ce-midisettings">
-		<legend>Settings</legend>
-		<div class="">
-			<h4>Channel <Overridable /></h4>
-			<Channel
-				on:input={patchMaybeChanged}
-				bind:value={editorData.midi.ch}
-				channelDefault={globalChannel.value & 0xf}
-				channelDefaultName={globalChannel.isDeviceLevel
-					? "Device default"
-					: "Bank default"}
-			/>
-		</div>
-	</fieldset>
-	{#if !encoderIsScaleOrTempo}
-		<MidiControl
-			bind:cc={editorData.midi.cc}
-			bind:min={editorData.midi.min}
-			bind:max={editorData.midi.max}
-			bind:par={editorData.midi.par}
-			bind:rampu={editorData.midi.rampu}
-			bind:rampd={editorData.midi.rampd}
-			{theControl}
-			{encoderIsRelative}
-			encmode={editorData.encmode}
-			bind:this={midiControlEditor}
-		/>
-	{/if}
-	<!-- if not encoderScaleOrTempo -->
-	<KeyboardEditor
-		on:input={patchMaybeChanged}
-		{theControl}
-		bind:value={editorData.combo}
-		bind:this={keyboardEditor}
-	/>
 	{#if controlKind == Control.AccelX || controlKind == Control.AccelY || controlKind == Control.AccelZ}
 		<fieldset id="ce-reset">
 			<legend>Calibrate</legend>
 			<div class="ce-block">
-				<button on:click={sysExCalibrateAccel}>Calibrate</button>
+				<button onclick={sysExCalibrateAccel}>Calibrate</button>
 			</div>
 			<div class="explain">
 				Lay your device flat and press the button to calibrate the
@@ -398,11 +454,7 @@
 	<fieldset id="ce-reset">
 		<legend>Reset</legend>
 		<div class="ce-block">
-			<button
-				class="dangerous"
-				on:click={patchMaybeChanged}
-				on:click={resetAll}>Reset all</button
-			>
+			<button class="dangerous" onclick={resetAll}>Reset all</button>
 		</div>
 		<div class="explain">
 			This removes any settings and closes the editor.
