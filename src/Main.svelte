@@ -3,37 +3,37 @@
 
 	import { UAParser } from "ua-parser-js";
 
-	import type { NoPatchesObject } from "types";
-	import { NewPatchDecision } from "types";
+	import type { NoPatchesObject } from "./ts/types";
+	import { NewPatchDecision } from "./ts/types";
 	import {
 		isMinimumVersion,
 		FirmwareState,
 		setDevice,
 		deviceDefinition,
-	} from "device";
+	} from "./ts/device";
 	import {
 		sysExDiskMode,
 		flipConnected,
 		sysExLockPatchSwitching,
 		sysExBootloader,
-	} from "midi_core";
-	import { Status } from "configurator";
+	} from "./ts/midi_core";
+	import { Status } from "./ts/configurator";
 	import {
 		fixSettings,
 		getSettingsFromDevice,
 		getPalettesFromDevice,
 		getFactorySettings,
-	} from "settings_utils";
-	import { WaitingBlock } from "waitingblock";
-	import { isAlt, isMacLike } from "stores";
+	} from "./ts/settings_utils";
+	import { WaitingBlock } from "./ts/waitingblock";
+	import { isAlt, isMacLike } from "./ts/stores";
 	import {
 		loadPatchInfo,
 		fillPatchList,
 		patchList,
 		loadCurrentPatch,
 		newPatch,
-	} from "patch";
-	import { randomPattern } from "colour_utils";
+	} from "./ts/patch";
+	import { randomPattern } from "./ts/colour_utils";
 
 	import GotIt from "./widgets/GotIt.svelte";
 	import NoPatches from "./widgets/NoPatches.svelte";
@@ -114,8 +114,8 @@
 		return Array(+digits.join("") + 1).join("M") + roman;
 	}
 
-	import type { VersionData } from "device";
-	import { getLatestVersion, versionCompare } from "device";
+	import type { VersionData } from "./ts/device";
+	import { getLatestVersion, versionCompare } from "./ts/device";
 	import CornerDevice from "./widgets/CornerDevice.svelte";
 
 	let versionInfo: VersionData;

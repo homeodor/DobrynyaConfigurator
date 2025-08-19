@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { onMount, createEventDispatcher, tick } from "svelte";
 
-	import { openPatternEditor } from "event_helpers";
-	import type { InvokeControlEventData } from "event_helpers";
-	import { isAlt, isColourPreviewMode } from "stores";
-	import { defaultPatches } from "defaultpatches";
+	import { openPatternEditor } from "./ts/event_helpers";
+	import type { InvokeControlEventData } from "./ts/event_helpers";
+	import { isAlt, isColourPreviewMode } from "./ts/stores";
+	import { defaultPatches } from "./ts/defaultpatches";
 
 	import {
 		sysExFilenameAndDo,
 		sysExLockPatchSwitching,
 		sysExBank,
 		sysExColourReset,
-	} from "midi_core";
-	import { type Result, Command } from "configurator";
+	} from "./ts/midi_core";
+	import { type Result, Command } from "./ts/configurator";
 
 	import DrawerBank from "./DrawerBank.svelte";
 	import DrawerPatch from "./DrawerPatch.svelte";
@@ -24,25 +24,25 @@
 	import Alert from "./widgets/Alert.svelte";
 	import GotIt from "./widgets/GotIt.svelte";
 
-	import { Hand, NewPatchDecision } from "types";
+	import { Hand, NewPatchDecision } from "./ts/types";
 	import {
 		NameFailsBecause,
 		checkIfPatchNameIsValid,
 		getNewPatchName,
-	} from "editor";
-	import { ExpanderSanizer } from "data_expandsanize";
+	} from "./ts/editor";
+	import { ExpanderSanizer } from "./ts/data_expandsanize";
 
-	import type { DeviceOrBankValue } from "types";
-	import type { Patch } from "types_patch";
+	import type { DeviceOrBankValue } from "./ts/types";
+	import type { Patch } from "./ts/types_patch";
 	import {
 		ColourPaintLayer,
 		randomPattern,
 		hueShiftPattern,
 		hexToCSS,
-	} from "colour_utils";
-	import { CaseColour, deviceDefinition } from "device";
+	} from "./ts/colour_utils";
+	import { CaseColour, deviceDefinition } from "./ts/device";
 
-	import { patchToDevice, patchList } from "patch";
+	import { patchToDevice, patchList } from "./ts/patch";
 
 	import { isSame } from "./ts/basic";
 
@@ -54,8 +54,7 @@
 		return currentPatch.isSaved;
 	}
 
-	import { currentPatch, newPatch, patchAction, editorState } from "patch";
-	import PanePads from "./editor/PanePads.svelte";
+	import { currentPatch, newPatch, patchAction, editorState } from "./ts/patch";
 	import Outline from "./editor/Outline.svelte";
 
 	let numberOfActiveBanks = 0;

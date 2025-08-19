@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { createEventDispatcher, tick } from "svelte";
 
 	const dispatch = createEventDispatcher();
 	

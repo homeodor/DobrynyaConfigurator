@@ -3,11 +3,11 @@
 	import RangeWithInline from "../widgets/RangeWithInline.svelte";
 	import Halp from "../widgets/Halp.svelte";
 	import Ramps from "./Ramps.svelte";
-	import { patchChanged } from "event_helpers";
-	import { MidiCtrl, paramOffNegative, paramOff } from "midi_utils";
-	import { map } from "basic";
-	import { Control, EncoderBehaviour } from "types";
-	import type { ControlDefinition } from "src/ts/control_defs";
+	import { patchChanged } from "../ts/event_helpers";
+	import { MidiCtrl, paramOffNegative, paramOff } from "../ts/midi_utils";
+	import { map } from "../ts/basic";
+	import { Control, EncoderBehaviour } from "../ts/types";
+	import type { ControlDefinition } from "../ts/control_defs";
 
 	export let cc: number;
 	export let min: number;

@@ -1,13 +1,12 @@
 <svelte:options accessors/>
 
 <script lang="ts">
-	import OkCancel from './OkCancel.svelte';
-	import type { NoPatchesObject } from 'types';
-	import { NewPatchDecision } from 'types';
-	import { defaultPatches } from 'defaultpatches';
-	import type { DefaultPatchDescriptor } from 'defaultpatches';
+	import OkCancel from "./OkCancel.svelte";
+	import type { NoPatchesObject } from "../ts/types";
+	import { NewPatchDecision } from "../ts/types";
+	import { defaultPatches, type DefaultPatchDescriptor } from "../ts/defaultpatches";
 	
-	import { deviceDefinition } from 'device';
+	import { deviceDefinition } from "../ts/device";
 
 	let okText = "OK";
 	let cancelText = "Cancel";

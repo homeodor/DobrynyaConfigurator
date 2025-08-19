@@ -2,20 +2,20 @@
 	import { tick } from "svelte";
 	import * as BSON from "bson";
 
-	import { isMacLike, isAlt } from "stores";
+	import { isMacLike, isAlt } from "./ts/stores";
 
-	import { models } from "device";
-	import { quickCustom } from "event_helpers";
+	import { models } from "./ts/device";
+	import { quickCustom } from "./ts/event_helpers";
 
-	import type { Patch } from "types_patch";
+	import type { Patch } from "./ts/types_patch";
 	import type SectionEditor from "./SectionEditor.svelte";
 
 	import {
 		sysExEsp32Bootloader,
 		sysExFilenameAndDo,
 		sysExTwoFilenamesAndDo,
-	} from "midi_core";
-	import { Command } from "configurator";
+	} from "./ts/midi_core";
+	import { Command } from "./ts/configurator";
 
 	import iconTune from "../i/patchtune.svg";
 	import iconDuplicate from "../i/patchduplicate.svg";
@@ -31,21 +31,21 @@
 		checkIfPatchNameIsValid,
 		nbsp,
 		getNewPatchName,
-	} from "editor";
-	import { sortPatchList, patchAsFileFromData, getPatch } from "data_utils";
-	import { hexToCSS } from "colour_utils";
-	import { sysExDiskMode, sysExBootloader } from "midi_core";
-	import type { PatchInfoItem } from "types_patch";
+	} from "./ts/editor";
+	import { sortPatchList, patchAsFileFromData, getPatch } from "./ts/data_utils";
+	import { hexToCSS } from "./ts/colour_utils";
+	import { sysExDiskMode, sysExBootloader } from "./ts/midi_core";
+	import type { PatchInfoItem } from "./ts/types_patch";
 
 	import {
 		newPatch,
 		getCurrentPatch,
 		setCurrentPatchName,
 		isSaved,
-	} from "patch";
-	import { hueShiftPattern } from "colour_utils";
+	} from "./ts/patch";
+	import { hueShiftPattern } from "./ts/colour_utils";
 
-	import { deviceDefinition } from "device";
+	import { deviceDefinition } from "./ts/device";
 
 	export let patchesInfo: PatchInfoItem[];
 	export let editor: SectionEditor;

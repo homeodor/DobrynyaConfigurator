@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { EncoderBehaviour } from "types";
-	import type { BranchControl } from "types_patch";
+	import { EncoderBehaviour } from "../ts/types";
+	import type { BranchControl } from "../ts/types_patch";
 
 	import CC from "../widgets/CC.svelte";
 	import {
@@ -8,8 +8,8 @@
 		ccToHuman,
 		fakeNoteOff,
 		fakeNoteUseScale,
-	} from "midi_utils";
-	import { keycodeToHuman } from "keyboard";
+	} from "../ts/midi_utils";
+	import { keycodeToHuman } from "../ts/keyboard";
 
 	const encBehaviourHuman: string[] = ["Key", "Oct", "Ofs", "Scl", "Tmp"];
 

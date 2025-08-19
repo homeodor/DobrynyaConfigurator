@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { EncoderBehaviour } from "src/ts/types";
+	import { EncoderBehaviour } from "../ts/types";
 	import EncoderShadowCC from "./EncoderShadowCC.svelte";
-	import { quickCustom } from "src/ts/event_helpers";
+	import { quickCustom } from "../ts/event_helpers";
 
 	export let scaleIsOn: boolean;
 

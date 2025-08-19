@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deviceDefinition } from "device";
+	import { deviceDefinition } from "./ts/device";
 
 	const realChips = {
 		microv2: {
@@ -15,14 +15,14 @@
 		pocket: { name: "ESP32-S3", mhz: 240 },
 	};
 
-	import { importantFactorySettings } from "settings_utils";
+	import { importantFactorySettings } from "./ts/settings_utils";
 	import imageMiniV2 from "../i/devices/miniv2.webp";
 	import imagePocket from "../i/devices/pocket.webp";
 	import imageMicroV2Dark from "../i/devices/microv2_dark.webp";
 	import imageMicroV2Light from "../i/devices/microv2_light.webp";
-	import type { StatusResult } from "types";
+	import type { StatusResult } from "./ts/types";
 	import Opensource from "./Opensource.svelte";
-	import { CaseColour } from "device";
+	import { CaseColour } from "./ts/device";
 	import { sysExStorageMode } from "./ts/midi_core";
 	import Halp from "./widgets/Halp.svelte";
 

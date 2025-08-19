@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { isSame } from 'basic'
-	import PreviewSingle from './PreviewSingle.svelte';
+	import { isSame } from "../ts/basic"
+	import PreviewSingle from "./PreviewSingle.svelte";
 	
 	export let enableTargetPreview = false;
 	export let before: number[] | null = null;

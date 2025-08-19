@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { sysExTestPattern } from 'midi_core';
-	import { hexToCSS } from 'colour_utils'
+	import { sysExTestPattern } from "../ts/midi_core";
+	import { hexToCSS } from "../ts/colour_utils";
 	export let hexArray: number[] | null = null;
 	export let inline = false;
 	export let targetPreview = false;

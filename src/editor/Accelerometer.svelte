@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { type BranchControl } from "src/ts/types_patch";
+	import { type BranchControl } from "../ts/types_patch";
 	import accelArrow from "../../i/accel-arrow.svg";
 
 	import InnerControl from "./InnerControl.svelte";
 	import { createEventDispatcher } from "svelte";
-	import { Control } from "src/ts/types";
+	import { Control } from "../ts/types";
 
 	export let dataAll: BranchControl[];
 

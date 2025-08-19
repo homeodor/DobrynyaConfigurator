@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Pads from "./Pads.svelte";
 	import Encoder from "./Encoder.svelte";
-	import { Control } from "src/ts/types";
-	import type { CurrentEditorState, CurrentPatchInfo } from "src/ts/patch";
-	import { deviceDefinition } from "src/ts/device";
-	import type { InvokeControlEventData } from "src/ts/event_helpers";
-	import { ColourPaintLayer } from "src/ts/colour_utils";
+	import { Control } from "../ts/types";
+	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch";
+	import { deviceDefinition } from "../ts/device";
+	import type { InvokeControlEventData } from "../ts/event_helpers";
+	import { ColourPaintLayer } from "../ts/colour_utils";
 	import Accelerometer from "./Accelerometer.svelte";
 
 	export let openEditor: (

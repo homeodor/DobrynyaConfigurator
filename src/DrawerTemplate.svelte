@@ -1,13 +1,13 @@
 <script lang="ts">
-	import RangeWithInline from './widgets/RangeWithInline.svelte'
-	import Halp from './widgets/Halp.svelte'
-	import Confirm from './widgets/Confirm.svelte'
+	import RangeWithInline from "./widgets/RangeWithInline.svelte"
+	import Halp from "./widgets/Halp.svelte"
+	import Confirm from "./widgets/Confirm.svelte"
 	
-	import { patchChanged, drawer } from 'event_helpers';
-	import type { BranchBank } from 'types_patch';		
-	import { numberOfPads } from 'data_utils'
-	import { fillWithTemplate } from 'editor';
-	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from 'midi_utils'
+	import { patchChanged, drawer } from "./ts/event_helpers";
+	import type { BranchBank } from "./ts/types_patch";		
+	import { numberOfPads } from "./ts/data_utils"
+	import { fillWithTemplate } from "./ts/editor";
+	import { fakeNoteUseScale, getNoteInCurrentScale, fakeNoteOff, getCurrentScaleName } from "./ts/midi_utils"
 
 	export let currentBank: BranchBank;
 	export let numberOfActiveBanks: number;

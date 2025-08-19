@@ -1,9 +1,10 @@
-import { Status, Command } from 'configurator'
-import WaitingBlockDialog from '../WaitingBlock.svelte'
+import { Status, Command } from "./configurator";
+import WaitingBlockDialog from "../WaitingBlock.svelte";
+import { mount } from "svelte";
 
-let dialog = new WaitingBlockDialog(
-	{ target: document.getElementById("waitingblockholder") }
-);
+let dialog = mount(WaitingBlockDialog, {
+	target: document.getElementById("waitingblockholder"),
+});
 
 // There is A LOT of bullshit in this file
 // A LOT of errors and typos!
@@ -21,7 +22,6 @@ export class WaitingBlock {
 	}
 
 	static error(err = null) {
-
 		let text: string;
 		let commandText: string = "";
 
@@ -61,7 +61,7 @@ export class WaitingBlock {
 				break;
 			case Command.COPYPATCH:
 				commandText = "Copy patch";
-				break;  // 0xC
+				break; // 0xC
 
 			case Command.GETSETTINGS:
 				commandText = "Get settings";
@@ -133,34 +133,47 @@ export class WaitingBlock {
 
 		switch (err) {
 			case Status.TIMEOUT:
-				text = "The operation timed out. Please check that the device is connected and working."; break;
+				text =
+					"The operation timed out. Please check that the device is connected and working.";
+				break;
 			case Status.GENERICERROR:
-				text = "Some generic error happened. Please try again."; break;
+				text = "Some generic error happened. Please try again.";
+				break;
 			case Status.NO_FILE:
-				text = "The file requested hasn’t been found."; break;
+				text = "The file requested hasn’t been found.";
+				break;
 			case Status.NO_FILESYSTEM:
-				text = "The device has no filesystem, or the filesystem is damaged."; break;
+				text =
+					"The device has no filesystem, or the filesystem is damaged.";
+				break;
 			case Status.NO_ENTITY:
-				text = "Cannot find the required information in the patch."; break;
+				text = "Cannot find the required information in the patch.";
+				break;
 			case Status.FILE_EXISTS:
-				text = "The file you are trying to save already exists."; break;
+				text = "The file you are trying to save already exists.";
+				break;
 			case Status.CANT_RENAME:
-				text = "Cannot rename the patch. Please try again."; break;
+				text = "Cannot rename the patch. Please try again.";
+				break;
 			case Status.WRONG_CHECKSUM:
-				text = "File integrity check failed. Please try again."; break;
+				text = "File integrity check failed. Please try again.";
+				break;
 			case Status.WRONG_LENGTH:
-				text = "The file has wrong length."; break;
+				text = "The file has wrong length.";
+				break;
 			case Status.WRONG_FILENAME:
-				text = "The requested filename is wrong."; break;
+				text = "The requested filename is wrong.";
+				break;
 			case Status.FILENAME_TOO_LONG:
-				text = "The requested file has a filename that is too long."; break;
-			case Status.NOT_IMPLEMENTED:
-				{
-					WaitingBlock.unblock();
-					return; // so what.
-				}
+				text = "The requested file has a filename that is too long.";
+				break;
+			case Status.NOT_IMPLEMENTED: {
+				WaitingBlock.unblock();
+				return; // so what.
+			}
 			default:
-				text = "An unknown error has occured. Please try again."; break;
+				text = "An unknown error has occured. Please try again.";
+				break;
 		}
 
 		dialog.error(commandText, text);
@@ -183,19 +196,19 @@ export class WaitingBlock {
 			WaitingBlock.#isBlocked == false ||
 			WaitingBlock.#unlockWith == null ||
 			cmd != WaitingBlock.#unlockWith
-		) return; // ???? хз
+		)
+			return; // ???? хз
 
-		if (status == Status.OK)
-			WaitingBlock.unblock(cmd);
-		else
-			WaitingBlock.error(status);
+		if (status == Status.OK) WaitingBlock.unblock(cmd);
+		else WaitingBlock.error(status);
 	}
 
 	static unblock(unblock = null) {
 		if (
 			WaitingBlock.#isBlocked == false ||
 			(unblock && unblock != WaitingBlock.#unlockWith)
-		) return;
+		)
+			return;
 
 		dialog.unblock();
 		WaitingBlock.#unlockWith = null;

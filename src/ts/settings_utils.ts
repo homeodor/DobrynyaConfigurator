@@ -1,8 +1,8 @@
-import { WaitingBlock } from "waitingblock";
-import { sysExAndDo } from "midi_core";
-import { CaseColour } from "device";
-import { eightToSeven } from "midi_utils";
-import { Command } from "configurator";
+import { WaitingBlock } from "./waitingblock";
+import { sysExAndDo } from "./midi_core";
+import { CaseColour } from "./device";
+import { eightToSeven } from "./midi_utils";
+import { Command } from "./configurator";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
 import { writable, type Writable } from "svelte/store";

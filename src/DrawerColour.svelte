@@ -1,27 +1,28 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from "svelte";
-	import { lastColourPaintLayer, lastColourPaintHex } from "stores";
+	import { lastColourPaintLayer, lastColourPaintHex } from "./ts/stores";
 
-	import { sysExTestPattern } from "midi_core";
-	import { patchChanged } from "event_helpers";
-	import { getIconURL, getIconCSS } from "icons";
+	import { sysExTestPattern } from "./ts/midi_core";
+	import { patchChanged } from "./ts/event_helpers";
+	import { getIconURL, getIconCSS } from "./ts/icons";
 	import {
 		ColourPaintLayer,
 		colourOff,
 		hexToCSS,
 		randomPattern,
-	} from "colour_utils";
+		Tool,
+	} from "./ts/colour_utils";
 	import {
 		createObjectIfAbsent,
 		createPadsIfAbsent,
 		numberOfPads,
-	} from "data_utils";
-	import { isSame } from "basic";
-	import { expandSetSanize } from "data_expandsanize";
+	} from "./ts/data_utils";
+	import { isSame } from "./ts/basic";
+	import { expandSetSanize } from "./ts/data_expandsanize";
 
-	import { Control } from "types";
-	import type { InvokeControlEventData } from "event_helpers";
-	import type { BranchBank } from "types_patch";
+	import { Control } from "./ts/types";
+	import type { InvokeControlEventData } from "./ts/event_helpers";
+	import type { BranchBank } from "./ts/types_patch";
 	import {
 		getCurrentHexes,
 		assembleLayerFromHexes,
@@ -62,13 +63,6 @@
 	let hex: number;
 	let prevHex: number = colourOff;
 	let hexCSS: string;
-
-	enum Tool {
-		None,
-		Paintbrush,
-		Eyedropper,
-		Eraser,
-	}
 
 	let selectableTools = [
 		{

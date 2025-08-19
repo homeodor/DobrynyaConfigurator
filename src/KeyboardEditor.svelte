@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { onMount, createEventDispatcher } from 'svelte';
+	import { onMount, createEventDispatcher } from "svelte";
 	
-	import * as keyboardUtils from 'keyboard'
-	import { isMacLike } from 'stores';
+	import * as keyboardUtils from "./ts/keyboard"
+	import { isMacLike } from "./ts/stores";
 	
 	export let header: string = "";
 	export let value: number;
@@ -121,7 +121,7 @@
 	$: {
 		if (prevExoticSelectorValue != exoticSelectorValue)
 		{
-			if (exoticSelectorValue && exoticSelectorValue != 'notacombo') update(parseInt(exoticSelectorValue));
+			if (exoticSelectorValue && exoticSelectorValue != "notacombo") update(parseInt(exoticSelectorValue));
 			
 			prevExoticSelectorValue = exoticSelectorValue;
 		}

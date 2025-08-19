@@ -1,9 +1,9 @@
 <script lang="ts">
 
-	import { patchChanged } from 'event_helpers'
-	import { MidiCtrl, paramOff, paramOffNegative } from 'midi_utils'
+	import { patchChanged } from "../ts/event_helpers"
+	import { MidiCtrl, paramOff, paramOffNegative } from "../ts/midi_utils"
 	
-	import RangeWithInline from '../widgets/RangeWithInline.svelte';
+	import RangeWithInline from "../widgets/RangeWithInline.svelte";
 	
 	export let encoderIsTempo: boolean;
 	export let encoderIsScaleOrTempo: boolean;

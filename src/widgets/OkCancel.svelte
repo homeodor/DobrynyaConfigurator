@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { isMacLike } from 'stores';
-	import { createEventDispatcher } from 'svelte';
+	import { isMacLike } from "../ts/stores";
+	import { createEventDispatcher } from "svelte";
 	
 	const dispatch = createEventDispatcher();
 	

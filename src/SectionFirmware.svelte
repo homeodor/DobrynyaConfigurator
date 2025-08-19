@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { StatusResult } from 'types';
-	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare, deviceDefinition } from 'device'
-	import { onMount, onDestroy } from 'svelte'
-	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from 'hid'
-	import { sysExBootloader } from 'midi_core';
-	import { isAlt } from 'stores';
-	import * as fl from 'flasher'
+	import type { StatusResult } from "./ts/types";
+	import { getLatestVersion, getFullModelCode, FirmwareState, versionCompare, deviceDefinition } from "./ts/device"
+	import { onMount, onDestroy } from "svelte"
+	import { requestDevice, hidFillData, exitBootloader, dumpFirmware } from "./ts/hid"
+	import { sysExBootloader } from "./ts/midi_core";
+	import { isAlt } from "./ts/stores";
+	import * as fl from "./ts/flasher"
 	
-	import dbrswitching from '../i/dbrswitching.svg'
-	import dbrbootloader from '../i/dbrbootloader.svg'
-	import dbroffline from '../i/dbroffline.svg'
-	import dbrnormal from '../i/dbrnormal.svg'
+	import dbrswitching from "../i/dbrswitching.svg"
+	import dbrbootloader from "../i/dbrbootloader.svg"
+	import dbroffline from "../i/dbroffline.svg"
+	import dbrnormal from "../i/dbrnormal.svg"
 	
 	export let isOnline: boolean;
 	export let isConnected: boolean;
@@ -198,14 +198,16 @@
 			<div id="fw-updateavailable" class="plashka" class:plashkagood class:plashkawarn class:plashkabad style="min-width:80%">
 				<p>Latest binaries:</p>
 				<table class="fuckingtable">
-					<tr>
-						<td>Bootloader</td>
-						<td>{@html bootloaderState}</td>
-					</tr>
-					<tr>
-						<td>Firmware</td>
-						<td>{@html firmwareState}</td>
-					</tr>
+					<tbody>
+						<tr>
+							<td>Bootloader</td>
+							<td>{@html bootloaderState}</td>
+						</tr>
+						<tr>
+							<td>Firmware</td>
+							<td>{@html firmwareState}</td>
+						</tr>
+					</tbody>
 				</table>
 
 			</div>
@@ -225,18 +227,20 @@
 						{#if newerFWAvailable}
 						<p>There is a new version of firmware!</p>
 						<table class="fuckingtable" style="margin-bottom:1em">
-							<tr>
-								<td>Your bootloader</td>
-								<td>v{bootloader.blVersion}</td>
-							</tr>
-							<tr>
-								<td>Your firmware</td>
-								<td>v{bootloader.fwVersion.split("-")[0]}</td>
-							</tr>
-							<tr>
-								<td>Latest version</td>
-								<td>v{remoteResponse.fullVersion}</td>
-							</tr>
+							<tbody>
+								<tr>
+									<td>Your bootloader</td>
+									<td>v{bootloader.blVersion}</td>
+								</tr>
+								<tr>
+									<td>Your firmware</td>
+									<td>v{bootloader.fwVersion.split("-")[0]}</td>
+								</tr>
+								<tr>
+									<td>Latest version</td>
+									<td>v{remoteResponse.fullVersion}</td>
+								</tr>
+							</tbody>
 						</table><br />
 						{:else}
 						<p>Your firmware version ({bootloader.fwVersion}) is up to date.
@@ -245,15 +249,17 @@
 						</p>
 						{/if}
 					{:else}
-					<table class="fuckingtable" style="margin-bottom:1em">
-							<tr>
-								<td>Your bootloader</td>
-								<td>v{bootloader.blVersion}</td>
-							</tr>
-							<tr>
-								<td>Your firmware</td>
-								<td>v{bootloader.fwVersion.split("-")[0]}</td>
-							</tr>
+						<table class="fuckingtable" style="margin-bottom:1em">
+							<tbody>
+								<tr>
+									<td>Your bootloader</td>
+									<td>v{bootloader.blVersion}</td>
+								</tr>
+								<tr>
+									<td>Your firmware</td>
+									<td>v{bootloader.fwVersion.split("-")[0]}</td>
+								</tr>
+							</tbody>
 						</table><br />
 					{/if}
 				{/if}
@@ -378,31 +384,33 @@
 		<h2>Get your firmware</h2>
 		<p>Go to your virtual drive and open <code>INFO_UF2.TXT</code>. Download the correct firmware for your <code>Board-ID:</code></p>
 		<table style="" class="fuckingtable">
-			<tr>
-				<th>Board-id</th>
-				<th>Model</th>
-				<th>Serial no.</th>
-				<th></th>
-			</tr>
-			
-			<tr>
-				<td class="code">SAMD21G17A-dbr-microv2-17</td>
-				<td>Micro V2</td>
-				<td>2106...</td>
-				<td><a href="https://dobrynyadev.kt8.ru/firmware/microv2-17/latest/">Download</a></td>
-			</tr>
-			<tr>
-				<td class="code">SAMD21G17A-dbr-miniv2-17</td>
-				<td>Mini V2</td>
-				<td>3106...</td>
-				<td><a href="https://dobrynyadev.kt8.ru/firmware/miniv2-17/latest/">Download</a></td>
-			</tr>
-			<tr>
-				<td class="code">SAMD21G18A-dbr-miniv2-18</td>
-				<td>Mini V2</td>
-				<td>3105...</td>
-				<td><a href="https://dobrynyadev.kt8.ru/firmware/miniv2-18/latest/">Download</a></td>
-			</tr>
+			<tbody>
+				<tr>
+					<th>Board-id</th>
+					<th>Model</th>
+					<th>Serial no.</th>
+					<th></th>
+				</tr>
+				
+				<tr>
+					<td class="code">SAMD21G17A-dbr-microv2-17</td>
+					<td>Micro V2</td>
+					<td>2106...</td>
+					<td><a href="https://dobrynyadev.kt8.ru/firmware/microv2-17/latest/">Download</a></td>
+				</tr>
+				<tr>
+					<td class="code">SAMD21G17A-dbr-miniv2-17</td>
+					<td>Mini V2</td>
+					<td>3106...</td>
+					<td><a href="https://dobrynyadev.kt8.ru/firmware/miniv2-17/latest/">Download</a></td>
+				</tr>
+				<tr>
+					<td class="code">SAMD21G18A-dbr-miniv2-18</td>
+					<td>Mini V2</td>
+					<td>3105...</td>
+					<td><a href="https://dobrynyadev.kt8.ru/firmware/miniv2-18/latest/">Download</a></td>
+				</tr>
+			</tbody>
 		</table>
 		<h2>Copy the firmware to the drive</h2>
 		<p>Then just copy the firmware to the virtual drive. Your OS might complain about the disk being incorrectly disconnected: that’s okay.</p>

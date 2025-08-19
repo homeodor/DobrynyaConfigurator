@@ -1,10 +1,11 @@
-<script type="ts">
+<script lang="ts">
 	import Halp from "./widgets/Halp.svelte";
 	import KeyboardEditor from "./KeyboardEditor.svelte";
 	import {
 		KeyboardAvailable,
 		type ControlDefinition,
 	} from "./ts/control_defs";
+	import { settings } from "./ts/settings_utils"
 
 	export let theControl: ControlDefinition;
 	export let value: number = 0;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type BranchControl } from "src/ts/types_patch";
+	import { type BranchControl } from "../ts/types_patch";
 
 	import InnerControl from "./InnerControl.svelte";
 

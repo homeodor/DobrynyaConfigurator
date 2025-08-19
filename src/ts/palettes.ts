@@ -1,4 +1,4 @@
-import { getCSSfromURL, getURLfromSVG } from "icons";
+import { getCSSfromURL, getURLfromSVG } from "./icons";
 
 let svgStorage = [null, null, null, null, null, null, null, null];
 

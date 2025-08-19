@@ -1,5 +1,5 @@
 <script lang="ts">
-import mergeSVG from '../i/merge.svg';
+import mergeSVG from "../i/merge.svg";
 	
 interface OpenSourceData
 {

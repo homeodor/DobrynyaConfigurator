@@ -3,7 +3,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from 'colour_utils'
+	import { colourOff, ColourPaintLayer, invH, dimV, dimS, maxV, maxS } from '../ts/colour_utils'
+	import { ParamSatVal, type CTCopyParams } from './copy'
 	
 	import { ctStart, ctFinish, ctExit, assembleLayerFromHexes, getLayerFromHexes  } from './common';
 	import type { CTData, HexArrays } from './common'
@@ -22,20 +23,6 @@
 	
 	export function start() { ctData.hexStorage = ctStart(dialog, ctData); } // self-assignments keep Svelte happier
 	function finish() { ctFinish(dialog,copyLayers,params,ctData); dispatchEvent("input"); }
-	
-	enum ParamSatVal { Keep, Dim, Max };
-	
-	interface CTCopyParams
-	{
-		from: ColourPaintLayer, 
-		to: ColourPaintLayer, 
-		includeExplicit: boolean, 
-		includeBank: boolean, 
-		keepexisting: boolean, 
-		inverthue: boolean, 
-		saturation: ParamSatVal, 
-		brightness: ParamSatVal
-	};
 	
 	let params: CTCopyParams = 
 	{

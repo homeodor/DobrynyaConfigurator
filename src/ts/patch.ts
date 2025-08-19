@@ -1,18 +1,18 @@
-import { dispatchEditorClose, dispatchNewInterfaceClose } from 'event_helpers';
-import type { Patch, BranchInfo } from 'types_patch'
-import { getPatch, sortPatchList, fixAndExpandPatch } from 'data_utils'
-import { Command, Status } from 'configurator'
-import BSON from 'bson';
-import { sysExFileAndDo } from 'midi_core';
-import { patchTemplates } from 'patchtemplates';
-import { createPadsIfAbsent } from 'data_utils';
-import { Hand } from './types';
-import type { PatchInfoItem } from 'types_patch';
-import { sysExFilenameAndDo, sysExAndDo } from 'midi_core';
-import { get, writable } from 'svelte/store';
-import { getDevice } from 'device';
+import { dispatchEditorClose, dispatchNewInterfaceClose } from "./event_helpers";
+import type { Patch, BranchInfo } from "./types_patch"
+import { getPatch, sortPatchList, fixAndExpandPatch } from "./data_utils"
+import { Command, Status } from "./configurator"
+import BSON from "bson";
+import { sysExFileAndDo } from "./midi_core";
+import { patchTemplates } from "./patchtemplates";
+import { createPadsIfAbsent } from "./data_utils";
+import { Hand } from "./types";
+import type { PatchInfoItem } from "./types_patch";
+import { sysExFilenameAndDo, sysExAndDo } from "./midi_core";
+import { get, writable } from "svelte/store";
+import { getDevice } from "./device";
 
-import Confirm from '../widgets/Confirm.svelte'
+import Confirm from "../widgets/Confirm.svelte"
 
 export const patchList = writable([]);
 export const patchListHasBeenLoaded = writable(false);
@@ -99,7 +99,7 @@ export async function newPatch(
 
 	const confirmDiscard = new Confirm({
 		target: document.getElementById("confirmplaceholder"),
-		props: { html: 'You have unsaved changes. Do you want to discard them and open another patch?', okText: "Discard" },
+		props: { html: "You have unsaved changes. Do you want to discard them and open another patch?", okText: "Discard" },
 	});
 
 	console.log(confirmDiscard);

@@ -1,9 +1,9 @@
 <script lang="ts">
 
-import { flagToArray, arrayToFlag } from "src/ts/data_utils";
-import { sleep } from "src/ts/basic";
-import { patchChanged } from "src/ts/event_helpers";
-import * as utils from '../ts/bursts'
+import { flagToArray, arrayToFlag } from "../ts/data_utils";
+import { sleep } from "../ts/basic";
+import { patchChanged } from "../ts/event_helpers";
+import * as utils from "../ts/bursts"
 
 import Halp from "../widgets/Halp.svelte";
 import PaletteCheckboxes from "../widgets/PaletteCheckboxes.svelte";

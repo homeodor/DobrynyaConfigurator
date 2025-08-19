@@ -3,7 +3,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	
-	import { colourOff } from 'colour_utils'
+	import { colourOff } from '../ts/colour_utils'
 	
 	import { fill, HueMode, FillMode } from './fill_func';
 	

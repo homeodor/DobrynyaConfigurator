@@ -111,7 +111,7 @@ export enum OnlineStatus {
 	Online = 1,
 }
 
-import { BatteryStatus, type StatusResult } from "types";
+import { BatteryStatus, type StatusResult } from "./types";
 
 export function defaultStatusResult(isC: boolean = false): StatusResult {
 	return {

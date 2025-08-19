@@ -1,7 +1,7 @@
-import { WaitingBlock } from "waitingblock";
-import { type Result, Command, Status } from "configurator";
+import { WaitingBlock } from "./waitingblock";
+import { type Result, Command, Status } from "./configurator";
 import { SysExParser } from "./sysex_parser";
-import type { HexColour, ColourArray, Hand } from "types";
+import type { HexColour, ColourArray, Hand } from "./types";
 import { batteryInfo } from "./stores";
 
 let midi: MIDIAccess | null = null;

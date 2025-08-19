@@ -13,9 +13,9 @@
 		saveSettings,
 		isSaved,
 		markSettingsUnsaved,
-	} from "settings_utils";
+	} from "./ts/settings_utils";
 
-	import { deviceDefinition, BLEAvailable } from "device";
+	import { deviceDefinition, BLEAvailable } from "./ts/device";
 	import AppleSwitch from "./widgets/AppleSwitch.svelte";
 
 	export let isOnline: boolean;

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { deviceDefinition } from "src/ts/device";
-	import { batteryInfo } from "src/ts/stores";
-	import { BatteryStatus } from "src/ts/types";
+	import { deviceDefinition } from "../ts/device";
+	import { batteryInfo } from "../ts/stores";
+	import { BatteryStatus } from "../ts/types";
 	import batteryNormal from "../../i/battery_normal.svg";
 	import batteryCharged from "../../i/battery_charged.svg";
 	import batteryCharging from "../../i/battery_charging.svg";

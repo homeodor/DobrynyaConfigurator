@@ -1,13 +1,7 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
-
-  "include": ["src/**/*", "src/node_modules"],
-  "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
-  "lib": ["ES2021"],
-  "compilerOptions": {
-      "resolveJsonModule": true,
-      "paths": {
-        "*": ["./*", "./src/ts/*"]
-      }
-  }
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

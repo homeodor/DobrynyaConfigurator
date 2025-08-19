@@ -2,13 +2,15 @@
 
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
-	import { autoseed, seedrandom } from "./seedrandom";
 
-	import { getIconURL } from "icons";
+	import { Random } from 'random'
+	import { type CTRandomParams, ParamSatVal } from "./random";
 
-	import { getRandomIntInclusive } from "basic";
-	import { numberOfPads } from "data_utils";
-	import { colourOff, ColourPaintLayer } from "colour_utils";
+	import { getIconURL } from "../ts/icons";
+
+	import { getRandomIntInclusive } from "../ts/basic";
+	import { numberOfPads } from "../ts/data_utils";
+	import { colourOff, ColourPaintLayer } from "../ts/colour_utils";
 
 	import {
 		ctStart,
@@ -33,10 +35,10 @@
 
 	let dispatchEvent = createEventDispatcher();
 
-	let seed = autoseed();
+	let seed = Math.random();
 
 	function reseed() {
-		seed = autoseed();
+		seed = Math.random();
 		preview = preview;
 	}
 
@@ -50,28 +52,6 @@
 	function finish() {
 		ctFinish(dialog, randomFill, params, ctData);
 		dispatchEvent("input");
-	}
-
-	enum ParamSatVal {
-		Max,
-		Reasonable,
-		Random,
-	}
-
-	interface CTRandomParams {
-		layersIdle: boolean;
-		layersActive: boolean;
-		layersPattern: boolean;
-		keepColours: boolean;
-		hueMax: number;
-		hueMin: number;
-		satMax: number;
-		satMin: number;
-		valMax: number;
-		valMin: number;
-		matchHue: boolean;
-		satMode: ParamSatVal;
-		valMode: ParamSatVal;
 	}
 
 	let params: CTRandomParams = {
@@ -120,8 +100,7 @@
 	): HexArrays {
 		let affectLayers: ColourPaintLayer[] = [];
 
-		// @ts-ignore
-		let generateRandom = new seedrandom(seed); // well this actually works...
+		let generateRandom = new Random(seed); // well this actually works...
 
 		if (params.layersIdle) {
 			affectLayers.push(ColourPaintLayer.Idle);
@@ -166,6 +145,12 @@
 		let isShy: boolean = params.keepColours;
 
 		for (let currLayer of affectLayers) {
+			if (currLayer === ColourPaintLayer.Off)
+			{
+				throw new Error("randomFill received ColourPaintLayer.Off as the layer");
+			}
+
+
 			let genH: number[] = [],
 				genS: number[] = [],
 				genV: number[] = [];
@@ -174,17 +159,17 @@
 				let possibleRandomHue = getRandomIntInclusive(
 					hRandomMin,
 					hRandomMax,
-					generateRandom()
+					generateRandom.float(0, 1)
 				);
 				let possibleRandomSat = getRandomIntInclusive(
 					sMin,
 					sMax,
-					generateRandom()
+					generateRandom.float(0, 1)
 				);
 				let possibleRandomVal = getRandomIntInclusive(
 					vMin,
 					vMax,
-					generateRandom()
+					generateRandom.float(0, 1)
 				);
 
 				genH[i] = saveHues ? saveHues[i] : possibleRandomHue;

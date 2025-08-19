@@ -4,19 +4,19 @@
 		gracefulGetColour,
 		ColourPaintLayer,
 		colourOff,
-	} from "colour_utils";
-	import type { BranchControl } from "types_patch";
-	import { Control } from "types";
-	import type { HexColour } from "types";
-	import { filterInvoke } from "event_helpers";
+	} from "../ts/colour_utils";
+	import type { BranchControl } from "../ts/types_patch";
+	import { Control } from "../ts/types";
+	import type { HexColour } from "../ts/types";
+	import { filterInvoke } from "../ts/event_helpers";
 	import type {
 		InvokeControlEvent,
 		InvokeControlEventData,
-	} from "event_helpers";
+	} from "../ts/event_helpers";
 	import InnerControl from "./InnerControl.svelte";
 
 	import { createEventDispatcher } from "svelte";
-	import { deviceDefinition } from "src/ts/device";
+	import { deviceDefinition } from "../ts/device";
 
 	export let colourPaintShowBank: boolean;
 	export let colourPaintMode: ColourPaintLayer;

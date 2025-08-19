@@ -1,5 +1,5 @@
 import { readable, writable } from "svelte/store";
-import { colourOff } from "colour_utils";
+import { colourOff } from "./colour_utils";
 import { type BatteryInfo, BatteryStatus } from "./types";
 
 export const isMacLike = readable(

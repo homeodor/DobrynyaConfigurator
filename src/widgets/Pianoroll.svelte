@@ -16,7 +16,7 @@
 
 <script lang="ts">
 //	const jQ = window.$;
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from "svelte";
 
 	const dispatch = createEventDispatcher();
 	

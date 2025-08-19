@@ -1,4 +1,4 @@
-import type { Capabilities, Model } from "device";
+import type { Capabilities, Model } from "./device";
 
 export type HexColour = number;
 export interface HexObject {

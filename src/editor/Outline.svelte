@@ -1,17 +1,17 @@
 <script lang="ts">
 	import Pads from "./Pads.svelte";
 	import Encoder from "./Encoder.svelte";
-	import { Control, type DeviceOrBankValue } from "src/ts/types";
-	import type { CurrentEditorState, CurrentPatchInfo } from "src/ts/patch";
-	import { CaseColour, deviceDefinition } from "src/ts/device";
-	import type { InvokeControlEventData } from "src/ts/event_helpers";
-	import { ColourPaintLayer } from "src/ts/colour_utils";
+	import { Control, type DeviceOrBankValue } from "../ts/types";
+	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch";
+	import { CaseColour, deviceDefinition } from "../ts/device";
+	import type { InvokeControlEventData } from "../ts/event_helpers";
+	import { ColourPaintLayer } from "../ts/colour_utils";
 	import PanePads from "./PanePads.svelte";
 	import PaneJopa from "./PaneJopa.svelte";
-	import { importantFactorySettings } from "settings_utils";
+	import { importantFactorySettings } from "../ts/settings_utils";
 	import ControlEditor from "../ControlEditor.svelte";
 	import { onMount, tick } from "svelte";
-	import { currentKeyInfoToKey } from "src/ts/midi_utils";
+	import { currentKeyInfoToKey } from "../ts/midi_utils";
 
 	export let currentPatch: CurrentPatchInfo;
 	export let paintData: InvokeControlEventData;

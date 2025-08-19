@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
 
-	import { colourOff } from "colour_utils";
+	import { colourOff } from "./ts/colour_utils";
 	import {
 		scales,
 		fakeNoteOff,
@@ -12,13 +12,13 @@
 		Notes,
 		keyInfoToKeyObject,
 		keyObjectToKeyInfo,
-	} from "midi_utils";
-	import { createPadsIfAbsent } from "data_utils";
-	import { isEmpty } from "basic";
-	import { fillWithTemplate } from "editor";
-	import { ExpanderSanizer } from "data_expandsanize";
-	import { patchChanged } from "event_helpers";
-	import type { KeyInfo } from "midi_utils";
+	} from "./ts/midi_utils";
+	import { createPadsIfAbsent } from "./ts/data_utils";
+	import { isEmpty } from "./ts/basic";
+	import { fillWithTemplate } from "./ts/editor";
+	import { ExpanderSanizer } from "./ts/data_expandsanize";
+	import { patchChanged } from "./ts/event_helpers";
+	import type { KeyInfo } from "./ts/midi_utils";
 
 	import Pianoroll from "./widgets/Pianoroll.svelte";
 	import RangeWithInline from "./widgets/RangeWithInline.svelte";

@@ -2,8 +2,8 @@
 
 <script lang="ts">
 	import { tick, onDestroy } from "svelte";
-	import { controls } from "control_defs";
-	import type { ControlDefinition } from "control_defs";
+	import { controls } from "./ts/control_defs";
+	import type { ControlDefinition } from "./ts/control_defs";
 	import {
 		fakeNoteOff,
 		fakeNoteUseScale,
@@ -11,16 +11,16 @@
 		paramOffNegative,
 		getNoteInCurrentScale,
 		MidiCtrl,
-	} from "midi_utils";
-	import { colourOff } from "colour_utils";
-	import { Hand, Control } from "types";
-	import type { DeviceOrBankValue } from "types";
-	import type { Patch, BranchControl } from "types_patch";
-	import { createPadsIfAbsent } from "data_utils";
-	import { ExpanderSanizer, expandData, sanizeData } from "data_expandsanize";
-	import { dispatchEditorClose } from "event_helpers";
-	import { patchChanged } from "event_helpers";
-	import type { CurrentEditorState } from "patch";
+	} from "./ts/midi_utils";
+	import { colourOff } from "./ts/colour_utils";
+	import { Hand, Control } from "./ts/types";
+	import type { DeviceOrBankValue } from "./ts/types";
+	import type { Patch, BranchControl } from "./ts/types_patch";
+	import { createPadsIfAbsent } from "./ts/data_utils";
+	import { ExpanderSanizer, expandData, sanizeData } from "./ts/data_expandsanize";
+	import { dispatchEditorClose } from "./ts/event_helpers";
+	import { patchChanged } from "./ts/event_helpers";
+	import type { CurrentEditorState } from "./ts/patch";
 	import NoteEditor from "./NoteEditor.svelte";
 	import MidiControl from "./editor/MidiControl.svelte";
 	import ColourWellsEditor from "./ColourWellsEditor.svelte";

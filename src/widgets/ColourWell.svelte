@@ -5,11 +5,11 @@
 </style>
 
 <script lang="ts">
-	import { sysExColourReset } from 'midi_core'
-	import type { HexColour } from 'types';
-	import { createEventDispatcher } from 'svelte';
-	import { colourOff, hexToCSS, gracefulGetColour } from 'colour_utils';
-	import Colour from '../Colour.svelte'
+	import { sysExColourReset } from "../ts/midi_core"
+	import type { HexColour } from "../ts/types";
+	import { createEventDispatcher } from "svelte";
+	import { colourOff, hexToCSS, gracefulGetColour } from "../ts/colour_utils";
+	import Colour from "../Colour.svelte"
 
 	export let hex: HexColour = colourOff;
 	export let name: string = "";

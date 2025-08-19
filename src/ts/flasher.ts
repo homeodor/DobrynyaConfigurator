@@ -1,5 +1,5 @@
-import { writeUF2Data, exitBootloader } from 'hid'
-import { markSettingsDirty } from 'settings_utils';
+import { writeUF2Data, exitBootloader } from "./hid"
+import { markSettingsDirty } from "./settings_utils";
 
 export enum UF2State
 {
@@ -125,7 +125,7 @@ async function getUF2Data(model: string, target: UF2StorageItem, isBootloader: b
 	try
 	{
 		response = await fetch(`https://dobrynyadev.kt8.ru/firmware/${model}${maybeBootloader}/latest/`, {
-			mode: 'cors'
+			mode: "cors"
 		});
 		
 		console.warn(response.status);

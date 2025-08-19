@@ -1,8 +1,8 @@
-import type { Result } from "configurator";
-import type { Hand, Control, HexColour } from "types";
+import type { Result } from "./configurator";
+import type { Hand, Control, HexColour } from "./types";
 
-import { lastColourPaintLayer } from "stores";
-import { ColourPaintLayer } from "colour_utils";
+import { lastColourPaintLayer } from "./stores";
+import { ColourPaintLayer } from "./colour_utils";
 
 export interface InvokeControlEventData {
 	target: HTMLElement;

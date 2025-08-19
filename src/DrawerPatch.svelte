@@ -1,24 +1,24 @@
 <script lang="ts">
 	import * as BSON from "bson";
-	import { sleep } from "basic";
+	import { sleep } from "./ts/basic";
 	import { onDestroy } from "svelte";
 
-	import { patchChanged, openPatternEditor } from "event_helpers";
+	import { patchChanged, openPatternEditor } from "./ts/event_helpers";
 	import {
 		patchAsFileFromData,
 		getPatch,
 		arrayToFlag,
 		flagToArray,
-	} from "data_utils";
-	import { ExpanderSanizer } from "data_expandsanize";
+	} from "./ts/data_utils";
+	import { ExpanderSanizer } from "./ts/data_expandsanize";
 
-	import type { Model } from "device";
-	import type { BranchSettings } from "types_patch";
+	import type { Model } from "./ts/device";
+	import type { BranchSettings } from "./ts/types_patch";
 
 	import Halp from "./widgets/Halp.svelte";
 	import Bursts from "./editor/Bursts.svelte";
 
-	import type { CurrentPatchInfo } from "patch";
+	import type { CurrentPatchInfo } from "./ts/patch";
 
 	export let currentPatch: CurrentPatchInfo;
 	export let model: Model;
