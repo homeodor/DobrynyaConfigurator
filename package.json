@@ -46,6 +46,7 @@
 		"vite": "^7.1.2"
 	},
 	"dependencies": {
+		"@types/w3c-web-hid": "^1.0.6",
 		"bson": "^4.6.4",
 		"js-cookie": "^3.0.5",
 		"random": "^5.4.1",

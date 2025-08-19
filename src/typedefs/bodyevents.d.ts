@@ -1,22 +1,19 @@
-declare namespace svelte.JSX {
-	interface HTMLProps<T> {
-		ondobrynyahere?: (ev: CustomEvent) => any,
-		ondobrynyagone?: (ev: CustomEvent) => any,
-		oninvoke?: (ev: CustomEvent) => any,
-		onsection?: (ev: CustomEvent) => any,
-		onpatchlock?: (ev: CustomEvent) => any,
-		onpatchchange?: (ev: CustomEvent) => any,
-		onsysexpush?: (ev: CustomEvent) => any,
-		ondrawer?: (ev: CustomEvent) => any,
-		oninvokebank?: (ev: CustomEvent) => any,
-		onselectpatch?: (ev: CustomEvent) => any,
-		onopennewui?: (ev: CustomEvent) => any,
-		oncloseeditor?: (ev: CustomEvent) => any,
-		onclosenewui?: (ev: CustomEvent) => any,
-	};
+declare global {
+	interface GlobalEventHandlersEventMap {
+		dobrynyahere: CustomEvent<unknown>;
+		dobrynyagone: CustomEvent<unknown>;
+		invoke: CustomEvent<unknown>;
+		section: CustomEvent<unknown>;
+		patchlock: CustomEvent<unknown>;
+		patchchange: CustomEvent<unknown>;
+		sysexpush: CustomEvent<unknown>;
+		drawer: CustomEvent<unknown>;
+		invokebank: CustomEvent<unknown>;
+		selectpatch: CustomEvent<unknown>;
+		opennewui: CustomEvent<unknown>;
+		closeeditor: CustomEvent<unknown>;
+		closenewui: CustomEvent<unknown>;
+	}
 }
 
-
-
-
-
+export {};

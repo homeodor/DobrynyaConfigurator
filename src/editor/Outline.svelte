@@ -1,20 +1,16 @@
 <script lang="ts">
-	import Pads from "./Pads.svelte";
-	import Encoder from "./Encoder.svelte";
 	import { Control, type DeviceOrBankValue } from "../ts/types";
-	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch";
+	import { getCurrentPatch, type CurrentEditorState, type CurrentPatchInfo } from "../ts/patch";
 	import { CaseColour, deviceDefinition } from "../ts/device";
 	import type { InvokeControlEventData } from "../ts/event_helpers";
 	import { ColourPaintLayer } from "../ts/colour_utils";
 	import PanePads from "./PanePads.svelte";
-	import PaneJopa from "./PaneJopa.svelte";
 	import { importantFactorySettings } from "../ts/settings_utils";
 	import ControlEditor from "../ControlEditor.svelte";
 	import { onMount, tick } from "svelte";
 	import { currentKeyInfoToKey } from "../ts/midi_utils";
 
 	export let currentPatch: CurrentPatchInfo;
-	export let paintData: InvokeControlEventData;
 	export let colourPaintMode: ColourPaintLayer;
 	export let colourPaintShowBank: boolean;
 	export let editorState: CurrentEditorState;
@@ -23,7 +19,7 @@
 	export let globalVelocity: DeviceOrBankValue;
 
 	let editorAlive = false;
-	let editorData = null;
+	let editorData: null | true = null;
 	let editorControlKind: Control = Control.Generic;
 	let editorControlNumber: number = -1;
 	let theOutline: HTMLDivElement;
@@ -53,6 +49,10 @@
 
 		const editorEl = document.getElementById("controleditor");
 
+		if (!editorEl) {
+			throw new Error("Even though we waited, the editorEl is null");
+		}
+
 		const outlineRect = theOutline.getBoundingClientRect();
 		const targetRect = element.getBoundingClientRect();
 
@@ -81,10 +81,6 @@
 					)
 				),
 			]) + 500; // finding the longest distance from the center of the circle to the edge of the outline...
-
-		//		if (bigR + relX > bigR + relY) bigR += relX; else bigR += relY;
-
-		//		bigR = Math.ceil(bigR) + 500;
 
 		editorAlive = true;
 		editorBigRadius = bigR;
@@ -132,16 +128,13 @@
 			throw new Error(`Tab not found`);
 		}
 
-		const theTabs = Array.from(tabs.children);
+		const theTabs: Element[] = Array.from(tabs.children);
 
-		if (theTabs.length === 0)
-		{
+		if (theTabs.length === 0) {
 			return;
 		}
 
-		theTabs.forEach((el: HTMLDivElement) =>
-			el.classList.remove("selected")
-		);
+		theTabs.forEach((el: Element) => el.classList.remove("selected"));
 		theTabs[index].classList.add("selected");
 	}
 
@@ -163,7 +156,7 @@
 		});
 	}
 
-	function onIntersection(entries) {
+	function onIntersection(entries: IntersectionObserverEntry[]) {
 		for (const entry of entries) {
 			if (entry.isIntersecting) {
 				visibleCard = entry.target;
@@ -195,13 +188,14 @@
 	});
 
 	$: {
+		const devCode = $deviceDefinition.model.code;
 		pocket =
-			$deviceDefinition.model.code.includes("pocket") ||
-			$deviceDefinition.model.code.includes("aurora");
+			devCode !== undefined &&
+			(devCode.includes("pocket") || devCode.includes("aurora"));
 	}
 </script>
 
-<svelte:body on:click={bodyClick} on:closeeditor={closeEditor} />
+<svelte:body onclick={bodyClick} oncloseeditor={closeEditor} />
 
 <div
 	class="dobrynya-outline"
@@ -237,7 +231,7 @@
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 			<ControlEditor
 				on:closeeditor
-				currentPatch={currentPatch.data}
+				currentPatch={getCurrentPatch()}
 				{editorState}
 				controlKind={editorControlKind}
 				controlNumber={editorControlNumber}

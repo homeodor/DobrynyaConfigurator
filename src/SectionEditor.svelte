@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, createEventDispatcher, tick } from "svelte";
+	import { createEventDispatcher } from "svelte";
 
 	import { openPatternEditor } from "./ts/event_helpers";
 	import type { InvokeControlEventData } from "./ts/event_helpers";
@@ -42,7 +42,7 @@
 	} from "./ts/colour_utils";
 	import { CaseColour, deviceDefinition } from "./ts/device";
 
-	import { patchToDevice, patchList } from "./ts/patch";
+	import { patchToDevice, patchList, getCurrentPatch } from "./ts/patch";
 
 	import { isSame } from "./ts/basic";
 
@@ -54,7 +54,12 @@
 		return currentPatch.isSaved;
 	}
 
-	import { currentPatch, newPatch, patchAction, editorState } from "./ts/patch";
+	import {
+		currentPatch,
+		newPatch,
+		patchAction,
+		editorState,
+	} from "./ts/patch";
 	import Outline from "./editor/Outline.svelte";
 
 	let numberOfActiveBanks = 0;
@@ -156,7 +161,7 @@
 					uploadButton.ok();
 					currentPatch.isSaved = true;
 				},
-			currentPatch.data
+			getCurrentPatch()
 		);
 
 		if ($isColourPreviewMode) {
@@ -224,13 +229,18 @@
 	}
 
 	async function updateNewPatchName() {
-		if (nameHasBeenChanged) return;
-		newPatchName = getNewPatchName(
-			$patchList,
-			useCleanSlate === NewPatchDecision.Duplicate
-				? currentPatch.name
-				: null
-		);
+		if (nameHasBeenChanged) {
+			return;
+		}
+
+		newPatchName =
+			getNewPatchName(
+				$patchList,
+				useCleanSlate === NewPatchDecision.Duplicate
+					? currentPatch.name
+					: null
+			) ?? "";
+
 		nameHasBeenChanged = false;
 	}
 

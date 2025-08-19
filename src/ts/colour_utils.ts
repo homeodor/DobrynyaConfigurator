@@ -1,7 +1,7 @@
 import type { HexColour, ColourArray, Pattern, HexObject } from "./types";
 import { getRandomIntInclusive, map } from "./basic";
 
-export const colourOff = 0xff00;
+export const colourOff: HexColour = 0xff00;
 
 export enum ColourPaintLayer {
 	Off = -2,

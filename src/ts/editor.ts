@@ -99,7 +99,7 @@ export enum NameFailsBecause {
 
 export function getNewPatchName(
 	patchesInfo: PatchInfoItem[],
-	thePatchName: string
+	thePatchName: string | null
 ) {
 	if (
 		patchesInfo === undefined ||
