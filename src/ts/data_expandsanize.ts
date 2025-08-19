@@ -91,9 +91,9 @@ export class ExpanderSanizer
 	#dataStorage: ExpanderSanizerData;
 	#reExpand: boolean = true;
 	#theMapID: number;
-	#cleanup: Function;
+	#cleanup: Function | null;
 	
-	constructor(v: ExpanderSanizerData, cleanup: Function = null)
+	constructor(v: ExpanderSanizerData, cleanup: Function | null = null)
 	{
 		this.#cleanup = cleanup;
 		this.#dataStorage = v;

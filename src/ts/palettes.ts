@@ -1,6 +1,15 @@
 import { getCSSfromURL, getURLfromSVG } from "./icons";
 
-let svgStorage = [null, null, null, null, null, null, null, null];
+let svgStorage: (null | string)[] = [
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+];
 
 export const predefinedPalettes = [
 	[

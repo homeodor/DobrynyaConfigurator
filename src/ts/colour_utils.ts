@@ -190,7 +190,7 @@ export function isSameColour(what: HexColour, against: HexColour): boolean {
 	return false;
 }
 
-export function hexToCSS(hex?: HexColour, defaultHex?: HexColour): string {
+export function hexToCSS(hex: HexColour, defaultHex?: HexColour): string {
 	const corrector = [
 		0, 5, 13, 17, 24, 27, 29, 31, 33, 36, 38, 40, 42, 45, 48, 50,
 	];

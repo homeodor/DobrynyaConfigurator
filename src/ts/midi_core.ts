@@ -8,7 +8,7 @@ let midi: MIDIAccess | null = null;
 let portOut: MIDIOutput | null = null;
 let portIn: MIDIInput | null = null;
 
-let pingInterval = null;
+let pingInterval: null | number = null;
 
 let dobrynyaIsHere: boolean = false;
 let dobrynyaWasHere: boolean = false;
@@ -20,13 +20,13 @@ export const flipConnected = function () {
 	else disablePing();
 	return isConnected;
 };
-export const resetConnected = function () { };
+export const resetConnected = function () {};
 
 export let online = true;
 
 function enablePing() {
 	if (pingInterval === null)
-		pingInterval = setInterval(checkDobrynyaIsHere, 2000);
+		pingInterval = window.setInterval(checkDobrynyaIsHere, 2000);
 }
 
 function disablePing() {
@@ -54,12 +54,14 @@ async function checkDobrynyaIsHere() {
 		return false;
 	}
 
-	portOut = Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => {
-		return entry.name.startsWith("MIDI Dobrynya ");
-	});
-	portIn = Array.from(midi?.inputs.values()).find((entry: MIDIInput) => {
-		return entry.name.startsWith("MIDI Dobrynya ");
-	});
+	portOut =
+		Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => {
+			return entry.name?.startsWith("MIDI Dobrynya ");
+		}) ?? null;
+	portIn =
+		Array.from(midi?.inputs.values()).find((entry: MIDIInput) => {
+			return entry.name?.startsWith("MIDI Dobrynya ");
+		}) ?? null;
 
 	if (portIn)
 		portIn.addEventListener("midimessage", generalSysExParser.onMessage);
@@ -115,7 +117,6 @@ export async function init() {
 		enablePing();
 	} catch (e) {
 		console.warn("MIDI Failed");
-		console.log(e.name);
 		console.log(e);
 	}
 }
@@ -266,12 +267,8 @@ function sysExFilenameSanize(filename: string, message: number[]): number[] {
 	return message;
 }
 
-function sysEx2Filenames(
-	cmd: Command,
-	filename1: string,
-	filename2: string
-) {
-	let message = [];
+function sysEx2Filenames(cmd: Command, filename1: string, filename2: string) {
+	let message: number[] = [];
 	let filenames = [filename1, filename2];
 	for (let filename of filenames)
 		message = sysExFilenameSanize(filename, message);
@@ -343,7 +340,7 @@ export function sysExBank(hand: Hand, shift: boolean, bank: number) {
 
 function sysEx(
 	cmd: Command,
-	load: any = null,
+	load: number[] | string | null = null,
 	usechecksum: boolean = false
 ) {
 	//	if (lockMidi) return;
@@ -355,6 +352,12 @@ function sysEx(
 	let checksum: number = 0;
 
 	if (usechecksum) {
+		if (load === null) {
+			throw new Error(
+				"Checksum implies payload, however the payload was null"
+			);
+		}
+
 		let length = sysEx28bit(load.length);
 		for (let el of length) message.push(el);
 		checksumposition = message.length;
@@ -362,15 +365,19 @@ function sysEx(
 		// NB 9 bytes are allocated for the checksum data, because this is a multiple of a Midi-USB chunk (3 bytes)
 	}
 
-	for (let si in load) {
+	for (let si = 0; si < (load?.length ?? 0); si++) {
 		let b: number;
-		if (typeof load == "string") b = load.charCodeAt(parseInt(si));
-		else if (Array.isArray(load)) b = parseInt(load[si]);
-		else return;
+		if (typeof load == "string") {
+			b = load.charCodeAt(si);
+		} else if (Array.isArray(load)) {
+			b = load[si];
+		} else return;
 
 		b %= 128;
 
-		if (usechecksum) checksum += b;
+		if (usechecksum) {
+			checksum += b;
+		}
 
 		message.push(b);
 	}
@@ -395,10 +402,12 @@ function sysExFilename(cmd: Command, load: string) {
 }
 
 async function waitForMidi(
-	theCommand = null,
+	theCommand: null | Command = null,
 	timeout = 500
 ): Promise<Result> {
-	if (!portIn) throw "No midi port found";
+	if (portIn === null) {
+		throw "No midi port found";
+	}
 
 	const parser = new SysExParser();
 
@@ -408,8 +417,16 @@ async function waitForMidi(
 			timeout
 		);
 
+		if (portIn === null) {
+			throw "No midi port found";
+		}
+
 		const theListener = (ev: MIDIMessageEvent) => {
 			clearTimeout(failTimeout);
+
+			if (portIn === null) {
+				throw "No midi port found";
+			}
 
 			let result: Result | boolean = parser.interpretMidiEvent(ev);
 

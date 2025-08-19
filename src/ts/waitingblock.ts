@@ -2,8 +2,16 @@ import { Status, Command } from "./configurator";
 import WaitingBlockDialog from "../WaitingBlock.svelte";
 import { mount } from "svelte";
 
+const waitingBlockHolder = document.getElementById("waitingblockholder");
+
+if (!waitingBlockHolder) {
+	throw new Error(
+		"Waiting block holder element (#waitingblockholder) has not been found"
+	);
+}
+
 let dialog = mount(WaitingBlockDialog, {
-	target: document.getElementById("waitingblockholder"),
+	target: waitingBlockHolder,
 });
 
 // There is A LOT of bullshit in this file
@@ -15,13 +23,13 @@ let dialog = mount(WaitingBlockDialog, {
 export class WaitingBlock {
 	//	static #timeout;
 	static #isBlocked: boolean = false;
-	static #unlockWith: Command = null;
+	static #unlockWith: Command | null = null;
 
 	static init() {
 		//		m_el = document.getElementById("blocker");
 	}
 
-	static error(err = null) {
+	static error(err: Status | null = null) {
 		let text: string;
 		let commandText: string = "";
 
@@ -183,14 +191,14 @@ export class WaitingBlock {
 		WaitingBlock.error(Status.TIMEOUT);
 	}
 
-	static block(unblockWith = null) {
+	static block(unblockWith: null | Command = null) {
 		console.log("Unblock with ", unblockWith);
 		WaitingBlock.#unlockWith = unblockWith;
 		WaitingBlock.#isBlocked = true;
 		dialog.block();
 	}
 
-	static unblockOrError(cmd: Command, status) {
+	static unblockOrError(cmd: Command, status: Status) {
 		if (
 			cmd == Command.STATUS ||
 			WaitingBlock.#isBlocked == false ||
@@ -203,7 +211,7 @@ export class WaitingBlock {
 		else WaitingBlock.error(status);
 	}
 
-	static unblock(unblock = null) {
+	static unblock(unblock: Command | null = null) {
 		if (
 			WaitingBlock.#isBlocked == false ||
 			(unblock && unblock != WaitingBlock.#unlockWith)

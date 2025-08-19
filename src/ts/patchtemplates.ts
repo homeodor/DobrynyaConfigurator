@@ -1,4 +1,6 @@
-export const patchTemplates = {
+import type { Patch } from "./types_patch";
+
+export const patchTemplates: Record<string, Patch> = {
 	pocket: {
 		info: {
 			device: 0x11,

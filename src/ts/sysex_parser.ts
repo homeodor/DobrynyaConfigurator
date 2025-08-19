@@ -30,6 +30,10 @@ export class SysExParser {
 	}
 
 	public interpretMidiEvent(event: MIDIMessageEvent): Result | boolean {
+		if (!event.data) {
+			throw new Error("interpretMidiEvent received null data");
+		}
+
 		const d = this.assemble(event.data);
 
 		if (!d) {
@@ -144,6 +148,11 @@ export class SysExParser {
 				if (!midiResult.success) break;
 
 				let s2eResult = this.sevenToEight(d, true);
+
+				if (!s2eResult.filename) {
+					break;
+				}
+
 				midiResult.filename = sysExableStringToUTF8(
 					s2eResult.filename
 				).string;
@@ -160,9 +169,16 @@ export class SysExParser {
 			}
 
 			case Command.READPATCHTHROUGH: {
-				if (!midiResult.success) break;
+				if (!midiResult.success) {
+					break;
+				}
 
 				let s2eResult = this.sevenToEight(d, true);
+
+				if (!s2eResult.filename) {
+					console.error("READPATCHTHROUGH had no filename");
+					break;
+				}
 
 				midiResult.data = new Uint8Array(s2eResult.data);
 				midiResult.filename = sysExableStringToUTF8(
@@ -176,6 +192,11 @@ export class SysExParser {
 				if (!midiResult.success) break;
 
 				let s2eResult = this.sevenToEight(d, true);
+
+				if (!s2eResult.filename) {
+					console.error("READPATCH had no filename");
+					break;
+				}
 
 				try {
 					midiResult.data = BSON.deserialize(
@@ -241,6 +262,10 @@ export class SysExParser {
 			return;
 		}
 
+		if (!event.data) {
+			throw new Error("onMessage received null data");
+		}
+
 		const d = this.assemble(event.data);
 
 		if (!d) {
@@ -267,6 +292,11 @@ export class SysExParser {
 				if (midiResult.status != Status.PUSH) break;
 
 				let temporaryArray = this.sevenToEight(d, true);
+
+				if (!temporaryArray.filename) {
+					console.error("READPATCH had no filename");
+					break;
+				}
 
 				try {
 					midiResult.data = BSON.deserialize(
@@ -319,6 +349,12 @@ export class SysExParser {
 			output.deviceID + "-" + output.serialID.toString().padStart(4, "0");
 
 		output.model = models[output.class][output.modelNumber];
+
+		if (output.model.chip === undefined) {
+			throw new Error(
+				"output.model.chip is undefined on serialDataToOutput"
+			);
+		}
 
 		output.model.chip.name = ChipIDs[output.variant].name;
 		output.model.chip.code = ChipIDs[output.variant].code;

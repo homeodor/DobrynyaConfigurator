@@ -55,7 +55,7 @@ export function sortPatchList(aX: PatchInfoItem, bX: PatchInfoItem): number {
 	let a = aX.name.toLowerCase();
 	let b = bX.name.toLowerCase();
 
-	let i;
+	let i: number = 0;
 	let codeA;
 	let codeB = 1;
 	let posA = 0;

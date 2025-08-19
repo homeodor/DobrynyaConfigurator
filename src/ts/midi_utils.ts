@@ -84,19 +84,19 @@ export function octaveInlineToRange(v: string): number {
 }
 
 export function ccToHuman(cc: number): number | string {
-	const ccNames = {
-		"1": "Mod.",
-		"128": "Off",
-		"129": "G.Vel",
-		"130": "Pitch",
-		"133": "G.Ch",
-		"137": "St/St",
-		"138": "Cnt/St",
-		"139": "Rew",
-		"250": "Start",
-		"251": "Cont.",
-		"252": "Stop",
-		"255": "Reset",
+	const ccNames: Record<number, string> = {
+		1: "Mod.",
+		128: "Off",
+		129: "G.Vel",
+		130: "Pitch",
+		133: "G.Ch",
+		137: "St/St",
+		138: "Cnt/St",
+		139: "Rew",
+		250: "Start",
+		251: "Cont.",
+		252: "Stop",
+		255: "Reset",
 	};
 
 	return ccNames[cc] ?? cc;
@@ -159,7 +159,7 @@ export function getCurrentScaleName(currentBank: BranchBank): string {
 		currentBank.bank.keyinfo != -1
 	) {
 		let scaleInfo = currentKeyInfoToKey(currentBank);
-		if (scaleInfo === false) return;
+		if (scaleInfo === false) return "";
 		return `${Notes[scaleInfo.key]} ${scales[scaleInfo.mode].name}`;
 	} else return "";
 }

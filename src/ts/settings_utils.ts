@@ -14,14 +14,11 @@ interface SettingsObjectItem {
 	value?: number;
 	text?: string;
 	flag?: boolean[];
-	fixfunc?: (v: number) => number;
+	fixfunc?: (v: any) => any;
 }
 
-interface SettingsObject {
-	[index: string]: {
-		[index: string]: SettingsObjectItem;
-	};
-}
+type Section = Record<string, SettingsObjectItem | number>;
+type SettingsObject = Record<string, Section>;
 
 declare global {
 	interface Window {
@@ -36,7 +33,7 @@ function fixValueTo7F(v: number): number {
 	return v > 0x7f ? 0x7f : v;
 }
 
-function fixDeviceName(v) {
+function fixDeviceName(v: string) {
 	return v;
 }
 
@@ -207,7 +204,9 @@ function settingsModel(): SettingsObject {
 				isFlag: true,
 			},
 			power: {
-				fixfunc: (v: number) => { return v < 1 || v > 3 ? 2 : v; },
+				fixfunc: (v: number) => {
+					return v < 1 || v > 3 ? 2 : v;
+				},
 			},
 			name: {
 				fixfunc: fixDeviceName,
@@ -241,12 +240,13 @@ export function parseSettingsData() {
 		if (i == "fakeparam") continue;
 
 		for (let j in window.settings[i]) {
-
 			const param = window.settings[i][j];
 
 			if (typeof param === "number") {
 				if (arp !== param) {
-					throw new Error(`Offset failed: expected ${param}, got ${arp} at ${i}`);
+					throw new Error(
+						`Offset failed: expected ${param}, got ${arp} at ${i}`
+					);
 				}
 
 				console.warn(`Offset verified for ${i}`);
@@ -286,7 +286,7 @@ export function parseSettingsData() {
 
 				for (let bitshift = 0; bitshift < 8; bitshift++) {
 					param.flag[bitshift] =
-						((param.value >> bitshift) & 1) == 1 ? true : false;
+						((param.value! >> bitshift) & 1) == 1 ? true : false;
 				}
 			}
 		}
@@ -317,7 +317,7 @@ function encodeStringToUtf8Array(input: string, length: number): Uint8Array {
 
 export async function saveSettings(
 	settingsLength: number,
-	uploadButton: ButtonUpload = null
+	uploadButton: ButtonUpload | null = null
 ) {
 	let b8 = [];
 
@@ -331,6 +331,11 @@ export async function saveSettings(
 
 			let l = param.length;
 
+			if (l === undefined)
+			{
+				throw new Error(`Parameter ${j} has no length`);
+			}
+
 			if (typeof param.text == "string") {
 				b8.push(...encodeStringToUtf8Array(param.text, l));
 				continue;
@@ -339,6 +344,11 @@ export async function saveSettings(
 			let reserved = typeof param.reserved == "boolean" && param.reserved;
 
 			if (!reserved && typeof param.isFlag == "boolean" && param.isFlag) {
+				if (param.flag === undefined)
+				{
+					throw new Error(`Flag ${j} has no flag value`);
+				}
+
 				param.value = 0;
 				for (let bf = 0; bf < 8; bf++)
 					param.value |= param.flag[bf] ? 1 << bf : 0;
@@ -349,7 +359,7 @@ export async function saveSettings(
 			while (l--) {
 				let theByte = reserved
 					? 0xff // пишем просто 0xff если это резерв
-					: (param.value >> byteshift) & 0xff; // иначе бьём на байты value
+					: (param.value! >> byteshift) & 0xff; // иначе бьём на байты value
 
 				b8.push(theByte);
 
@@ -383,7 +393,7 @@ export async function getSettingsFromDevice() {
 }
 
 export async function getPalettesFromDevice() {
-	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => { });
+	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => {});
 }
 
 export async function fixSettings(settingsLength: number) {
@@ -434,8 +444,8 @@ export async function getFactorySettings() {
 
 		importantFactorySettingsNew.boardRevision =
 			boardRevision[0] !== 0 &&
-				boardRevision[0] !== 0xff &&
-				boardRevision[1] !== 0xff
+			boardRevision[0] !== 0xff &&
+			boardRevision[1] !== 0xff
 				? `${boardRevision[0]}.${boardRevision[1]}`
 				: null;
 

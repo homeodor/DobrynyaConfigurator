@@ -1,4 +1,4 @@
-import type { ColourArray, Palette, EncoderBehaviour } from "./types";
+import type { ColourArray, Palette, EncoderBehaviour, Pattern } from "./types";
 
 export interface BranchMidi {
 	ch?: number;
@@ -42,20 +42,20 @@ export interface BranchBank {
 
 export interface BranchInfo {
 	device: number;
-	pattern: number[];
+	pattern: Pattern;
 	desc: string;
-	palettes: Palette[];
+	palettes?: Palette[];
 }
 
 export interface BranchSettings {
-	burst: number;
-	encreset: boolean;
-	subdbl: boolean;
-	subhold: boolean;
-	shhold: boolean;
-	infinite: boolean;
-	shdblsubbank: number;
-	desc: string;
+	burst?: number;
+	encreset?: boolean;
+	subdbl?: boolean;
+	subhold?: boolean;
+	shhold?: boolean;
+	infinite?: boolean;
+	shdblsubbank?: number;
+	desc?: string;
 }
 
 export interface BranchSettingsLegacy extends BranchSettings {
@@ -74,12 +74,12 @@ export interface Patch {
 	settings: BranchSettings;
 	encoders: BranchControl[];
 	padbanks: BranchBank[][];
-	faders: BranchControl[];
-	pots: BranchControl[];
-	proximity: BranchControl;
-	joystick: BranchJoystickBank[];
-	auxbuttons: PadOrButton[];
-	accel: BranchControl[];
+	faders?: BranchControl[];
+	pots?: BranchControl[];
+	proximity?: BranchControl;
+	joystick?: BranchJoystickBank[];
+	auxbuttons?: PadOrButton[];
+	accel?: BranchControl[];
 }
 
 export interface PatchLegacy extends Patch {

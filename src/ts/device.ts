@@ -46,6 +46,7 @@ interface ModelChip {
 	varies?: boolean;
 	name?: string;
 	code?: number;
+	mhz?: number;
 }
 
 export enum BLEAvailable {
@@ -403,7 +404,7 @@ export const models: Model[][] = [
 	],
 ];
 
-export const ChipIDs = {
+export const ChipIDs: Record<number, ModelChip> = {
 	5: {
 		name: "SAMD21x18",
 		code: 18,
@@ -475,7 +476,15 @@ export function versionCompareRaw(
 		let pCurrent = currVersionSplit.shift();
 		let pNew = newVersionSplit.shift();
 
-		if (typeof pNew === "string") pNew = parseInt(pNew);
+		if (pCurrent === undefined || pNew === undefined) {
+			throw new Error(
+				"Cannot compare versions: either pCurrent or pNew are undefined"
+			);
+		}
+
+		if (typeof pNew === "string") {
+			pNew = parseInt(pNew);
+		}
 
 		if (isNaN(pCurrent) || isNaN(pNew))
 			throw "One of the version components is NaN";
@@ -519,8 +528,10 @@ export function isMinimumVersion(currentVersion: string) {
 	return !versionCompare(currentVersion, minimumFirmware);
 }
 
-export function getFullModelCode(model: Model) {
-	return model.chip.varies ? `${model.code}-${model.chip.code}` : model.code;
+export function getFullModelCode(model: Model): string {
+	return model.chip?.varies
+		? `${model.code}-${model.chip.code}`
+		: model.code ?? "";
 }
 
 let waitBeforeRetry = false;
@@ -534,8 +545,10 @@ export async function getDefaultPatch(model: Model) {
 
 		if (fetchJSON.status === 200) result = await fetchJSON.json();
 		else if (fetchJSON.status === 503) {
-			if (fetchJSON.headers.get("retry-after")) {
-				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
+			const retryAfterHeader = fetchJSON.headers.get("retry-after");
+
+			if (retryAfterHeader) {
+				let retryAfter = parseInt(retryAfterHeader);
 				console.warn("We should retry after ", retryAfter);
 				setTimeout(() => (waitBeforeRetry = false), retryAfter * 1000);
 			}
@@ -569,8 +582,10 @@ export async function getLatestVersion(model: Model | string) {
 
 		if (fetchJSON.status === 200) result = await fetchJSON.json();
 		else if (fetchJSON.status === 503) {
-			if (fetchJSON.headers.get("retry-after")) {
-				let retryAfter = parseInt(fetchJSON.headers.get("retry-after"));
+			const retryAfterHeader = fetchJSON.headers.get("retry-after");
+
+			if (retryAfterHeader) {
+				let retryAfter = parseInt(retryAfterHeader);
 				console.warn("We should retry after ", retryAfter);
 				setTimeout(() => (waitBeforeRetry = false), retryAfter * 1000);
 			}
