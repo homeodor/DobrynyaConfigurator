@@ -94,7 +94,7 @@
 
 	let burstIsOpen = $state<boolean>(false);
 
-	function openBurstEditor(ev: MouseEvent) {
+	function openBurstEditor(ev: MouseEvent | KeyboardEvent) {
 		ev.preventDefault();
 		ev.stopPropagation();
 		burstIsOpen = true;
@@ -324,8 +324,10 @@
 	</h2>
 	<div class="cancelerholder" style="text-align: right; font-weight: bold">
 		<button class="unbutton revert" onclick={revert}>↺</button>
-		<button class="unbutton close" onclick={dispatchEditorClose} tabindex="0"
-			><Tick /></button
+		<button
+			class="unbutton close"
+			onclick={dispatchEditorClose}
+			tabindex="0"><Tick /></button
 		>
 	</div>
 </header>
@@ -360,8 +362,8 @@
 				class="auxaction">Reset to bank colours</button
 			>
 			<div class="checkboxholder">
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<label onclick={openBurstEditor}>
+				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+				<label onclick={openBurstEditor} onkeypress={openBurstEditor}>
 					<input
 						checked={burstIsOn(editorData.burst)}
 						class="appleswitch"
