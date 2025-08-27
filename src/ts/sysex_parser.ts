@@ -7,7 +7,12 @@ import {
 	ChipIDs,
 } from "./device";
 import { isConnected, sysExableStringToUTF8 } from "./midi_core";
-import { type Result, Status, Command } from "./configurator";
+import {
+	type Result,
+	Status,
+	Command,
+	type InterpretedMessage,
+} from "./configurator";
 import { type StatusResult, BatteryStatus } from "./types";
 import {
 	pushFromSysEx,
@@ -15,13 +20,25 @@ import {
 	invokeControl,
 	invokeBank,
 } from "./event_helpers";
+import { getChecksumCalculator, WhichChecksum } from "./checksum";
 
 interface SevenToEightData {
 	filename: Uint8Array | null;
 	data: Uint8Array;
 }
 
-const headerLength: number = 12;
+const k_headerLength: number = 12;
+
+const k_decode7to8 = new Map<Command, boolean>();
+
+k_decode7to8.set(Command.STATUS, false);
+k_decode7to8.set(Command.GETPATCHINFO, true);
+k_decode7to8.set(Command.READPATCHTHROUGH, true);
+k_decode7to8.set(Command.READPATCH, true);
+k_decode7to8.set(Command.GETSERIAL, false);
+k_decode7to8.set(Command.GETVERSION, false);
+k_decode7to8.set(Command.GETFACTORYSETTINGS, false);
+k_decode7to8.set(Command.GETSETTINGS, false);
 
 export class SysExParser {
 	constructor() {
@@ -29,7 +46,18 @@ export class SysExParser {
 		this.interpretMidiEvent = this.interpretMidiEvent.bind(this);
 	}
 
-	public interpretMidiEvent(event: MIDIMessageEvent): Result | boolean {
+	private get32from28(data: Uint8Array, pos: number) {
+		let value = 0;
+
+		for (let i = 0; i < 4; i++) {
+			let val0 = data[pos++];
+			value |= val0 << (7 * i);
+		}
+
+		return value;
+	}
+
+	private getResult(event: MIDIMessageEvent): InterpretedMessage | false {
 		if (!event.data) {
 			throw new Error("interpretMidiEvent received null data");
 		}
@@ -40,44 +68,108 @@ export class SysExParser {
 			return false;
 		}
 
-		let midiResult: Result = {
-			command: d[10],
-			status: d[11] & 0x3f,
+		const isV20 = d[7] == 0 && d[8] == 2;
+
+		const whichChecksum: WhichChecksum =
+			(d[11] & Status.USECHECKSUM) != Status.USECHECKSUM
+				? WhichChecksum.NONE
+				: isV20
+					? WhichChecksum.LEGACY
+					: WhichChecksum.CRC16;
+
+		const usefulOffset =
+			whichChecksum === WhichChecksum.NONE
+				? k_headerLength
+				: k_headerLength + 8;
+		let rawData = d.subarray(usefulOffset, d.length - 1);
+		let filename: string | null = null;
+
+		const command = d[10] as Command;
+		const status = d[11] & 0x3f;
+
+		if (k_decode7to8.has(command)) {
+			const hasFilename = k_decode7to8.get(command);
+			const decodeResult = this.sevenToEightTEMP(rawData, hasFilename);
+
+			rawData = decodeResult.data;
+			filename = hasFilename
+				? sysExableStringToUTF8(decodeResult.filename).string
+				: null;
+		}
+
+		let checksum: number | undefined = undefined;
+		let length: number | undefined = undefined;
+
+		if (whichChecksum !== WhichChecksum.NONE) {
+			const checksumCalculator = getChecksumCalculator(whichChecksum);
+
+			for (const b of rawData) {
+				checksumCalculator.next(b);
+			}
+
+			const expectedLength = this.get32from28(d, 12);
+			const expectedChecksum = this.get32from28(d, 16);
+
+			if (
+				checksumCalculator.checksum !== expectedChecksum ||
+				checksumCalculator.length !== expectedLength
+			) {
+				throw new Error(
+					`Expected checksum: ${expectedChecksum}, calculated ${checksumCalculator.checksum}.\nExpected length: ${expectedLength}, calculated ${checksumCalculator.length}. `
+				);
+			}
+		}
+
+		return {
+			rawData,
+			filename,
+			midiResult: {
+				command,
+				status,
 			model:
 				d[4] in models && d[5] in models[d[4]]
 					? models[d[4]][d[5]]
 					: models[0][0],
-			hasControlSum: (d[11] & 0x40) == 0x40,
 			filename: "",
 			data: null,
 			success: (d[11] & 0x3f) == Status.OK,
+			},
+			rawestData: d,
 		};
+	}
+
+	public interpretMidiEvent(event: MIDIMessageEvent): Result | boolean {
+		const parsed = this.getResult(event);
+
+		if (parsed === false) {
+			return false;
+		}
+
+		const { rawData, filename, midiResult } = parsed;
 
 		switch (midiResult.command) {
 			case Command.STATUS: {
 				if (!midiResult.success) break;
 
-				if (d.length <= 14) {
+				if (rawData.length <= 1) {
 					// old fw
 					midiResult.status = Status.OLD_FIRMWARE;
 					break;
 				}
 
-				let pureData = this.sevenToEight(d).data;
-
 				let output: StatusResult = defaultStatusResult();
 
-				output.isCorrect = pureData[0] === 0x1;
+				output.isCorrect = rawData[0] === 0x1;
 
 				if (output.isCorrect) {
-					this.serialDataToOutput(pureData, output);
+					this.serialDataToOutput(rawData, output);
 				}
 
 				let capabilityFlagsData =
-					(pureData[12] << 24) |
-					(pureData[11] << 16) |
-					(pureData[10] << 8) |
-					pureData[9];
+					(rawData[12] << 24) |
+					(rawData[11] << 16) |
+					(rawData[10] << 8) |
+					rawData[9];
 
 				for (let flag in capabilityFlags) {
 					if (
@@ -89,14 +181,16 @@ export class SysExParser {
 					}
 				}
 
-				output.version = this.versionDataToString(
-					pureData.slice(9 + 4)
-				); // 9 bytes of serial number, 4 bytes of flags
+				output.version = this.versionDataToString(rawData.slice(9 + 4)); // 9 bytes of serial number, 4 bytes of flags
 
-				if (pureData.length >= 35) {
+				output.legacyChecksum =
+					output.version.startsWith("2.0") ||
+					output.version.startsWith("1.");
+
+				if (rawData.length >= 35) {
 					// battery info
-					output.battery.status = pureData[33];
-					output.battery.percent = pureData[34];
+					output.battery.status = rawData[33];
+					output.battery.percent = rawData[34];
 				} else {
 					output.battery.status = BatteryStatus.noBattery;
 					output.battery.percent = 0;
@@ -112,9 +206,8 @@ export class SysExParser {
 
 				midiResult.data = [];
 
-				let patchData = d.slice(headerLength);
-
 				let findIndex = 0;
+				let patchData = rawData;
 
 				while (
 					patchData.length &&
@@ -144,25 +237,17 @@ export class SysExParser {
 				break;
 			}
 
+			case Command.READPATCH:
 			case Command.GETPATCHINFO: {
-				if (!midiResult.success) break;
-
-				let s2eResult = this.sevenToEight(d, true);
-
-				if (!s2eResult.filename) {
+				if (!midiResult.success) {
 					break;
 				}
 
-				midiResult.filename = sysExableStringToUTF8(
-					s2eResult.filename
-				).string;
-
 				try {
-					midiResult.data = BSON.deserialize(
-						new Uint8Array(s2eResult.data)
-					);
+					midiResult.data = BSON.deserialize(new Uint8Array(rawData));
+					midiResult.filename = filename;
 				} catch (e) {
-					console.error(midiResult, s2eResult.data, d);
+					console.error(midiResult, rawData);
 				}
 
 				break;
@@ -173,50 +258,30 @@ export class SysExParser {
 					break;
 				}
 
-				let s2eResult = this.sevenToEight(d, true);
-
-				if (!s2eResult.filename) {
-					console.error("READPATCHTHROUGH had no filename");
-					break;
-				}
-
-				midiResult.data = new Uint8Array(s2eResult.data);
-				midiResult.filename = sysExableStringToUTF8(
-					s2eResult.filename
-				).string;
+				midiResult.data = new Uint8Array(rawData);
+				midiResult.filename = filename;
 
 				break;
 			}
 
-			case Command.READPATCH: {
-				if (!midiResult.success) break;
+			// case Command.READPATCH: {
+			// 	if (!midiResult.success) break;
 
-				let s2eResult = this.sevenToEight(d, true);
+			// 	try {
+			// 		midiResult.data = BSON.deserialize(new Uint8Array(rawData));
+			// 		midiResult.filename = filename;
+			// 	} catch (e) {
+			// 		console.log(e);
+			// 	}
 
-				if (!s2eResult.filename) {
-					console.error("READPATCH had no filename");
-					break;
-				}
-
-				try {
-					midiResult.data = BSON.deserialize(
-						new Uint8Array(s2eResult.data)
-					);
-					midiResult.filename = sysExableStringToUTF8(
-						s2eResult.filename
-					).string;
-				} catch (e) {
-					console.log(e);
-				}
-
-				break;
-			}
+			// 	break;
+			// }
 
 			case Command.GETSERIAL: {
 				// this is relevant for old firmwares that do not send the serial in status response
 				if (!midiResult.success) break;
 
-				let pureData = Array.from(this.sevenToEight(d).data);
+				let pureData = Array.from(rawData);
 				pureData.unshift(1); // add a byte, which normally is a factory marker, but isn’t sent with GETSERIAL
 
 				let output: StatusResult = defaultStatusResult();
@@ -234,7 +299,7 @@ export class SysExParser {
 				// this is relevant for old firmwares that do not send the serial in status response
 				if (!midiResult.success) break; // nothing to do then
 
-				let vrs = this.versionDataToString(this.sevenToEight(d).data);
+				let vrs = this.versionDataToString(rawData);
 
 				if (!vrs)
 					alert(
@@ -248,10 +313,12 @@ export class SysExParser {
 
 			case Command.GETFACTORYSETTINGS: // not used in the Configurator
 			case Command.GETSETTINGS: {
-				if (!midiResult.success) break;
-				midiResult.data = this.sevenToEight(d).data; // just pass (almost) raw data
+				if (!midiResult.success) {
 				break;
 			}
+				midiResult.data = rawData;
+				break;
+		}
 		}
 
 		return midiResult;
@@ -262,36 +329,17 @@ export class SysExParser {
 			return;
 		}
 
-		if (!event.data) {
-			throw new Error("onMessage received null data");
-		}
+		const parsed = this.getResult(event);
 
-		const d = this.assemble(event.data);
-
-		if (!d) {
+		if (parsed === false) {
 			return false;
 		}
 
-		let midiResult: Result = {
-			command: d[10],
-			status: d[11] & 0x3f,
-			model:
-				d[4] in models && d[5] in models[d[4]]
-					? models[d[4]][d[5]]
-					: models[0][0],
-			hasControlSum: (d[11] & 0x40) == 0x40,
-			filename: "",
-			data: null,
-			success:
-				(d[11] & 0x3f) == Status.REQUEST ||
-				(d[11] & 0x3f) == Status.PUSH,
-		};
+		const { rawData, filename, midiResult } = parsed;
 
 		switch (midiResult.command) {
 			case Command.READPATCH: {
 				if (midiResult.status != Status.PUSH) break;
-
-				let temporaryArray = this.sevenToEight(d, true);
 
 				if (!temporaryArray.filename) {
 					console.error("READPATCH had no filename");
@@ -299,12 +347,8 @@ export class SysExParser {
 				}
 
 				try {
-					midiResult.data = BSON.deserialize(
-						new Uint8Array(temporaryArray.data)
-					);
-					midiResult.filename = sysExableStringToUTF8(
-						temporaryArray.filename
-					).string;
+					midiResult.data = BSON.deserialize(new Uint8Array(rawData));
+					midiResult.filename = filename;
 					pushFromSysEx(midiResult);
 				} catch (e) {
 					console.log(e);
@@ -314,16 +358,22 @@ export class SysExParser {
 			}
 
 			case Command.LOCKPATCHSWITCHING:
-				if (midiResult.status == Status.REQUEST)
+				if (midiResult.status == Status.REQUEST) {
 					deviceRefusedToChangePatches();
+				}
 				break;
 			case Command.INVOKECONTROL:
 				if (midiResult.status == Status.REQUEST)
-					invokeControl(d[12], d[13]);
+					invokeControl(rawData[0], rawData[1]);
 				break;
 			case Command.LOADBANK:
-				if (midiResult.status == Status.REQUEST)
-					invokeBank(d[12] & 0xf, d[13], (d[12] & 0x10) == 0x10);
+				if (midiResult.status == Status.REQUEST) {
+					invokeBank(
+						rawData[0] & 0xf,
+						rawData[1],
+						(rawData[0] & 0x10) == 0x10
+					);
+				}
 				break;
 		}
 	}
@@ -403,14 +453,14 @@ export class SysExParser {
 		return new TextDecoder().decode(new Uint8Array(versionArrayNormal));
 	}
 
-	private sevenToEight(
+	private sevenToEightTEMP(
 		d: Uint8Array,
 		hasFilename: boolean = false
 	): SevenToEightData {
 		let shifter: number = 1;
 		let outArray: number[] = [];
 		let filename: number[] = [];
-		let zeroi: number = headerLength;
+		let zeroi: number = 0;
 
 		if (hasFilename) {
 			while (d[zeroi]) filename.push(d[zeroi++]);

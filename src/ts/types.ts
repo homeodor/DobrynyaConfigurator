@@ -118,4 +118,5 @@ export interface StatusResult {
 	model: Model;
 	has: Capabilities;
 	battery: BatteryInfo;
+	legacyChecksum: boolean;
 }

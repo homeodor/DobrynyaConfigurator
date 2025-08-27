@@ -138,6 +138,7 @@ export function defaultStatusResult(isC: boolean = false): StatusResult {
 			sidestick: false,
 		},
 		battery: { status: BatteryStatus.noBattery, percent: 0 },
+		legacyChecksum: false,
 	};
 }
 

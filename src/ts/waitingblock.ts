@@ -175,6 +175,9 @@ export class WaitingBlock {
 			case Status.FILENAME_TOO_LONG:
 				text = "The requested file has a filename that is too long.";
 				break;
+			case Status.WRONG_DATA:
+				text = "The device has rejected the data as malformed";
+				break;
 			case Status.NOT_IMPLEMENTED: {
 				WaitingBlock.unblock();
 				return; // so what.

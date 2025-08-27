@@ -3,6 +3,14 @@ import { type Result, Command, Status } from "./configurator";
 import { SysExParser } from "./sysex_parser";
 import type { HexColour, ColourArray, Hand } from "./types";
 import { batteryInfo } from "./stores";
+import {
+	getChecksumCalculator,
+	type LengthChecksum,
+	selectChecksum,
+	WhichChecksum,
+} from "./checksum";
+import { getDevice } from "./device";
+import { eightToSeven } from "./midi_utils";
 
 let midi: MIDIAccess | null = null;
 let portOut: MIDIOutput | null = null;
@@ -149,8 +157,11 @@ const charDC2 = 0x12;
 const charDC4 = 0x14;
 const charDLE = 0x10;
 
-export function sysExableString(filename: string): SysExableStringData {
-	let message = [];
+function sysExableString(
+	filename: string,
+	checksum: LengthChecksum | null
+): SysExableStringData {
+	const message = [];
 
 	const charUnderscore = 0x5f;
 	const charDot = 0x2e;
@@ -211,6 +222,12 @@ export function sysExableString(filename: string): SysExableStringData {
 
 	message.push(0); // zero-terminated string!
 
+	if (checksum) {
+		for (const byte of message) {
+			checksum.next(byte);
+		}
+	}
+
 	return {
 		message: message,
 		hasForbiddenCharacters: hasForbidden,
@@ -259,10 +276,18 @@ export function sysExableStringToUTF8(
 	};
 }
 
-function sysExFilenameSanize(filename: string, message: number[]): number[] {
-	message = [...message, ...sysExableString(filename).message];
+function sysExFilenameSanize(
+	filename: string,
+	message: number[],
+	checksum: LengthChecksum | null
+): number[] {
+	message = [...message, ...sysExableString(filename, checksum).message];
 
-	while (message.length % 3 != 0) message.push(0); // добиваем до кратного трём значения — так ровно разбивается по пакетам...
+	if (getDevice().legacyChecksum) {
+		while (message.length % 3 != 0) {
+			message.push(0); // добиваем до кратного трём значения — так ровно разбивается по пакетам...
+		}
+	}
 
 	return message;
 }
@@ -271,36 +296,22 @@ function sysEx2Filenames(cmd: Command, filename1: string, filename2: string) {
 	let message: number[] = [];
 	let filenames = [filename1, filename2];
 	for (let filename of filenames)
-		message = sysExFilenameSanize(filename, message);
+		message = sysExFilenameSanize(filename, message, null);
 	sysEx(cmd, message);
 }
 
 function sysExFile(cmd: Command, filename: string, filedata: Uint8Array) {
 	// if (lockMidi) return;
 
-	let message: number[] = sysExFilenameSanize(filename, []);
-
-	let sevenBitCounter: number = 1;
-	let datapointer: number = 0;
-	// let nowByte: number  = 0;
-	let nextByte: number = 0;
-
-	while (filedata.length > datapointer) {
-		if (sevenBitCounter < 8) {
-			message.push(nextByte | (filedata[datapointer] >> sevenBitCounter));
-			nextByte = (filedata[datapointer] << (7 - sevenBitCounter)) & 0x7f;
-			sevenBitCounter++;
-			datapointer++;
-		} else {
-			sevenBitCounter = 1;
-			message.push(nextByte);
-			nextByte = 0;
-		}
-	}
-
-	message.push(nextByte);
-
-	sysEx(cmd, message, true);
+	const checksum = getChecksumCalculator(selectChecksum());
+	sysEx(
+		cmd,
+		[
+			...sysExFilenameSanize(filename, [], checksum),
+			...eightToSeven(filedata, checksum),
+		],
+		checksum
+	);
 }
 
 function sysExArray(cmd: Command, status = Status.REQUEST): number[] {
@@ -341,51 +352,36 @@ export function sysExBank(hand: Hand, shift: boolean, bank: number) {
 function sysEx(
 	cmd: Command,
 	load: number[] | string | null = null,
-	usechecksum: boolean = false
+	checksum: LengthChecksum | null = null
 ) {
 	//	if (lockMidi) return;
-	let message: number[] = usechecksum
+	let message: number[] = checksum
 		? sysExArray(cmd, Status.USECHECKSUM | Status.REQUEST)
 		: sysExArray(cmd);
 
-	let checksumposition: number = 0;
-	let checksum: number = 0;
-
-	if (usechecksum) {
-		if (load === null) {
-			throw new Error(
-				"Checksum implies payload, however the payload was null"
-			);
-		}
-
-		let length = sysEx28bit(load.length);
-		for (let el of length) message.push(el);
-		checksumposition = message.length;
-		for (let i = 0; i < 5; i++) message.push(0); // checksum space
-		// NB 9 bytes are allocated for the checksum data, because this is a multiple of a Midi-USB chunk (3 bytes)
+	if (checksum) {
+		const lengthChecksum = [
+			...sysEx28bit(checksum.length),
+			...sysEx28bit(checksum.checksum),
+		];
+		for (let el of lengthChecksum) {
+			message.push(el);
+	}
 	}
 
 	for (let si = 0; si < (load?.length ?? 0); si++) {
 		let b: number;
 		if (typeof load == "string") {
-			b = load.charCodeAt(si);
+			b = load.charCodeAt(parseInt(si));
 		} else if (Array.isArray(load)) {
-			b = load[si];
-		} else return;
+			b = parseInt(load[si]);
+		} else {
+			return;
+		}
 
 		b %= 128;
 
-		if (usechecksum) {
-			checksum += b;
-		}
-
 		message.push(b);
-	}
-
-	if (usechecksum) {
-		let checksumArr = sysEx28bit(checksum % 0xfffffff);
-		for (let checksum28 of checksumArr)
-			message[checksumposition++] = checksum28;
 	}
 
 	midiSendTerminated(message);
@@ -401,10 +397,7 @@ function sysExFilename(cmd: Command, load: string) {
 	midiSendTerminated(message);
 }
 
-async function waitForMidi(
-	theCommand: null | Command = null,
-	timeout = 500
-): Promise<Result> {
+async function waitForMidi(theCommand = null, timeout = 500): Promise<Result> {
 	if (portIn === null) {
 		throw "No midi port found";
 	}
@@ -430,7 +423,10 @@ async function waitForMidi(
 
 			let result: Result | boolean = parser.interpretMidiEvent(ev);
 
-			if (result === false) return; // we don’t know what it was...
+			if (result === false) {
+				return; // we don’t know what it was...
+			}
+
 			if (
 				theCommand !== null &&
 				(result as Result).command &&
@@ -545,11 +541,11 @@ export async function sysExAndDo(
 	handler: Function,
 	timeout: number = 500,
 	load: any = null,
-	useChecksum: boolean = false
+	checksum: LengthChecksum | null = null
 ): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
-	sysEx(theCommand, load, useChecksum);
+	sysEx(theCommand, load, checksum);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;

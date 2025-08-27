@@ -6,6 +6,7 @@ import { Command } from "./configurator";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
 import { writable, type Writable } from "svelte/store";
+import { getChecksumCalculator, selectChecksum } from "./checksum";
 
 interface SettingsObjectItem {
 	length?: number;
@@ -372,6 +373,7 @@ export async function saveSettings(
 	while (b8.length < settingsLength) b8.push(0xff);
 
 	WaitingBlock.block(Command.SAVESETTINGS);
+	const checksum = getChecksumCalculator(selectChecksum());
 	await sysExAndDo(
 		Command.SAVESETTINGS,
 		() => {
@@ -379,8 +381,8 @@ export async function saveSettings(
 			isSaved = true;
 		},
 		1000,
-		eightToSeven(b8),
-		true
+		eightToSeven(b8, checksum),
+		checksum
 	);
 }
 
