@@ -1,6 +1,7 @@
 "use strict";
 
 import type { BranchBank } from "types_patch";
+import { type LengthChecksum } from "./checksum";
 
 export const fakeNoteUseScale = 0xfe;
 export const fakeNoteOff = 0xff;
@@ -218,7 +219,10 @@ function getNoteInScale(
 	};
 }
 
-export function eightToSeven(arr: any): number[] {
+export function eightToSeven(
+	arr: any,
+	checksum: LengthChecksum | null = null
+): number[] {
 	let sevenBitCounter: number = 1;
 	let nextByte: number = 0;
 	let outArr: number[] = [];
@@ -232,9 +236,12 @@ export function eightToSeven(arr: any): number[] {
 		let byte = parseInt(arr[i]);
 		if (isNaN(byte)) byte = parseInt(arr[i], 16);
 
-		if (byte > 255) throw `eightToSeven: value > 255 at byte ${i}`;
+		if (byte > 255) {
+			throw new Error(`eightToSeven: value > 255 at byte ${i}`);
+		}
 
 		if (sevenBitCounter < 8) {
+			checksum.next(byte);
 			resultByte = nextByte | (byte >> sevenBitCounter);
 			nextByte = (byte << (7 - sevenBitCounter)) & 0x7f;
 			sevenBitCounter++;
@@ -248,7 +255,9 @@ export function eightToSeven(arr: any): number[] {
 		outArr.push(resultByte);
 	}
 
-	outArr.push(nextByte);
+	if (sevenBitCounter !== 1) {
+		outArr.push(nextByte);
+	}
 
 	return outArr;
 }

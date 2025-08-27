@@ -6,6 +6,7 @@ import { Command } from "configurator";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
 import { writable, type Writable } from "svelte/store";
+import { getChecksumCalculator, selectChecksum } from "./checksum";
 
 interface SettingsObjectItem {
 	length?: number;
@@ -207,7 +208,9 @@ function settingsModel(): SettingsObject {
 				isFlag: true,
 			},
 			power: {
-				fixfunc: (v: number) => { return v < 1 || v > 3 ? 2 : v; },
+				fixfunc: (v: number) => {
+					return v < 1 || v > 3 ? 2 : v;
+				},
 			},
 			name: {
 				fixfunc: fixDeviceName,
@@ -241,12 +244,13 @@ export function parseSettingsData() {
 		if (i == "fakeparam") continue;
 
 		for (let j in window.settings[i]) {
-
 			const param = window.settings[i][j];
 
 			if (typeof param === "number") {
 				if (arp !== param) {
-					throw new Error(`Offset failed: expected ${param}, got ${arp} at ${i}`);
+					throw new Error(
+						`Offset failed: expected ${param}, got ${arp} at ${i}`
+					);
 				}
 
 				console.warn(`Offset verified for ${i}`);
@@ -362,6 +366,7 @@ export async function saveSettings(
 	while (b8.length < settingsLength) b8.push(0xff);
 
 	WaitingBlock.block(Command.SAVESETTINGS);
+	const checksum = getChecksumCalculator(selectChecksum());
 	await sysExAndDo(
 		Command.SAVESETTINGS,
 		() => {
@@ -369,8 +374,8 @@ export async function saveSettings(
 			isSaved = true;
 		},
 		1000,
-		eightToSeven(b8),
-		true
+		eightToSeven(b8, checksum),
+		checksum
 	);
 }
 
@@ -383,7 +388,7 @@ export async function getSettingsFromDevice() {
 }
 
 export async function getPalettesFromDevice() {
-	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => { });
+	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => {});
 }
 
 export async function fixSettings(settingsLength: number) {
@@ -434,8 +439,8 @@ export async function getFactorySettings() {
 
 		importantFactorySettingsNew.boardRevision =
 			boardRevision[0] !== 0 &&
-				boardRevision[0] !== 0xff &&
-				boardRevision[1] !== 0xff
+			boardRevision[0] !== 0xff &&
+			boardRevision[1] !== 0xff
 				? `${boardRevision[0]}.${boardRevision[1]}`
 				: null;
 
