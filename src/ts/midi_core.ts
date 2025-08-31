@@ -64,11 +64,13 @@ async function checkDobrynyaIsHere() {
 
 	portOut =
 		Array.from(midi?.outputs.values()).find((entry: MIDIOutput) => {
-			return entry.name?.startsWith("MIDI Dobrynya ");
+			return entry.name?.startsWith("MIDI Dobrynya ") &&
+			!entry.name.includes("Bluetooth");
 		}) ?? null;
 	portIn =
 		Array.from(midi?.inputs.values()).find((entry: MIDIInput) => {
-			return entry.name?.startsWith("MIDI Dobrynya ");
+			return entry.name?.startsWith("MIDI Dobrynya ") &&
+			!entry.name.includes("Bluetooth");
 		}) ?? null;
 
 	if (portIn)
