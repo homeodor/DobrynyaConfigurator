@@ -169,6 +169,9 @@ export class WaitingBlock {
 			case Status.WRONG_DATA:
 				text = "The device has rejected the data as malformed";
 				break;
+			case Status.READ_ONLY_FILESYSTEM:
+				text = "The filesystem of this device is read-only. Please <a href='/migratefs/'>migrate it</a> for writing access.";
+				break;
 			case Status.NOT_IMPLEMENTED: {
 				WaitingBlock.unblock();
 				return; // so what.

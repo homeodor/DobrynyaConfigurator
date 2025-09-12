@@ -35,7 +35,7 @@
 		{#if commandText != ""}
 		<p>The configurator failed to {commandText.toLowerCase()}.</p>
 		{/if}
-		<p>{errorText}</p>
+		<p>{@html errorText}</p>
 		<p><button on:click={unblock}>Okay :(</button></p>
 	</div>
 	{/if}
