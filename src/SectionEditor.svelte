@@ -24,6 +24,8 @@
 	import Alert from "./widgets/Alert.svelte";
 	import GotIt from "./widgets/GotIt.svelte";
 
+	import SectionPatches from "./SectionPatches.svelte";
+
 	import { Hand, NewPatchDecision } from "./ts/types";
 	import {
 		NameFailsBecause,
@@ -96,6 +98,23 @@
 
 	let patchSelector: HTMLSelectElement;
 
+	let dialogPatchList: HTMLDialogElement;
+
+	function openPatchList()
+	{
+		if (dialogPatchList.open)
+		{
+			return;
+		}
+
+		dialogPatchList.showModal();
+	}
+	
+	function closePatchList()
+	{
+		dialogPatchList.close();
+	}
+
 	export async function selectPatch(
 		ev: Event | CustomEvent | string,
 		quiet: boolean = false
@@ -108,6 +127,7 @@
 		// use the value directly if it is a string, otherwise either take the detail.name from CustomEvent or target.value from Select event
 
 		outline?.closeEditor();
+		closePatchList();
 
 		const confirmationDialog =
 			typeof ev === "string" && ev === currentPatch.name
@@ -405,6 +425,17 @@
 export function invokeControl(kind: number, no: number) { quickCustom("invoke", {controlKind: kind, controlNo: no}); }
 export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: data }) } -->
 
+<dialog class="modal" bind:this={dialogPatchList}>
+		<SectionPatches
+			{getIsSaved}
+			{markSaved}
+			{selectPatch}
+			{closePatchList}
+			bind:patchesInfo={$patchList}
+			{isOnline}
+		/>
+</dialog>
+
 {#if currentPatch?.data && openSection == "editor"}
 	<section id="tab-config">
 		<GotIt cookieName="editorworks">
@@ -434,6 +465,7 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 				bind:this={patchSelector}
 				disabled={!isOnline}
 				id="patchselector"
+				on:click={(ev) => { openPatchList(); ev.preventDefault(); ev.stopPropagation(); }}
 				on:input={selectPatch}
 				value={currentPatch.value}
 				style="height:2.5rem"

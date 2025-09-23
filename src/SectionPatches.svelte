@@ -48,9 +48,29 @@
 	import { deviceDefinition } from "./ts/device";
 
 	export let patchesInfo: PatchInfoItem[];
-	export let editor: SectionEditor;
-	export let changeSection: Function;
+	export let getIsSaved: Function;
+	export let markSaved: Function;
+	export let selectPatch: Function;
+	export let closePatchList: Function;
 	export let isOnline: boolean;
+
+	function handleKeydown(ev: KeyboardEvent) {
+		if (ev.key == "Enter")
+		{
+			const selectedPatches = document.querySelector(".patchlist-item.current-patch");
+
+			selectPatch(selectedPatches?.data("patch-name"));
+			closePatchList();
+		}
+
+		if (ev.key == "Escape" || ev.key == "Enter")
+		{
+			closePatchList();
+			return;
+		}
+
+		
+	}
 
 	async function tune(
 		name: string,
@@ -58,9 +78,9 @@
 		openDrawer: boolean = false
 	) {
 		if (isThePatch) {
-			changeSection("editor");
+			closePatchList();
 		} else {
-			await editor.selectPatch(name);
+			await selectPatch(name);
 		}
 
 		if (openDrawer) {
@@ -143,7 +163,7 @@
 	): Promise<{ patchData: Patch; isCurrent: boolean }> {
 		if (
 			isThePatch &&
-			(editor.getIsSaved() || (await confirmDialog.confirm()))
+			(getIsSaved() || (await confirmDialog.confirm()))
 		) {
 			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
 		} else {
@@ -241,8 +261,8 @@
 			}, 600);
 
 			if (isThePatch) {
-				editor.markSaved(); // the patch is gone, so whatever
-				editor.selectPatch(
+				markSaved(); // the patch is gone, so whatever
+				selectPatch(
 					patchesInfo.find(v => {
 						return v.name != name;
 					}).name,
@@ -264,10 +284,10 @@
 		}
 	}
 
-	function openNewUI() {
-		quickCustom("opennewui", {});
-		changeSection("editor");
-	}
+	// function openNewUI() {
+	// 	quickCustom("opennewui", {});
+	// 	changeSection("editor");
+	// }
 
 	let patchList: HTMLDivElement;
 	let needToScroll = false;
@@ -314,11 +334,10 @@
 	}
 </script>
 
+<svelte:body on:keydown={handleKeydown} />
+
 <section id="tab-patches">
 	<div style="margin-bottom:2rem" id="patchlist-diskmode">
-		<button style="height:3em; vertical-align: bottom;" on:click={openNewUI}
-			>New patch...</button
-		>
 		<button
 			style="height:3em; vertical-align: bottom"
 			on:click={rebootToDisk}
@@ -344,6 +363,7 @@
 					class="patchlist-item"
 					class:current-patch={patch.isThePatch}
 					class:uploaded-patch={justUploadedName == patch.name}
+					data-patch-name={patch.name}
 				>
 					<div>
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -456,7 +476,7 @@
 	<p>Do you want to delete {fileToBeDeleted}?</p>
 	{#if currentPatchName == fileToBeDeleted}
 		<p>
-			This is your current patch{#if !editor.getIsSaved()}, and you have
+			This is your current patch{#if !getIsSaved()}, and you have
 				unsaved changes{/if}.
 		</p>
 	{/if}

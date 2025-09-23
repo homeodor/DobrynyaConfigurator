@@ -45,11 +45,21 @@
 	import SectionDevice from "./SectionDevice.svelte";
 	import SectionFirmware from "./SectionFirmware.svelte";
 
+	function hidAvailable()
+	{
+		return navigator.hid !== undefined && $deviceDefinition && $deviceDefinition?.model?.canHid;
+	}
+
+	function signatureAvailable()
+	{
+		return false;
+	}
+
 	const sections: string[] = [
 		"editor",
-		"patches",
 		"settings",
-		"firmware",
+		...(hidAvailable() ? ["firmware"] : []),
+		...(signatureAvailable() ? ["soundpacks"] : []),
 		"device",
 	];
 
@@ -351,15 +361,9 @@
 		/>
 	{/if}
 	<!-- {/if} -->
-	{#if openSection == "patches"}
-		<SectionPatches
-			changeSection={section}
-			{editor}
-			on:section={section}
-			bind:patchesInfo={$patchList}
-			isOnline={isOnline && isConnected}
-		/>
-	{/if}
+	<!-- {#if openSection == "patches"}
+
+	{/if} -->
 	{#if openSection == "settings"}
 		<SectionSettings
 			on:section={section}
