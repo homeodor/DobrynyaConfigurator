@@ -45,13 +45,15 @@
 	import SectionDevice from "./SectionDevice.svelte";
 	import SectionFirmware from "./SectionFirmware.svelte";
 
-	function hidAvailable()
-	{
-		return navigator.hid !== undefined && $deviceDefinition && $deviceDefinition?.model?.canHid;
+	function hidAvailable() {
+		return (
+			navigator.hid !== undefined &&
+			$deviceDefinition &&
+			$deviceDefinition?.model?.canHid
+		);
 	}
 
-	function signatureAvailable()
-	{
+	function signatureAvailable() {
 		return false;
 	}
 
@@ -294,8 +296,10 @@
 
 <div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
+			role="button"
+			tabindex="0"
 			on:click={() => section(sect)}
 			class:sel={openSection == sect}
 			class:newfirmware={hasNewFirmware == FirmwareState.Outdated &&

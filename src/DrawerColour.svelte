@@ -484,22 +484,28 @@
 			<div class="dw-colour-stuff">
 				<p>
 					Layer:
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
+						role="button"
+						tabindex="0"
 						on:click={() =>
 							(colourPaintMode = ColourPaintLayer.Idle)}
 						class:sel={colourPaintMode == ColourPaintLayer.Idle}
 						class="unreal">Idle</span
 					>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
+						role="button"
+						tabindex="0"
 						on:click={() =>
 							(colourPaintMode = ColourPaintLayer.Active)}
 						class:sel={colourPaintMode == ColourPaintLayer.Active}
 						class="unreal">Active</span
 					>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
+						role="button"
+						tabindex="0"
 						style="white-space: nowrap"
 						on:click={() =>
 							(colourPaintMode = ColourPaintLayer.Pattern)}
@@ -516,14 +522,18 @@
 				</p>
 				<p class:disabled={isPattern}>
 					Bank colour:
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
+						role="button"
+						tabindex="0"
 						on:click={() => (colourPaintShowBank = true)}
 						class="unreal inline-selector"
 						class:sel={colourPaintShowBank}>Show</span
 					>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
+						role="button"
+						tabindex="0"
 						on:click={() => (colourPaintShowBank = false)}
 						class="unreal inline-selector"
 						class:sel={!colourPaintShowBank}>Hide</span

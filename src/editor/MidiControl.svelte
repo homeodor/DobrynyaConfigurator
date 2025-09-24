@@ -67,8 +67,11 @@
 
 		if (what != MidiCtrl.PITCH || isNaN(numV)) return numV;
 
-		if (what === MidiCtrl.PITCH)
+		if (what === MidiCtrl.PITCH) {
 			return numV ? map(numV, -8192, 8191, 0, 127) : 64;
+		}
+
+		throw new Error("Unknown what");
 	};
 
 	let rangeToInlinePitch = function (v: number): string {
@@ -322,9 +325,9 @@
 					bind:checked={isToggle}
 				/>
 				<mark></mark>Release latches value <Halp>
-					Normally releasing the tilt mode will reset the
-					parameter to the default (“flat”) value. If this option is
-					enabled, the last value will be kept after the release.
+					Normally releasing the tilt mode will reset the parameter to
+					the default (“flat”) value. If this option is enabled, the
+					last value will be kept after the release.
 				</Halp>
 			</label>
 		</div>
@@ -485,7 +488,7 @@
 			</div>
 
 			<div class="checkboxholder">
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 				<label on:click|stopPropagation|preventDefault={openRampEditor}>
 					<input
 						checked={(rampu || rampd) > 0}
@@ -503,10 +506,10 @@
 				>
 				{#if rampIsOpen}
 					<Ramps
-						on:input={patchChanged}
+						oninput={patchChanged}
 						bind:rampu
 						bind:rampd
-						on:close={() => (rampIsOpen = false)}
+						onclose={() => (rampIsOpen = false)}
 					/>
 				{/if}
 				<!-- 			

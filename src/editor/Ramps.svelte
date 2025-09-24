@@ -5,13 +5,15 @@
 	import { onMount, onDestroy, createEventDispatcher } from "svelte";
 
 	let {
-		rampu,
-		rampd,
+		rampu = $bindable(),
+		rampd = $bindable(),
 		onclose,
+		oninput,
 	}: {
 		rampu: number;
 		rampd: number;
-		onclose: Function;
+		onclose: () => void;
+		oninput: () => void;
 	} = $props();
 
 	let theDialog = $state<HTMLDialogElement>();
@@ -24,8 +26,8 @@
 </script>
 
 <dialog bind:this={theDialog}>
-	<Ramp on:input bind:value={rampu} rampID="rampu">Ramp up (Attack)</Ramp>
-	<Ramp on:input bind:value={rampd} rampID="rampd">Ramp down (Release)</Ramp>
+	<Ramp {oninput} bind:value={rampu} rampID="rampu">Ramp up (Attack)</Ramp>
+	<Ramp {oninput} bind:value={rampd} rampID="rampd">Ramp down (Release)</Ramp>
 	<OkCancel
 		{theDialog}
 		{onclose}

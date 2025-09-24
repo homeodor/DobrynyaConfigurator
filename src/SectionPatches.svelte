@@ -32,7 +32,11 @@
 		nbsp,
 		getNewPatchName,
 	} from "./ts/editor";
-	import { sortPatchList, patchAsFileFromData, getPatch } from "./ts/data_utils";
+	import {
+		sortPatchList,
+		patchAsFileFromData,
+		getPatch,
+	} from "./ts/data_utils";
 	import { hexToCSS } from "./ts/colour_utils";
 	import { sysExDiskMode, sysExBootloader } from "./ts/midi_core";
 	import type { PatchInfoItem } from "./ts/types_patch";
@@ -55,21 +59,19 @@
 	export let isOnline: boolean;
 
 	function handleKeydown(ev: KeyboardEvent) {
-		if (ev.key == "Enter")
-		{
-			const selectedPatches = document.querySelector(".patchlist-item.current-patch");
+		if (ev.key == "Enter") {
+			const selectedPatches = document.querySelector(
+				".patchlist-item.current-patch"
+			);
 
 			selectPatch(selectedPatches?.data("patch-name"));
 			closePatchList();
 		}
 
-		if (ev.key == "Escape" || ev.key == "Enter")
-		{
+		if (ev.key == "Escape" || ev.key == "Enter") {
 			closePatchList();
 			return;
 		}
-
-		
 	}
 
 	async function tune(
@@ -161,10 +163,7 @@
 		isThePatch: boolean,
 		confirmDialog: Confirm
 	): Promise<{ patchData: Patch; isCurrent: boolean }> {
-		if (
-			isThePatch &&
-			(getIsSaved() || (await confirmDialog.confirm()))
-		) {
+		if (isThePatch && (getIsSaved() || (await confirmDialog.confirm()))) {
 			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
 		} else {
 			return { patchData: await getPatchData(name), isCurrent: false };
@@ -366,8 +365,10 @@
 					data-patch-name={patch.name}
 				>
 					<div>
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<div
+							role="button"
+							tabindex="0"
 							class="patchlist-pattern patternpreview"
 							on:click={() => tune(patch.name, patch.isThePatch)}
 						>
@@ -476,8 +477,8 @@
 	<p>Do you want to delete {fileToBeDeleted}?</p>
 	{#if currentPatchName == fileToBeDeleted}
 		<p>
-			This is your current patch{#if !getIsSaved()}, and you have
-				unsaved changes{/if}.
+			This is your current patch{#if !getIsSaved()}, and you have unsaved
+				changes{/if}.
 		</p>
 	{/if}
 </Confirm>

@@ -5,11 +5,11 @@
 
 	export let scaleIsOn: boolean;
 
-    export let cc: number;
-    export let min: number;
-    export let max: number;
-    export let par: number;
-    export let encmode: EncoderBehaviour;
+	export let cc: number;
+	export let min: number;
+	export let max: number;
+	export let par: number;
+	export let encmode: EncoderBehaviour;
 
 	let encoderIsScale = false;
 	let encoderIsTempo = false;
@@ -63,19 +63,25 @@
 			<p class="warn explain" style="padding:0">
 				This encoder is set to change scale parameters, but no scale is
 				set.
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				You can change the scale in
-				<span class="unreal" on:click={openBankSettings}
-					>bank settings</span
+				<span
+					class="unreal"
+					on:click={openBankSettings}
+					role="link"
+					tabindex="0">bank settings</span
 				>.
 			</p>
 		{:else if !encoderIsScale}
 			<p class="explain">
 				Encoder can be used to change scale parameters on the fly. You
 				can set the scale in
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<span class="unreal" on:click={openBankSettings}
-					>bank settings</span
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<span
+					class="unreal"
+					on:click={openBankSettings}
+					role="link"
+					tabindex="0">bank settings</span
 				>.
 			</p>
 		{/if}

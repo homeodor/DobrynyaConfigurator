@@ -31,15 +31,25 @@
 	<legend>Tilt</legend>
 	<div class="accelerometer-container">
 		<div class="accelerometer">
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div class="axis" on:click={dispatchClick}>
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<div
+				class="axis"
+				on:click={dispatchClick}
+				role="button"
+				tabindex="0"
+			>
 				<div>X <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
 					<InnerControl showEmpty={true} data={dataAll[0]} />
 				</div>
 			</div>
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div class="axis axis-vertical" on:click={dispatchClick}>
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<div
+				class="axis axis-vertical"
+				on:click={dispatchClick}
+				role="button"
+				tabindex="0"
+			>
 				<div>Y <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
 					<InnerControl showEmpty={true} data={dataAll[1]} />

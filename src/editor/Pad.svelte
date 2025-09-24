@@ -142,7 +142,7 @@
 		cherry =
 			$deviceDefinition.model.code.includes("pocket") ||
 			$deviceDefinition.model.code.includes("aurora");
-			
+
 		sharp = $deviceDefinition.model.code.includes("sharp");
 	}
 	//
@@ -151,8 +151,10 @@
 
 <svelte:body on:invoke={invokeControl} />
 
-<!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
+	role="button"
+	tabindex="0"
 	bind:this={theDiv}
 	on:click={customClick}
 	on:mouseover={customClick}

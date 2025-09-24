@@ -118,16 +118,24 @@
 	{/if}
 
 	{#if !showOpenSource}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<p>
-			<span class="unreal" on:click={() => (showOpenSource = true)}
+			<span
+				class="unreal"
+				role="link"
+				tabindex="0"
+				on:click={() => (showOpenSource = true)}
 				>Open source code and assets used in Dobrynya’s codebase</span
 			>
 		</p>
 	{:else}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<p>
-			<span class="unreal" on:click={() => (showOpenSource = false)}
+			<span
+				role="button"
+				tabindex="0"
+				class="unreal"
+				on:click={() => (showOpenSource = false)}
 				>Close libraries list</span
 			>
 		</p>

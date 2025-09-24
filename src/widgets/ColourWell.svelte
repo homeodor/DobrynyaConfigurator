@@ -83,8 +83,10 @@
 	{#if name}
 		<h4>{name}</h4>
 	{/if}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
+		role="button"
+		tabindex="0"
 		class:large
 		class="colourwell"
 		class:nocolour={hex == colourOff}

@@ -13,8 +13,10 @@
 </script>
 
 <div class="cornerdevice">
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
+		role="button"
+		tabindex="0"
 		class="is-online"
 		class:online={isOnline}
 		class:disconnect={!isConnected}
@@ -47,9 +49,9 @@
 		display: flex;
 	}
 
-    .cornerdevice > div {
-        padding: 0.5em;
-    }
+	.cornerdevice > div {
+		padding: 0.5em;
+	}
 
 	.bootloader {
 		background-color: #a3a831;

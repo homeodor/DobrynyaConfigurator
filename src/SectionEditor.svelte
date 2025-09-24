@@ -101,18 +101,15 @@
 
 	let dialogPatchList: HTMLDialogElement;
 
-	function openPatchList()
-	{
-		if (dialogPatchList.open)
-		{
+	function openPatchList() {
+		if (dialogPatchList.open) {
 			return;
 		}
 
 		dialogPatchList.showModal();
 	}
-	
-	function closePatchList()
-	{
+
+	function closePatchList() {
 		dialogPatchList.close();
 	}
 
@@ -427,14 +424,14 @@ export function invokeControl(kind: number, no: number) { quickCustom("invoke", 
 export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: data }) } -->
 
 <dialog class="modal" bind:this={dialogPatchList}>
-		<SectionPatches
-			{getIsSaved}
-			{markSaved}
-			{selectPatch}
-			{closePatchList}
-			bind:patchesInfo={$patchList}
-			{isOnline}
-		/>
+	<SectionPatches
+		{getIsSaved}
+		{markSaved}
+		{selectPatch}
+		{closePatchList}
+		bind:patchesInfo={$patchList}
+		{isOnline}
+	/>
 </dialog>
 
 {#if currentPatch?.data && openSection == "editor"}
@@ -453,8 +450,10 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 			>
 				{#if currentPatch.data.info.pattern}
 					{#each currentPatch.data.info.pattern as colour}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<span
+							role="button"
+							tabindex="0"
 							data-colour="0"
 							style="background-color: {hexToCSS(colour)}"
 							on:click={openPatternEditor}
@@ -466,7 +465,11 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 				bind:this={patchSelector}
 				disabled={!isOnline}
 				id="patchselector"
-				on:click={(ev) => { openPatchList(); ev.preventDefault(); ev.stopPropagation(); }}
+				on:click={ev => {
+					openPatchList();
+					ev.preventDefault();
+					ev.stopPropagation();
+				}}
 				on:input={selectPatch}
 				value={currentPatch.value}
 				style="height:2.5rem"
@@ -591,10 +594,10 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 			</div>
 		{/if}
 
-		<BankSelector 
+		<BankSelector
 			padBanks={currentPatch.data.padbanks}
 			currentBank={editorState.bank}
-			selectBank={selectBank}
+			{selectBank}
 		/>
 
 		<div
@@ -607,7 +610,7 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 		>
 			<div id="drawerclick">
 				{#each drawers as oneDrawer}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
 						class="unreal"
 						class:sel={drawer === oneDrawer.id}

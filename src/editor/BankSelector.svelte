@@ -19,7 +19,7 @@
 		<!-- 					<p class="b">Banks</p> -->
 		<ul class="bankswitcher" id="bsw-left">
 			{#each bankCount as bank}
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 				<li
 					class:bsw-empty={!padBanks[0][bank]?.pads?.length}
 					class:sel={currentBank == bank}
@@ -32,7 +32,7 @@
 		{#if $deviceDefinition.model.code != "pocket"}
 			<ul class="bankswitcher" id="bsw-shift">
 				{#each bankCount as bank}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 					<li
 						class:bsw-empty={!padBanks[0][bank + bankCount.length]
 							?.pads?.length}
