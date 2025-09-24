@@ -1,4 +1,4 @@
-import { Model } from "./device";
+import { type Model } from "./device";
 
 export enum Command {
 	NONE = 0x0,

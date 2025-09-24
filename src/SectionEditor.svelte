@@ -63,6 +63,7 @@
 		editorState,
 	} from "./ts/patch";
 	import Outline from "./editor/Outline.svelte";
+	import BankSelector from "./editor/BankSelector.svelte";
 
 	let numberOfActiveBanks = 0;
 
@@ -590,95 +591,11 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 			</div>
 		{/if}
 
-		<div class="bankselector donotcloseeditor">
-			<div class="bsw-holder">
-				<!-- 					<p class="b">Banks</p> -->
-				<ul class="bankswitcher" id="bsw-left">
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<li
-						class:bsw-empty={!currentPatch.data.padbanks[0][0]?.pads
-							?.length}
-						class:sel={editorState.bank == 0}
-						on:click={() => selectBank(0)}
-					>
-						1
-					</li>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<li
-						class:bsw-empty={!currentPatch.data.padbanks[0][1]?.pads
-							?.length}
-						class:sel={editorState.bank == 1}
-						on:click={() => selectBank(1)}
-					>
-						2
-					</li>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<li
-						class:bsw-empty={!currentPatch.data.padbanks[0][2]?.pads
-							?.length}
-						class:sel={editorState.bank == 2}
-						on:click={() => selectBank(2)}
-					>
-						3
-					</li>
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<li
-						class:bsw-empty={!currentPatch.data.padbanks[0][3]?.pads
-							?.length}
-						class:sel={editorState.bank == 3}
-						on:click={() => selectBank(3)}
-					>
-						4
-					</li>
-				</ul>
-				{#if $deviceDefinition.model.code != "pocket"}
-					<ul class="bankswitcher" id="bsw-shift">
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<li
-							class:bsw-empty={!currentPatch.data.padbanks[0][4]
-								?.pads?.length}
-							class:sel={editorState.bank == 4}
-							on:click={() => selectBank(4)}
-						>
-							-1
-						</li>
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<li
-							class:bsw-empty={!currentPatch.data.padbanks[0][5]
-								?.pads?.length}
-							class:sel={editorState.bank == 5}
-							on:click={() => selectBank(5)}
-						>
-							-2
-						</li>
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<li
-							class:bsw-empty={!currentPatch.data.padbanks[0][6]
-								?.pads?.length}
-							class:sel={editorState.bank == 6}
-							on:click={() => selectBank(6)}
-						>
-							-3
-						</li>
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<li
-							class:bsw-empty={!currentPatch.data.padbanks[0][7]
-								?.pads?.length}
-							class:sel={editorState.bank == 7}
-							on:click={() => selectBank(7)}
-						>
-							-4
-						</li>
-					</ul>
-				{/if}
-				<!-- <ul class="bankswitcher hh" id="bsw-right">
-				<li>1</li>
-				<li>2</li>
-				<li>3</li>
-				<li>4</li>
-			</ul> -->
-			</div>
-		</div>
+		<BankSelector 
+			padBanks={currentPatch.data.padbanks}
+			currentBank={editorState.bank}
+			selectBank={selectBank}
+		/>
 
 		<div
 			id="drawerholder"

@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-	import { tick, onDestroy } from "svelte";
+	import { tick, onDestroy, untrack } from "svelte";
 	import { controls } from "./ts/control_defs";
 	import type { ControlDefinition } from "./ts/control_defs";
 	import {
@@ -119,7 +119,51 @@
 		},
 	};
 
-	let editorData = $state<BranchControl>();
+	let editorData = $derived.by<BranchControl>(() => {
+		if (currentPatch === undefined) {
+			throw new Error("currentPatch has been undefined");
+		}
+
+		let editorDataNow: BranchControl;
+
+		switch (controlKind) {
+			case Control.AccelX:
+				editorDataNow = assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[0];
+				break;
+			case Control.AccelY:
+				editorDataNow = assertDefined(
+					currentPatch.accel,
+					"Accel branch must be defined"
+				)[1];
+				break;
+			case Control.EncRotate:
+				editorDataNow = currentPatch.encoders[controlNumber];
+				break;
+			case Control.Pad: {
+				createPadsIfAbsent(
+					currentPatch.padbanks[editorState.hand][editorState.bank]
+				);
+				editorDataNow = assertDefined(
+					currentPatch.padbanks[editorState.hand][editorState.bank]
+						.pads,
+					"Pads must be defined"
+				)[controlNumber];
+				break;
+			}
+			default:
+				throw new Error(`Unknown control kind: ${controlKind}`);
+		}
+
+		expanderSanizer.sanize();
+		// setCorrectEditorData();
+		expanderSanizer.expand(editorDataNow);
+
+		return editorDataNow;
+	});
+
 	let editorDataPrev = $state<BranchControl>();
 
 	let encoderIsRelative = $derived<boolean>(
@@ -151,43 +195,6 @@
 	);
 
 	onDestroy(() => expanderSanizer.kill());
-
-	function setCorrectEditorData() {
-		if (currentPatch === undefined) {
-			throw new Error("currentPatch has been undefined");
-		}
-
-		switch (controlKind) {
-			case Control.AccelX:
-				editorData = assertDefined(
-					currentPatch.accel,
-					"Accel branch must be defined"
-				)[0];
-				break;
-			case Control.AccelY:
-				editorData = assertDefined(
-					currentPatch.accel,
-					"Accel branch must be defined"
-				)[1];
-				break;
-			case Control.EncRotate:
-				editorData = currentPatch.encoders[controlNumber];
-				break;
-			case Control.Pad: {
-				createPadsIfAbsent(
-					currentPatch.padbanks[editorState.hand][editorState.bank]
-				);
-				editorData = assertDefined(
-					currentPatch.padbanks[editorState.hand][editorState.bank]
-						.pads,
-					"Pads must be defined"
-				)[controlNumber];
-				break;
-			}
-		}
-
-		editorDataPrev = structuredClone(editorData);
-	}
 
 	function resetAll() {
 		let setTo =
@@ -293,16 +300,13 @@
 			scaleNote = -1;
 		}
 
-		expanderSanizer.sanize();
-		setCorrectEditorData();
-		expanderSanizer.expand(editorData);
-		encModePrev = -1;
-		editorData = editorData; // svelte
-		initEditorAfterTick();
+		untrack(() => {
+			encModePrev = -1;
+			initEditorAfterTick();
+		});
 	});
 
 	$effect(() => {
-		const editorDataNow = editorData;
 		expanderSanizer.expand(editorData);
 	});
 
@@ -341,7 +345,7 @@
 			{scaleNote}
 		/>
 	{/if}
-	{#if theControl.colours && editorData?.colour && editorData?.burst}
+	{#if theControl.colours && editorData?.colour && typeof(editorData?.burst) === "number"}
 		<fieldset
 			id="ce-colours"
 			class="capability-colour conditional cond-pad cond-joystick"
