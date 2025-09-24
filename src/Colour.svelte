@@ -2,7 +2,7 @@
 	import OkCancel from "./widgets/OkCancel.svelte";
 	import ColourCanned from "./widgets/ColourCanned.svelte";
 	import { sysExTestFill } from "./ts/midi_core";
-	import { onMount, onDestroy, createEventDispatcher } from "svelte";
+	import { onMount, onDestroy } from "svelte";
 	import {
 		colourOff,
 		hexToObj,
@@ -15,11 +15,18 @@
 	import { isSame } from "./ts/basic";
 	import type { HexColour, HexObject } from "./ts/types";
 
-	let { hex = colourOff, startHex = colourOff, auxHex = colourOff, name = "" }: {
+	let {
+		hex = $bindable(colourOff),
+		startHex = colourOff,
+		auxHex = colourOff,
+		name = "",
+		onclose = () => {},
+	}: {
 		hex: HexColour;
 		startHex: HexColour;
 		auxHex: HexColour;
 		name: string;
+		onclose?: () => void;
 	} = $props();
 
 	let hexOriginal: number = colourOff;
@@ -27,8 +34,6 @@
 	const hexBlack: number = 0x0;
 
 	let theDialog: HTMLDialogElement;
-
-	let dispatchEvent = createEventDispatcher();
 
 	let colourGen: number[] = [];
 
@@ -93,9 +98,9 @@
 
 	let range = $derived.by(() => hexToObj(hex));
 
-	$effect(() => {
+	function updateHexFromRange() {
 		hex = hsvToHex(range.h, range.s, range.v);
-	});
+	}
 
 	$effect(() => {
 		sysExTestFill(hex);
@@ -211,6 +216,7 @@
 			min="0"
 			max="254"
 			step="1"
+			oninput={updateHexFromRange}
 			bind:value={range.h}
 		/>
 		<input
@@ -220,6 +226,7 @@
 			min="0"
 			max="15"
 			step="1"
+			oninput={updateHexFromRange}
 			bind:value={range.s}
 		/>
 		<input
@@ -229,6 +236,7 @@
 			min="0"
 			max="15"
 			step="1"
+			oninput={updateHexFromRange}
 			bind:value={range.v}
 		/>
 	</div>
@@ -241,11 +249,7 @@
 		</div>
 	</div>
 
-	<OkCancel
-		{theDialog}
-		{dispatchEvent}
-		resetAction={() => (hex = hexOriginal)}
-	/>
+	<OkCancel {theDialog} resetAction={() => (hex = hexOriginal)} {onclose} />
 </dialog>
 
 <style>

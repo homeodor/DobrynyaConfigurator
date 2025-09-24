@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { animated = false }: { animated: boolean } = $props();
+	let { animated = false }: { animated?: boolean } = $props();
 
 	let tick: SVGElement;
 

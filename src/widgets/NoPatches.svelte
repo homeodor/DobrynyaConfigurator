@@ -1,61 +1,97 @@
-<svelte:options accessors/>
+<svelte:options accessors />
 
 <script lang="ts">
 	import OkCancel from "./OkCancel.svelte";
 	import type { NoPatchesObject } from "../ts/types";
 	import { NewPatchDecision } from "../ts/types";
-	import { defaultPatches, type DefaultPatchDescriptor } from "../ts/defaultpatches";
-	
+	import {
+		defaultPatches,
+		type DefaultPatchDescriptor,
+	} from "../ts/defaultpatches";
+
 	import { deviceDefinition } from "../ts/device";
 
 	let okText = "OK";
 	let cancelText = "Cancel";
-	
+
 	let dialog: HTMLDialogElement;
 	let resolveFunction: (value: NoPatchesObject) => void;
 	let useCleanSlate: NewPatchDecision = NewPatchDecision.Template;
 	let useTemplate: DefaultPatchDescriptor;
-	
-	let cancelFunction = ()=>resolveFunction({ decision: NewPatchDecision.Cancel, template: "", filename: "" });
+
+	let cancelFunction = () =>
+		resolveFunction({
+			decision: NewPatchDecision.Cancel,
+			template: "",
+			filename: "",
+		});
 	let okayFunction = () => {
-		
-		resolveFunction(
-		{
+		resolveFunction({
 			decision: useCleanSlate,
 			template: useTemplate.id,
-			filename: useCleanSlate == NewPatchDecision.CleanSlate ? "New 1" : useTemplate.filename
+			filename:
+				useCleanSlate == NewPatchDecision.CleanSlate
+					? "New 1"
+					: useTemplate.filename,
 		});
-	}
-	
-	export function confirm(): Promise<NoPatchesObject>
-	{
+	};
+
+	export function confirm(): Promise<NoPatchesObject> {
 		console.warn("OPENED DIALOG");
 		dialog.showModal();
-		return new Promise((resolve,_)=>resolveFunction = resolve);
-	};
-	
+		return new Promise((resolve, _) => (resolveFunction = resolve));
+	}
 </script>
+
 <dialog bind:this={dialog} class="prompt-or-alert">
 	<div>
-	<p>This device has no patches. To use this configurator, you must have at least one patch. Which one do you want to upload?</p>
-	
-	<div class="checkboxblock">
-	{#if $deviceDefinition?.model?.code && defaultPatches[$deviceDefinition.model.code] }
+		<p>
+			This device has no patches. To use this configurator, you must have
+			at least one patch. Which one do you want to upload?
+		</p>
 
-		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.Template} /> Default patch:<br />
-		<select disabled="{useCleanSlate != NewPatchDecision.Template}" bind:value={useTemplate} style="width:auto">
-		{#each defaultPatches[$deviceDefinition.model.code] as defpatch }
-			<option value={defpatch}>{defpatch.name}</option>
-		{/each}
-		</select>
-		</label><br />
-
-	{/if}
-		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.CleanSlate} /> Create an empty patch</label><br />
-		<label><input type="radio" bind:group={useCleanSlate} value={NewPatchDecision.DiskMode} /> Go to Disk mode</label>
-	<!-- //				{/if} -->
-	</div>
-	<OkCancel theDialog={dialog} on:ok={okayFunction} on:cancel={cancelFunction} {okText} {cancelText} />
-
+		<div class="checkboxblock">
+			{#if $deviceDefinition?.model?.code && defaultPatches[$deviceDefinition.model.code]}
+				<label
+					><input
+						type="radio"
+						bind:group={useCleanSlate}
+						value={NewPatchDecision.Template}
+					/>
+					Default patch:<br />
+					<select
+						disabled={useCleanSlate != NewPatchDecision.Template}
+						bind:value={useTemplate}
+						style="width:auto"
+					>
+						{#each defaultPatches[$deviceDefinition.model.code] as defpatch}
+							<option value={defpatch}>{defpatch.name}</option>
+						{/each}
+					</select>
+				</label><br />
+			{/if}
+			<label
+				><input
+					type="radio"
+					bind:group={useCleanSlate}
+					value={NewPatchDecision.CleanSlate}
+				/> Create an empty patch</label
+			><br />
+			<label
+				><input
+					type="radio"
+					bind:group={useCleanSlate}
+					value={NewPatchDecision.DiskMode}
+				/> Go to Disk mode</label
+			>
+			<!-- //				{/if} -->
+		</div>
+		<OkCancel
+			theDialog={dialog}
+			onok={okayFunction}
+			oncancel={cancelFunction}
+			{okText}
+			{cancelText}
+		/>
 	</div>
 </dialog>

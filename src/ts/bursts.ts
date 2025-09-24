@@ -12,20 +12,29 @@ export function burstToPaletteFlags(burst: number) {
 	return (burst >> 8) & 0xff;
 }
 
-export function parametersToBurst(mode: number, kindFlags: number, paletteFlags: number) {
-	return (kindFlags << 16) |
-		(paletteFlags << 8) |
-		mode
+export function parametersToBurst(
+	mode: number,
+	kindFlags: number,
+	paletteFlags: number
+) {
+	return (kindFlags << 16) | (paletteFlags << 8) | mode;
 }
 
-export function burstIsOn(burst: number) {
+export function checkIfBurstIsOn(burst: number | undefined) {
+	if (!burst) {
+		return false;
+	}
+
 	const burstMode = burstToMode(burst);
 
 	if (burstToKindFlags(burst) == 0 || burstMode == 0) {
 		return false;
 	}
 
-	if (burstMode >= k_palettesUsedFromMode && burstToPaletteFlags(burst) == 0) {
+	if (
+		burstMode >= k_palettesUsedFromMode &&
+		burstToPaletteFlags(burst) == 0
+	) {
 		return false;
 	}
 

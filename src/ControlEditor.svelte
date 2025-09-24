@@ -33,11 +33,17 @@
 	import Channel from "./widgets/Channel.svelte";
 	import Overridable from "./widgets/Overridable.svelte";
 	import Tick from "./widgets/Tick.svelte";
-	import { burstIsOn } from "./ts/bursts";
 	import BurstsDialog from "./editor/BurstsDialog.svelte";
 	import EncoderParameters from "./editor/EncoderParameters.svelte";
 	import { sysExCalibrateAccel } from "./ts/midi_core";
 	import { assertDefined } from "./ts/basic";
+	import {
+		burstToKindFlags,
+		burstToMode,
+		burstToPaletteFlags,
+		checkIfBurstIsOn,
+		k_palettesUsedFromMode,
+	} from "./ts/bursts";
 
 	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
 
@@ -100,6 +106,15 @@
 		burstIsOpen = true;
 	}
 
+	let burstIsOn = $derived.by<boolean>(() =>
+		checkIfBurstIsOn(editorData.burst)
+	);
+
+	function onBurstsClose() {
+		burstIsOpen = false;
+		burstIsOn = checkIfBurstIsOn(editorData.burst);
+	}
+
 	const fullDataTreeModel: BranchControl = {
 		encmode: 0,
 		colour: [colourOff, colourOff],
@@ -119,35 +134,31 @@
 		},
 	};
 
-	let editorData = $derived.by<BranchControl>(() => {
-		if (currentPatch === undefined) {
-			throw new Error("currentPatch has been undefined");
-		}
-
+	function getEditorData(currentPatchNow: Patch): BranchControl {
 		let editorDataNow: BranchControl;
 
 		switch (controlKind) {
 			case Control.AccelX:
 				editorDataNow = assertDefined(
-					currentPatch.accel,
+					currentPatchNow.accel,
 					"Accel branch must be defined"
 				)[0];
 				break;
 			case Control.AccelY:
 				editorDataNow = assertDefined(
-					currentPatch.accel,
+					currentPatchNow.accel,
 					"Accel branch must be defined"
 				)[1];
 				break;
 			case Control.EncRotate:
-				editorDataNow = currentPatch.encoders[controlNumber];
+				editorDataNow = currentPatchNow.encoders[controlNumber];
 				break;
 			case Control.Pad: {
 				createPadsIfAbsent(
-					currentPatch.padbanks[editorState.hand][editorState.bank]
+					currentPatchNow.padbanks[editorState.hand][editorState.bank]
 				);
 				editorDataNow = assertDefined(
-					currentPatch.padbanks[editorState.hand][editorState.bank]
+					currentPatchNow.padbanks[editorState.hand][editorState.bank]
 						.pads,
 					"Pads must be defined"
 				)[controlNumber];
@@ -156,6 +167,16 @@
 			default:
 				throw new Error(`Unknown control kind: ${controlKind}`);
 		}
+
+		return editorDataNow;
+	}
+
+	let editorData = $derived.by<BranchControl>(() => {
+		if (currentPatch === undefined) {
+			throw new Error("currentPatch has been undefined");
+		}
+
+		let editorDataNow = getEditorData(currentPatch);
 
 		expanderSanizer.sanize();
 		// setCorrectEditorData();
@@ -345,7 +366,7 @@
 			{scaleNote}
 		/>
 	{/if}
-	{#if theControl.colours && editorData?.colour && typeof(editorData?.burst) === "number"}
+	{#if theControl.colours && editorData?.colour && typeof editorData?.burst === "number"}
 		<fieldset
 			id="ce-colours"
 			class="capability-colour conditional cond-pad cond-joystick"
@@ -369,7 +390,7 @@
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<label onclick={openBurstEditor} onkeypress={openBurstEditor}>
 					<input
-						checked={burstIsOn(editorData.burst)}
+						checked={burstIsOn}
 						class="appleswitch"
 						type="checkbox"
 					/> <mark></mark><span class="unreal"
@@ -383,9 +404,8 @@
 				>
 				{#if burstIsOpen}
 					<BurstsDialog
-						on:input={patchChanged}
 						bind:burst={editorData.burst}
-						on:close={() => (burstIsOpen = false)}
+						onclose={onBurstsClose}
 					/>
 				{/if}
 			</div>

@@ -20,7 +20,7 @@
 	import { isSame } from "./ts/basic";
 	import { expandSetSanize } from "./ts/data_expandsanize";
 
-	import { Control } from "./ts/types";
+	import { Control, type ColourArray } from "./ts/types";
 	import type { InvokeControlEventData } from "./ts/event_helpers";
 	import type { BranchBank } from "./ts/types_patch";
 	import {
@@ -39,7 +39,7 @@
 	import CTFade from "./colourtools/Fade.svelte";
 	import CTCopy from "./colourtools/Copy.svelte";
 
-	export let paintData: InvokeControlEventData = null;
+	export let paintData: InvokeControlEventData | null = null;
 
 	export let bank: BranchBank;
 	export let pattern: number[];
@@ -60,7 +60,7 @@
 		buttonRandom: HTMLButtonElement,
 		buttonMakeBank: HTMLButtonElement; // used to open with keyboard
 
-	let hex: number;
+	let hex: number = colourOff;
 	let prevHex: number = colourOff;
 	let hexCSS: string;
 
@@ -97,7 +97,7 @@
 		setCursor(
 			selectableTools.find(v => {
 				return v.id == tool;
-			}).svg
+			})!.svg
 		);
 	}
 
@@ -149,12 +149,12 @@
 	}
 
 	function keyupHandle(ev: KeyboardEvent) {
-		const keysToButtons = {
+		const keysToButtons: Record<string, HTMLButtonElement> = {
 			f: buttonFill,
 			m: buttonMakeBank,
 		}; // bind buttons to keypresses
 
-		const keysToCT = {
+		const keysToCT: Record<string, string> = {
 			l: "copy",
 			a: "fade",
 			y: "explicit",
@@ -208,8 +208,11 @@
 		let hexFixed = fixHex(hex);
 
 		if (tool == Tool.Eyedropper) {
-			if (data.altKey && "ultimateHex" in data) hex = data.ultimateHex;
-			else if ("hex" in data) hex = data.hex;
+			if (data.altKey && data.ultimateHex) {
+				hex = data.ultimateHex;
+			} else if (data.hex) {
+				hex = data.hex;
+			}
 
 			updateCursor();
 		} else {
@@ -227,9 +230,9 @@
 							createPadsIfAbsent(bank);
 							expandSetSanize(
 								colourDataModel,
-								bank.pads[i],
+								bank.pads![i],
 								() => {
-									bank.pads[i].colour[colourPaintMode] =
+									bank.pads![i].colour![colourPaintMode] =
 										hexFixed;
 								}
 							);
@@ -258,7 +261,7 @@
 		expandSetSanize(
 			colourDataModelBank,
 			bank.bank,
-			() => (bank.bank.colour[colourPaintMode + altOffset] = hex)
+			() => (bank.bank!.colour![colourPaintMode + altOffset] = hex)
 		);
 	}
 
@@ -267,7 +270,7 @@
 		colourPaintMode = $lastColourPaintLayer;
 		hex = $lastColourPaintHex;
 	});
-	
+
 	onDestroy(() => {
 		lastColourPaintLayer.set(colourPaintMode);
 		colourPaintMode = ColourPaintLayer.Off;
@@ -296,7 +299,11 @@
 				: "";
 	}
 
-	let previousPattern = null;
+	let previousPattern: null | ColourArray = null;
+
+	function forceUpdatePreview() {
+		updateDevicePreview(true);
+	}
 
 	export function updateDevicePreview(force: boolean = false) {
 		if (
@@ -408,8 +415,8 @@
 				class="nocolour"
 			></span>)</nobr
 		>
-		means no explicit colour is set (the colour is “off”). Bank colours can
-		also be set in the
+		means no explicit colour is set (the colour is “off”). Bank colours can also
+		be set in the
 		<span class="unreal openbanksettings">bank settings</span> tab.
 	</p>
 
@@ -538,27 +545,27 @@
 </div>
 
 <CTFill
-	on:input={updateCT}
-	on:cancel={() => updateDevicePreview(true)}
+	oninput={updateCT}
+	oncancel={forceUpdatePreview}
 	bind:ctData
 	bind:this={ctDialogs.fill}
 	on:hex={updateBucket}
 />
 <CTCopy
-	on:input={updateCT}
-	on:cancel={() => updateDevicePreview(true)}
+	oninput={updateCT}
+	oncancel={forceUpdatePreview}
 	bind:ctData
 	bind:this={ctDialogs.copy}
 />
 <CTFade
-	on:input={updateCT}
-	on:cancel={() => updateDevicePreview(true)}
+	oninput={updateCT}
+	oncancel={forceUpdatePreview}
 	bind:ctData
 	bind:this={ctDialogs.fade}
 />
 <CTRandom
-	on:input={updateCT}
-	on:cancel={() => updateDevicePreview(true)}
+	oninput={updateCT}
+	oncancel={forceUpdatePreview}
 	bind:ctData
 	bind:this={ctDialogs.random}
 />

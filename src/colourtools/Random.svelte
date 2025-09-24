@@ -1,9 +1,7 @@
 <svelte:options accessors />
 
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-
-	import { Random } from 'random'
+	import { Random } from "random";
 	import { type CTRandomParams, ParamSatVal } from "./random";
 
 	import { getIconURL } from "../ts/icons";
@@ -24,16 +22,17 @@
 	import PreviewSingle from "./PreviewSingle.svelte";
 	import OkCancel from "../widgets/OkCancel.svelte";
 	import Halp from "../widgets/Halp.svelte";
+	import type { HexColour } from "../ts/types";
 	// import Preview from './Preview.svelte'
 
 	export let ctData: CTData;
+	export let oninput: () => void;
+	export let oncancel: () => void;
 	export const isOpen = function () {
 		return dialog.open;
 	};
 
 	let dialog: HTMLDialogElement;
-
-	let dispatchEvent = createEventDispatcher();
 
 	let seed = Math.random();
 
@@ -51,7 +50,7 @@
 	}
 	function finish() {
 		ctFinish(dialog, randomFill, params, ctData);
-		dispatchEvent("input");
+		oninput();
 	}
 
 	let params: CTRandomParams = {
@@ -92,7 +91,11 @@
 		}
 	}
 
-	let preview = { idle: null, active: null, pattern: null };
+	let preview: {
+		idle: HexColour[] | null;
+		active: HexColour[] | null;
+		pattern: HexColour[] | null;
+	} = { idle: null, active: null, pattern: null };
 
 	function randomFill(
 		params: CTRandomParams,
@@ -145,11 +148,11 @@
 		let isShy: boolean = params.keepColours;
 
 		for (let currLayer of affectLayers) {
-			if (currLayer === ColourPaintLayer.Off)
-			{
-				throw new Error("randomFill received ColourPaintLayer.Off as the layer");
+			if (currLayer === ColourPaintLayer.Off) {
+				throw new Error(
+					"randomFill received ColourPaintLayer.Off as the layer"
+				);
 			}
-
 
 			let genH: number[] = [],
 				genS: number[] = [],
@@ -487,9 +490,11 @@
 	<OkCancel
 		okDisabled={!okEnabled}
 		theDialog={dialog}
-		on:ok={finish}
-		on:cancel={() => ctExit(dialog, ctData)}
-		on:cancel
+		onok={finish}
+		oncancel={() => {
+			ctExit(dialog, ctData);
+			oncancel();
+		}}
 	/>
 </dialog>
 
