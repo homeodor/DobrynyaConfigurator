@@ -8,7 +8,7 @@ import type ButtonUpload from "../widgets/ButtonUpload.svelte";
 import { writable, type Writable } from "svelte/store";
 import { getChecksumCalculator, selectChecksum } from "./checksum";
 
-interface SettingsObjectItem {
+export interface SettingsObjectItem {
 	length?: number;
 	reserved?: boolean;
 	isFlag?: boolean;
@@ -18,7 +18,10 @@ interface SettingsObjectItem {
 	fixfunc?: (v: any) => any;
 }
 
-type Section = Record<string, SettingsObjectItem | number>;
+type Section = {
+	offset: number;
+	items: Record<string, SettingsObjectItem>;
+};
 type SettingsObject = Record<string, Section>;
 
 declare global {
@@ -77,151 +80,172 @@ export let importantFactorySettings: Writable<ImportantFactorySettings> =
 function settingsModel(): SettingsObject {
 	return {
 		control: {
-			control: {
-				length: 4,
+			offset: 0x0,
+			items: {
+				control: {
+					length: 4,
+				},
 			},
 		},
 
 		screen: {
-			brightness: {
-				reserved: true,
-			},
-			contrast: {},
-			timeout: {
-				length: 2,
-			},
-			reserved1: {
-				reserved: true,
-				length: 8,
+			offset: 0x4,
+			items: {
+				brightness: {
+					reserved: true,
+				},
+				contrast: {},
+				timeout: {
+					length: 2,
+				},
+				reserved1: {
+					reserved: true,
+					length: 8,
+				},
 			},
 		},
 
 		leds: {
-			brightness: {},
-			brightnesschill: {},
-			brightnessdeco: {},
-			brightnessblink: {},
-			timeoutchill: {
-				length: 2,
-			},
-			timeoutoff: {
-				reserved: true,
-				length: 2,
-			},
-			timeoutpalette: {},
-			palettes: {
-				isFlag: true,
-			},
-			flags: {
-				isFlag: true,
-			},
-			blinkmode: {},
-			chillanimations: {
-				isFlag: true,
-			},
-			reserved2: {
-				reserved: true,
-				length: 3,
+			offset: 0x10,
+			items: {
+				brightness: {},
+				brightnesschill: {},
+				brightnessdeco: {},
+				brightnessblink: {},
+				timeoutchill: {
+					length: 2,
+				},
+				timeoutoff: {
+					reserved: true,
+					length: 2,
+				},
+				timeoutpalette: {},
+				palettes: {
+					isFlag: true,
+				},
+				flags: {
+					isFlag: true,
+				},
+				blinkmode: {},
+				chillanimations: {
+					isFlag: true,
+				},
+				reserved2: {
+					reserved: true,
+					length: 3,
+				},
 			},
 		},
 
 		midi: {
-			channel: {},
-			outputs: {
-				isFlag: true,
-			},
-			inputs: {
-				isFlag: true,
-			},
-			hwmidi: {
-				fixfunc: fixValueToZero,
-				isFlag: true,
-			},
-			vel: {
-				fixfunc: fixValueTo7F,
-			},
-			passthruusb: {},
-			passthruble: {},
-			reserved1: {
-				reserved: true,
-				length: 9,
+			offset: 0x20,
+			items: {
+				channel: {},
+				outputs: {
+					isFlag: true,
+				},
+				inputs: {
+					isFlag: true,
+				},
+				hwmidi: {
+					fixfunc: fixValueToZero,
+					isFlag: true,
+				},
+				vel: {
+					fixfunc: fixValueTo7F,
+				},
+				passthruusb: {},
+				passthruble: {},
+				reserved1: {
+					reserved: true,
+					length: 9,
+				},
 			},
 		},
 
 		input: {
 			offset: 0x30,
-			debouncepad: {},
-			debounceother: {},
-			smoothfader: {
-				reserved: true,
-			},
-			smoothjoystick: {
-				reserved: true,
-			},
-			encoderkinetics: {
-				reserved: true,
-				length: 4,
-			},
-			direction: {
-				isFlag: true,
-			},
-			hapticevents: {
-				isFlag: true,
-				reserved: true,
-				length: 2,
-			},
-			flags: {
-				isFlag: true,
-			},
-			reserved1: {
-				reserved: true,
-				length: 4,
+			items: {
+				debouncepad: {},
+				debounceother: {},
+				smoothfader: {
+					reserved: true,
+				},
+				smoothjoystick: {
+					reserved: true,
+				},
+				encoderkinetics: {
+					reserved: true,
+					length: 4,
+				},
+				direction: {
+					isFlag: true,
+				},
+				hapticevents: {
+					isFlag: true,
+					reserved: true,
+					length: 2,
+				},
+				flags: {
+					isFlag: true,
+				},
+				reserved1: {
+					reserved: true,
+					length: 4,
+				},
 			},
 		},
 
 		lowpower: {
 			offset: 0x40,
-			reserved1: {
-				reserved: true,
-				length: 4,
-			},
-			timeoutleds: {
-				length: 2,
-				reserved: true,
-			},
-			timeoutpoweroff: {
-				length: 2,
-				reserved: true,
-			},
-			reserved2: {
-				reserved: true,
-				length: 8,
+			items: {
+				reserved1: {
+					reserved: true,
+					length: 4,
+				},
+				timeoutleds: {
+					length: 2,
+					reserved: true,
+				},
+				timeoutpoweroff: {
+					length: 2,
+					reserved: true,
+				},
+				reserved2: {
+					reserved: true,
+					length: 8,
+				},
 			},
 		},
 
 		ble: {
 			offset: 0x50,
-			onoff: {
-				isFlag: true,
-			},
-			power: {
-				fixfunc: (v: number) => {
-					return v < 1 || v > 3 ? 2 : v;
+			items: {
+				onoff: {
+					isFlag: true,
 				},
-			},
-			name: {
-				fixfunc: fixDeviceName,
-				text: "",
-				length: 29,
+				power: {
+					fixfunc: (v: number) => {
+						return v < 1 || v > 3 ? 2 : v;
+					},
+				},
+				name: {
+					fixfunc: fixDeviceName,
+					text: "",
+					length: 29,
+				},
 			},
 		},
 
 		haptic: {
-			events: {
-				length: 2,
-				isFlag: true,
+			offset: 0x70,
+			items: {
+				events: {
+					length: 2,
+					isFlag: true,
+				},
+				channel: {},
 			},
-			channel: {},
 		},
 	};
 }
@@ -231,29 +255,33 @@ window.settings = settingsModel();
 export let settings = window.settings;
 
 export function parseSettingsData() {
-	if (settingsObjectIsValid) return; // it’s all good, no need to re-parse
+	if (settingsObjectIsValid) {
+		// it’s all good, no need to re-parse
+		return;
+	}
 
-	if (!isSaved) return; // there was a previous state available
+	if (!isSaved) {
+		// there was a previous state available
+		return;
+	}
 
 	let arp = 0;
 
 	for (let i in window.settings) {
-		if (i == "fakeparam") continue;
+		if (i == "fakeparam") {
+			continue;
+		}
 
-		for (let j in window.settings[i]) {
-			const param = window.settings[i][j];
+		if (arp > window.settings[i].offset) {
+			throw new Error(
+				`Offset overlap: expected ${window.settings[i].offset}, got ${arp} at ${i}`
+			);
+		}
 
-			if (typeof param === "number") {
-				if (arp !== param) {
-					throw new Error(
-						`Offset failed: expected ${param}, got ${arp} at ${i}`
-					);
-				}
+		arp = window.settings[i].offset;
 
-				console.warn(`Offset verified for ${i}`);
-
-				continue;
-			}
+		for (let j in window.settings[i].items) {
+			const param = window.settings[i].items[j];
 
 			if (typeof param.length == "undefined") {
 				param.length = 1;
@@ -322,18 +350,26 @@ export async function saveSettings(
 ) {
 	let b8 = [];
 
-	for (let i in window.settings) {
-		for (let j in window.settings[i]) {
-			let param: SettingsObjectItem | number = window.settings[i][j];
+	window.settings.leds.items.brightnesschill.value =
+		window.settings.leds.items.brightness.value;
 
-			if (typeof param === "number") {
-				continue;
-			}
+	for (let i in window.settings) {
+		if (b8.length > window.settings[i].offset) {
+			throw new Error(
+				`Settings array overlap: expected offset ${window.settings[i].offset}, got ${b8.length} at ${i}`
+			);
+		}
+
+		while (b8.length < window.settings[i].offset) {
+			b8.push(0);
+		}
+
+		for (let j in window.settings[i].items) {
+			let param: SettingsObjectItem = window.settings[i].items[j];
 
 			let l = param.length;
 
-			if (l === undefined)
-			{
+			if (l === undefined) {
 				throw new Error(`Parameter ${j} has no length`);
 			}
 
@@ -345,8 +381,7 @@ export async function saveSettings(
 			let reserved = typeof param.reserved == "boolean" && param.reserved;
 
 			if (!reserved && typeof param.isFlag == "boolean" && param.isFlag) {
-				if (param.flag === undefined)
-				{
+				if (param.flag === undefined) {
 					throw new Error(`Flag ${j} has no flag value`);
 				}
 
@@ -369,8 +404,13 @@ export async function saveSettings(
 		}
 	}
 
-	while (b8.length > settingsLength) b8.pop();
-	while (b8.length < settingsLength) b8.push(0xff);
+	while (b8.length > settingsLength) {
+		b8.pop();
+	}
+
+	while (b8.length < settingsLength) {
+		b8.push(0xff);
+	}
 
 	WaitingBlock.block(Command.SAVESETTINGS);
 	const checksum = getChecksumCalculator(selectChecksum());
@@ -395,7 +435,7 @@ export async function getSettingsFromDevice() {
 }
 
 export async function getPalettesFromDevice() {
-	await sysExAndDo(Command.PALETTE, (d: Uint8Array) => {});
+	await sysExAndDo(Command.PALETTE, (_: Uint8Array) => {});
 }
 
 export async function fixSettings(settingsLength: number) {

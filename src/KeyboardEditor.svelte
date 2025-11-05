@@ -4,14 +4,19 @@
 	import * as keyboardUtils from "./ts/keyboard";
 	import { isMacLike } from "./ts/stores";
 
-	export let header: string = "";
-	export let value: number;
+	let {
+		header = "",
+		value = $bindable<number>(),
+		onValueChange,
+	}: {
+		header: string;
+		value: number;
+		onValueChange: () => void;
+	} = $props();
 
-	let dispatchEvent = createEventDispatcher();
+	let keyboardCatcher = $state<HTMLTextAreaElement>();
 
-	let keyboardCatcher: any;
-
-	let exoticSelectorValue: string = "notacombo";
+	let exoticSelectorValue = $state<string>("notacombo");
 
 	interface ComboValue {
 		comboName: string;
@@ -35,7 +40,8 @@
 				comboValue: 0x4000 | keyboardUtils.keyboardMedia[exoticKeyName],
 			});
 
-		for (let comboName in keyboardUtils.keyboardCombinations) { // Mac & Win keys
+		for (let comboName in keyboardUtils.keyboardCombinations) {
+			// Mac & Win keys
 			let comboValue = keyboardUtils.keyboardCombinations[comboName];
 
 			if (comboValue == "notacombo") {
@@ -59,7 +65,7 @@
 	}
 
 	function triggerOnInput() {
-		dispatchEvent("input");
+		onValueChange();
 	}
 
 	function addModifier(v: number) {
@@ -73,26 +79,42 @@
 	}
 
 	function catchKeys(ev: KeyboardEvent) {
-		// evj.preventDefault();
-		// evj.stopPropagation();
-		//
-		// let ev = evj.originalEvent;
+		ev.preventDefault();
+		ev.stopPropagation();
 
-		if (ev.type != "keydown") return false;
+		if (ev.type != "keydown") {
+			return false;
+		}
 
 		let code: string = ev.code;
 
-		if (!(code in keyboardUtils.keyboardJSToHIDCatchable)) return false;
+		if (!(code in keyboardUtils.keyboardJSToHIDCatchable)) {
+			return false;
+		}
 
 		let hidCode = keyboardUtils.keyboardJSToHIDCatchable[code];
 
-		if (hidCode >= 224 && hidCode <= 232) hidCode = 0; // reset code for modifiers
+		if (hidCode >= 224 && hidCode <= 232) {
+			// reset code for modifiers
+			hidCode = 0;
+		}
 
 		// check if it is a combo
-		if (ev.ctrlKey) hidCode |= 0x100;
-		if (ev.shiftKey) hidCode |= 0x200;
-		if (ev.altKey) hidCode |= 0x400;
-		if (ev.metaKey) hidCode |= 0x800;
+		if (ev.ctrlKey) {
+			hidCode |= 0x100;
+		}
+
+		if (ev.shiftKey) {
+			hidCode |= 0x200;
+		}
+
+		if (ev.altKey) {
+			hidCode |= 0x400;
+		}
+
+		if (ev.metaKey) {
+			hidCode |= 0x800;
+		}
 
 		value = hidCode;
 
@@ -100,12 +122,17 @@
 	}
 
 	export function update(v?: number) {
-		if (typeof v !== "undefined") value = v;
+		if (!keyboardCatcher) {
+			throw new Error("KeyboardCatcher called too early");
+		}
+
+		if (typeof v !== "undefined") {
+			value = v;
+		}
 
 		if (!value) {
 			keyboardCatcher.value = "";
 			exoticSelectorValue = "notacombo";
-			//			exoticSelectorValue = "notacombo";
 		} else {
 			keyboardCatcher.value = keyboardUtils.keycodeToHuman(value);
 			if (
@@ -121,16 +148,11 @@
 		triggerOnInput();
 	}
 
-	let prevExoticSelectorValue = exoticSelectorValue;
-
-	$: {
-		if (prevExoticSelectorValue != exoticSelectorValue) {
-			if (exoticSelectorValue && exoticSelectorValue != "notacombo")
-				update(parseInt(exoticSelectorValue));
-
-			prevExoticSelectorValue = exoticSelectorValue;
+	$effect(() => {
+		if (exoticSelectorValue && exoticSelectorValue != "notacombo") {
+			update(parseInt(exoticSelectorValue));
 		}
-	}
+	});
 
 	onMount(() => update());
 </script>
@@ -141,9 +163,9 @@
 <textarea
 	class="keyboardcatcher"
 	bind:this={keyboardCatcher}
-	on:keydown|preventDefault|stopPropagation={catchKeys}
-	on:keyup|preventDefault|stopPropagation={catchKeys}
-	on:keypress|preventDefault|stopPropagation={catchKeys}
+	onkeydown={catchKeys}
+	onkeyup={catchKeys}
+	onkeypress={catchKeys}
 	style="font-family: inherit"
 ></textarea><br />
 Add
@@ -153,7 +175,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(8)}
+			onclick={() => addModifier(8)}
 			role="button"
 			tabindex="0">⌘</span
 		>
@@ -161,7 +183,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(2)}
+			onclick={() => addModifier(2)}
 			role="button"
 			tabindex="0">⇧</span
 		>
@@ -169,7 +191,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(4)}
+			onclick={() => addModifier(4)}
 			role="button"
 			tabindex="0">⌥</span
 		>
@@ -177,7 +199,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(1)}
+			onclick={() => addModifier(1)}
 			role="button"
 			tabindex="0">⌃</span
 		>
@@ -188,7 +210,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(1)}
+			onclick={() => addModifier(1)}
 			role="button"
 			tabindex="0">Ctrl</span
 		>
@@ -196,7 +218,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(2)}
+			onclick={() => addModifier(2)}
 			role="button"
 			tabindex="0">Shift</span
 		>
@@ -204,7 +226,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(4)}
+			onclick={() => addModifier(4)}
 			role="button"
 			tabindex="0">Alt</span
 		>
@@ -212,7 +234,7 @@ Add
 		<span
 			class="cbm-keycombo-addmodifier"
 			data-keyboardcatcher="1"
-			on:click={() => addModifier(8)}
+			onclick={() => addModifier(8)}
 			role="button"
 			tabindex="0">Win</span
 		>
@@ -237,4 +259,4 @@ Add
 	</select>
 </p>
 
-<button on:click={clear} class="auxaction">Clear</button>
+<button onclick={clear} class="auxaction">Clear</button>

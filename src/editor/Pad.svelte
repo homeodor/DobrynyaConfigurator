@@ -10,6 +10,7 @@
 	import type { HexColour } from "../ts/types";
 	import { filterInvoke } from "../ts/event_helpers";
 	import type {
+	InvokeControlData,
 		InvokeControlEvent,
 		InvokeControlEventData,
 	} from "../ts/event_helpers";
@@ -86,14 +87,14 @@
 		dispatch(eventToDispatch, dispatchData);
 	}
 
-	function invokeControl(ev: InvokeControlEvent) {
+	function invokeControl(ev: CustomEvent<InvokeControlData>) {
 		filterInvoke(ev, Control.Pad, controlNo, () => sendEvent("click"));
 	}
 
 	$: {
 		colourpaint = colourPaintMode != ColourPaintLayer.Off;
 
-		padColours = [];
+		padColours: ColourArray[] = [];
 
 		if (data?.colour) padColours = data.colour;
 
@@ -149,7 +150,7 @@
 	// console.log("DATA IS ", data)
 </script>
 
-<svelte:body on:invoke={invokeControl} />
+<svelte:body oninvoke={invokeControl} />
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y_click_events_have_key_events -->
 <div

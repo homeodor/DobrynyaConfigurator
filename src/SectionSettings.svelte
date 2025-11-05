@@ -6,8 +6,6 @@
 	import Overridable from "./widgets/Overridable.svelte";
 	import Halp from "./widgets/Halp.svelte";
 
-	// TODO: fix all the fucking type errors
-
 	import {
 		settings,
 		saveSettings,
@@ -16,7 +14,6 @@
 	} from "./ts/settings_utils";
 
 	import { deviceDefinition, BLEAvailable } from "./ts/device";
-	import AppleSwitch from "./widgets/AppleSwitch.svelte";
 
 	export let isOnline: boolean;
 
@@ -33,7 +30,7 @@
 
 	async function saveSettingsNow() {
 		await saveSettings(
-			$deviceDefinition.model.settingsLength,
+			$deviceDefinition.model.settingsLength!,
 			uploadButton
 		);
 		isSavedNow = isSaved; // make it reactive
@@ -49,9 +46,13 @@
 	function timeToValue(v: string): number | false {
 		v = v.trim();
 
-		if (!v) return false;
+		if (!v) {
+			return false;
+		}
 
-		if (v.toLowerCase() === "never") return 0;
+		if (v.toLowerCase() === "never") {
+			return 0;
+		}
 
 		let minutesSplit = v
 			.replaceAll(" ", "")
@@ -59,14 +60,26 @@
 			.replaceAll(".", "")
 			.replaceAll("s", "")
 			.split("m");
-		if (minutesSplit.length > 2) return false;
-		if (minutesSplit.length == 1) return parseInt(minutesSplit[0]);
-		if (minutesSplit.length == 2)
+
+		if (minutesSplit.length > 2) {
+			return false;
+		}
+
+		if (minutesSplit.length == 1) {
+			return parseInt(minutesSplit[0]);
+		}
+
+		if (minutesSplit.length == 2) {
 			return parseInt(minutesSplit[1]) + parseInt(minutesSplit[0]) * 60;
+		}
+
+		throw new Error(`Cannot parse time: ${v}`);
 	}
 
 	function valueToTime(v: number): string {
-		if (v === 0) return "Never";
+		if (v === 0) {
+			return "Never";
+		}
 
 		return (
 			(v >= 60 ? `${Math.floor(v / 60)} m ` : "") + String(v % 60) + "s "
@@ -78,10 +91,6 @@
 	}
 	function valueToMs(v: number): string {
 		return String(v) + " ms";
-	}
-
-	$: {
-		settings.leds.brightnesschill.value = settings.leds.brightness.value;
 	}
 </script>
 
@@ -95,7 +104,7 @@
 		>
 	</div>
 	<div id="settings" class="columnizer">
-		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
+		{#if $deviceDefinition?.model?.hardware?.ble == BLEAvailable.Internal && false}
 			<fieldset id="se-wireless">
 				<legend>
 					<label
@@ -103,12 +112,12 @@
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.ble.onoff.flag[0]}
+							bind:checked={settings.ble.items.onoff.flag![0]}
 						/><mark></mark> Wireless</label
 					></legend
 				>
 
-				{#if !settings.ble.onoff.flag[0] && isSavedNow}
+				{#if !settings.ble.items.onoff.flag![0] && isSavedNow}
 					<p class="explain">
 						Enabling wireless requires a restart of Dobrynya.
 					</p>
@@ -119,7 +128,7 @@
 					<input
 						type="text"
 						disabled
-						bind:value={settings.ble.name.text}
+						bind:value={settings.ble.items.name.text}
 					/>
 				</div> -->
 			</fieldset>
@@ -133,7 +142,7 @@
 				<h4>Brightness</h4>
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
-					bind:value={settings.leds.brightness.value}
+					bind:value={settings.leds.items.brightness.value}
 					max={255}
 					defValue={112}
 				/>
@@ -146,13 +155,13 @@
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.flags.flag[0]}
+							bind:checked={settings.leds.items.flags.flag![0]}
 						/><mark></mark> Colourful encoder feedback</label
 					><br />
 				</h4>
 			{/if}
 
-			{#if $deviceDefinition.model.hardware.eyes}
+			{#if $deviceDefinition.model.hardware!.eyes}
 				<h3>Eyes</h3>
 				<h4>
 					<label
@@ -160,7 +169,7 @@
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.flags.flag[1]}
+							bind:checked={settings.leds.items.flags.flag![1]}
 						/><mark></mark> Shake makes the eyes flash</label
 					><br />
 				</h4>
@@ -170,7 +179,7 @@
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.flags.flag[2]}
+							bind:checked={settings.leds.items.flags.flag![2]}
 						/><mark></mark> Eyes show device status</label
 					><br />
 				</h4>
@@ -186,7 +195,7 @@
 					<h4>Breathe brightness</h4>
 					<RangeWithInline
 						on:change={markSettingsUnsavedNow}
-						bind:value={settings.leds.brightnessdeco.value}
+						bind:value={settings.leds.items.brightnessdeco.value}
 						max={255}
 						defValue={128}
 					/>
@@ -195,7 +204,7 @@
 					<h4>Blink brightness</h4>
 					<RangeWithInline
 						on:change={markSettingsUnsavedNow}
-						bind:value={settings.leds.brightnessblink.value}
+						bind:value={settings.leds.items.brightnessblink.value}
 						max={255}
 						defValue={255}
 					/>
@@ -204,7 +213,7 @@
 					<h4>Blink mode</h4>
 					<select
 						on:input={markSettingsUnsavedNow}
-						bind:value={settings.leds.blinkmode.value}
+						bind:value={settings.leds.items.blinkmode.value}
 					>
 						<option value={0}>Off</option>
 						<option value={1}>Normal</option>
@@ -230,21 +239,27 @@
 						><input
 							type="checkbox"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.chillanimations.flag[0]}
+							bind:checked={
+								settings.leds.items.chillanimations.flag![0]
+							}
 						/> Smooth noise</label
 					><br />
 					<label
 						><input
 							type="checkbox"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.chillanimations.flag[1]}
+							bind:checked={
+								settings.leds.items.chillanimations.flag![1]
+							}
 						/> Noise with glitter</label
 					><br />
 					<label
 						><input
 							type="checkbox"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.leds.chillanimations.flag[2]}
+							bind:checked={
+								settings.leds.items.chillanimations.flag![2]
+							}
 						/> Pulses</label
 					><br />
 				</div>
@@ -254,7 +269,7 @@
 				<h4>Brightness</h4>
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
-					bind:value={settings.leds.brightnesschill.value}
+					bind:value={settings.leds.items.brightnesschill.value}
 					max={255}
 					defValue={30}
 				/>
@@ -265,7 +280,7 @@
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
 					width="4.7em"
-					bind:value={settings.leds.timeoutchill.value}
+					bind:value={settings.leds.items.timeoutchill.value}
 					max={1800}
 					list={logtime}
 					inlineToRange={timeToValue}
@@ -278,7 +293,7 @@
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
 					width="4.7em"
-					bind:value={settings.leds.timeoutpalette.value}
+					bind:value={settings.leds.items.timeoutpalette.value}
 					max={1200}
 					step={5}
 					defValue={30}
@@ -288,7 +303,7 @@
 			</div>
 
 			<PaletteCheckboxes
-				bind:flags={settings.leds.palettes.flag}
+				bind:flags={settings.leds.items.palettes.flag!}
 				oninput={markSettingsUnsavedNow}
 			/>
 
@@ -307,9 +322,9 @@
 				</h4>
 				<Channel
 					on:change={markSettingsUnsavedNow}
-					bind:value={settings.midi.channel.value}
+					bind:value={settings.midi.items.channel.value}
 				/>
-				<!-- <RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.midi.channel.value} max="15" defValue={0} /> -->
+				<!-- <RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.midi.items.channel.value} max="15" defValue={0} /> -->
 			</div>
 
 			<div class="ce-block">
@@ -321,7 +336,7 @@
 				</h4>
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
-					bind:value={settings.midi.vel.value}
+					bind:value={settings.midi.items.vel.value}
 					max={127}
 					defValue={127}
 				/>
@@ -351,20 +366,26 @@
 							<td
 								><input
 									type="checkbox"
-									bind:checked={settings.midi.inputs.flag[0]}
+									bind:checked={
+										settings.midi.items.inputs.flag![0]
+									}
 								/></td
 							>
 							<td
 								><input
 									type="checkbox"
-									bind:checked={settings.midi.outputs.flag[0]}
+									bind:checked={
+										settings.midi.items.outputs.flag![0]
+									}
 								/></td
 							>
 							<td
 								><input
 									type="checkbox"
 									on:input={markSettingsUnsavedNow}
-									bind:checked={settings.input.flags.flag[0]}
+									bind:checked={
+										settings.input.items.flags.flag![0]
+									}
 								/></td
 							>
 						</tr>
@@ -374,18 +395,20 @@
 							<td
 								><input
 									type="checkbox"
-									bind:checked={settings.midi.outputs.flag[1]}
+									bind:checked={
+										settings.midi.items.outputs.flag![1]
+									}
 								/></td
 							>
 						</tr>
-						{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+						{#if $deviceDefinition.model.hardware!.ble != BLEAvailable.None}
 							<tr>
 								<td>Wireless</td>
 								<td
 									><input
 										type="checkbox"
 										bind:checked={
-											settings.midi.inputs.flag[2]
+											settings.midi.items.inputs.flag![2]
 										}
 									/></td
 								>
@@ -394,11 +417,12 @@
 										type="checkbox"
 										on:input={markSettingsUnsavedNow}
 										disabled={$deviceDefinition.model
-											.hardware.ble ==
+											.hardware!.ble ==
 											BLEAvailable.External &&
-											!settings.midi.outputs.flag[1]}
+											!settings.midi.items.outputs
+												.flag![1]}
 										bind:checked={
-											settings.midi.outputs.flag[2]
+											settings.midi.items.outputs.flag![2]
 										}
 									/></td
 								>
@@ -407,7 +431,7 @@
 										type="checkbox"
 										on:input={markSettingsUnsavedNow}
 										bind:checked={
-											settings.input.flags.flag[1]
+											settings.input.items.flags.flag![1]
 										}
 									/></td
 								>
@@ -423,14 +447,14 @@
 					required for Wireless MIDI to work.{/if}
 			</p>
 
-			{#if $deviceDefinition.model.hardware.ble != BLEAvailable.None}
+			{#if $deviceDefinition.model.hardware!.ble != BLEAvailable.None}
 				<h4>
 					<label
 						><input
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.input.flags.flag[2]}
+							bind:checked={settings.input.items.flags.flag![2]}
 						/><mark></mark> Allow double keyboard connection</label
 					><br />
 				</h4>
@@ -451,16 +475,16 @@
 				<h4>Passthru USB → MIDI</h4>
 				<Channel
 					on:change={markSettingsUnsavedNow}
-					bind:value={settings.midi.passthruusb.value}
+					bind:value={settings.midi.items.passthruusb.value}
 					channelDefaultName="Off"
 					channelDefaultValue={255}
 					optionAll={true}
 				/>
-				{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
+				{#if $deviceDefinition.model.hardware!.ble == BLEAvailable.Internal}
 					<h4>Passthru Wireless → MIDI</h4>
 					<Channel
 						on:change={markSettingsUnsavedNow}
-						bind:value={settings.midi.passthruble.value}
+						bind:value={settings.midi.items.passthruble.value}
 						channelDefaultName="Off"
 						channelDefaultValue={255}
 						optionAll={true}
@@ -471,7 +495,7 @@
 					><input
 						type="checkbox"
 						on:input={markSettingsUnsavedNow}
-						bind:checked={settings.midi.hwmidi.flag[1]}
+						bind:checked={settings.midi.items.hwmidi.flag![1]}
 					/> Send active sensing over classic</label
 				>
 
@@ -480,7 +504,7 @@
 				</p>
 			</div>
 
-			{#if !$deviceDefinition.model.hardware.midiOut}
+			{#if !$deviceDefinition.model.hardware!.midiOut}
 				<p class="explain">
 					All MIDI Dobrynyas are capable of outputting classic MIDI,
 					which can control older hardware such as synths or drum
@@ -526,7 +550,7 @@
 				<RangeWithInline
 					on:change={markSettingsUnsavedNow}
 					width="4em"
-					bind:value={settings.input.debouncepad.value}
+					bind:value={settings.input.items.debouncepad.value}
 					min={1}
 					max={100}
 					defValue={5}
@@ -537,7 +561,7 @@
 
 			<!-- <div class="ce-block">
 				<h4>Direction</h4>
-				<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.input.direction.flag[0]}> Reverse encoders</label><br />
+				<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.input.items.direction.flag![0]}> Reverse encoders</label><br />
 			</div> -->
 		</fieldset>
 
@@ -552,28 +576,36 @@
 							><input
 								type="checkbox"
 								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.haptic.events.flag[0]}
+								bind:checked={
+									settings.haptic.items.events.flag![0]
+								}
 							/> Joystick sticks</label
 						><br />
 						<label
 							><input
 								type="checkbox"
 								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.haptic.events.flag[1]}
+								bind:checked={
+									settings.haptic.items.events.flag![1]
+								}
 							/> Joystick bank change</label
 						><br />
 						<label
 							><input
 								type="checkbox"
 								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.haptic.events.flag[2]}
+								bind:checked={
+									settings.haptic.items.events.flag![2]
+								}
 							/> Encoder range hit</label
 						><br />
 						<label
 							><input
 								type="checkbox"
 								on:input={markSettingsUnsavedNow}
-								bind:checked={settings.haptic.events.flag[3]}
+								bind:checked={
+									settings.haptic.items.events.flag![3]
+								}
 							/> Encoder reset</label
 						>
 					</div>
@@ -583,7 +615,7 @@
 					<h4>Control haptic with MIDI input</h4>
 					<select
 						on:input={markSettingsUnsavedNow}
-						bind:value={settings.haptic.channel.value}
+						bind:value={settings.haptic.items.channel.value}
 						name="set-haptic-midichannel"
 					>
 						<option value={255}>Off</option>

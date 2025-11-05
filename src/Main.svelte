@@ -3,7 +3,7 @@
 
 	import { UAParser } from "ua-parser-js";
 
-	import type { NoPatchesObject } from "./ts/types";
+	import type { NoPatchesObject, StatusResult } from "./ts/types";
 	import { NewPatchDecision } from "./ts/types";
 	import {
 		isMinimumVersion,
@@ -153,13 +153,15 @@
 
 	let stuffHasBeenLoaded = false;
 
-	async function dobrynyaIsHere(ev: CustomEvent) {
+	async function dobrynyaIsHere(ev: CustomEvent<StatusResult | undefined>) {
 		isOnline = true;
 
 		let previousSerial = $deviceDefinition.serial;
 
-		if ((ev as CustomEvent).detail) setDevice((ev as CustomEvent).detail);
-		// there’s nothing bad in updating the details each time, because there might’ve been a firmware update or something
+		if ((ev as CustomEvent).detail) {
+			setDevice((ev as CustomEvent).detail);
+			// there’s nothing bad in updating the details each time, because there might’ve been a firmware update or something
+		}
 
 		if (!isMinimumVersion($deviceDefinition.version)) {
 			hasNewFirmware = FirmwareState.Obsolete;
@@ -269,13 +271,13 @@
 		console.debug("Dobrynya is gone");
 	}
 
-	function section(ev: CustomEvent | string) {
+	function section(ev: CustomEvent<string> | string) {
 		if (
 			!sectionSwitchingAllowed &&
 			!(typeof ev === "string" && ev === "firmware")
 		)
 			return;
-		openSection = typeof ev === "string" ? ev : ev.detail.section;
+		openSection = typeof ev === "string" ? ev : ev.detail;
 	}
 
 	document.body.addEventListener("keydown", ev => {
@@ -287,9 +289,9 @@
 </script>
 
 <svelte:body
-	on:dobrynyahere={dobrynyaIsHere}
-	on:dobrynyagone={dobrynyaGone}
-	on:section={section}
+	ondobrynyahere={dobrynyaIsHere}
+	ondobrynyagone={dobrynyaGone}
+	onsection={section}
 />
 
 <CornerDevice {isBootloader} {isConnected} {isOnline} {flipDisconnectNow} />
@@ -355,8 +357,8 @@
 			bind:this={editor}
 			on:section={section}
 			isOnline={isOnline && isConnected}
-			deviceLevelVelocity={window.settings?.midi.vel.value ?? 0x7f}
-			deviceLevelChannel={window.settings?.midi.channel.value ?? 0}
+			deviceLevelVelocity={window.settings?.midi.items.vel.value ?? 0x7f}
+			deviceLevelChannel={window.settings?.midi.items.channel.value ?? 0}
 			on:section={ev => {
 				console.log(ev.detail.section);
 				openSection = ev.detail.section;

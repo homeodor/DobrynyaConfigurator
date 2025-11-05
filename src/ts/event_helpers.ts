@@ -4,7 +4,7 @@ import type { Hand, Control, HexColour } from "./types";
 import { lastColourPaintLayer } from "./stores";
 import { ColourPaintLayer } from "./colour_utils";
 
-export interface InvokeControlEventData {
+export interface InvokeControlData {
 	target: HTMLElement;
 	controlKind: Control;
 	controlNo: number;
@@ -15,42 +15,57 @@ export interface InvokeControlEventData {
 	ultimateHex?: HexColour;
 }
 
-export interface InvokeControlEvent extends CustomEvent {
-	detail: InvokeControlEventData;
+export interface BankInvokeData {
+	hand: Hand;
+	bankNo: number;
+	isShift: boolean;
 }
 
-export function quickCustom(n: string, d: object = {}) {
-	document.body.dispatchEvent(new CustomEvent(n, { detail: d }));
+export interface ControlInvokeData {
+	controlKind: Control;
+	controlNo: number;
 }
-function quickNormal(n: string) {
-	document.body.dispatchEvent(new Event(n));
+
+export function quickCustom<T>(which: string, detail: T) {
+	document.body.dispatchEvent(new CustomEvent<T>(which, { detail }));
+}
+function quickNormal(which: string) {
+	document.body.dispatchEvent(new Event(which));
 }
 
 export function patchChanged() {
 	quickNormal("patchchange");
 }
-export function drawer(name: string) {
-	quickCustom("drawer", { drawer: name });
-}
-
 export function deviceRefusedToChangePatches() {
 	quickNormal("patchlock");
 }
 export function invokeControl(kind: number, no: number) {
-	quickCustom("invoke", { controlKind: kind, controlNo: no });
+	quickCustom<ControlInvokeData>("invoke", {
+		controlKind: kind,
+		controlNo: no,
+	});
 }
 export function invokeBank(hand: Hand, bankNo: number, isShift: boolean) {
-	quickCustom("invokebank", { hand: hand, bankNo: bankNo, isShift: isShift });
+	quickCustom<BankInvokeData>("invokebank", {
+		hand: hand,
+		bankNo: bankNo,
+		isShift: isShift,
+	});
 }
+
 export function pushFromSysEx(data: Result) {
-	quickCustom("sysexpush", { data: data });
+	quickCustom<Result>("sysexpush", data);
 }
 export function section(name: string) {
-	quickCustom("section", { section: name });
+	quickCustom<string>("section", name);
+}
+
+export function drawer(name: string) {
+	quickCustom<string>("drawer", name);
 }
 
 export function filterInvoke(
-	ev: InvokeControlEvent,
+	ev: CustomEvent<InvokeControlData>,
 	controlKind: Control,
 	controlNo: number,
 	action: Function
@@ -58,13 +73,14 @@ export function filterInvoke(
 	if (
 		ev.detail.controlKind == controlKind &&
 		ev.detail.controlNo == controlNo
-	)
+	) {
 		action();
+	}
 }
 
 export function openPatternEditor() {
 	lastColourPaintLayer.set(ColourPaintLayer.Pattern); // hacking into the store to open the pattern!
-	quickCustom("drawer", { drawer: "colourpaint" });
+	drawer("colourpaint");
 }
 
 export function dispatchEditorClose() {

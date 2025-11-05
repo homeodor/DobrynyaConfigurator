@@ -1,8 +1,16 @@
 <script lang="ts">
+	import {
+		faBrush,
+		faGears,
+		faPaintRoller,
+		faSliders,
+		faWandMagicSparkles,
+	} from "@fortawesome/free-solid-svg-icons";
+
 	import { createEventDispatcher } from "svelte";
 
 	import { openPatternEditor } from "./ts/event_helpers";
-	import type { InvokeControlEventData } from "./ts/event_helpers";
+	import type { BankInvokeData, InvokeControlEventData } from "./ts/event_helpers";
 	import { isAlt, isColourPreviewMode } from "./ts/stores";
 	import { defaultPatches } from "./ts/defaultpatches";
 
@@ -64,6 +72,7 @@
 	} from "./ts/patch";
 	import Outline from "./editor/Outline.svelte";
 	import BankSelector from "./editor/BankSelector.svelte";
+	import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
 
 	let numberOfActiveBanks = 0;
 
@@ -88,10 +97,26 @@
 	let globalVelocity: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 
 	const drawers = [
-		{ id: "banktemplates", title: "Bank templates" },
-		{ id: "banksettings", title: "Bank settings" },
-		{ id: "colourpaint", title: "Colour paint" },
-		{ id: "patchsettings", title: "Patch settings" },
+		{
+			id: "banktemplates",
+			title: "Templates",
+			icon: faWandMagicSparkles,
+		},
+		{
+			id: "banksettings",
+			title: "Settings",
+			icon: faSliders,
+		},
+		{
+			id: "colourpaint",
+			title: "Paint",
+			icon: faBrush,
+		},
+		{
+			id: "patchsettings",
+			title: "Patch settings",
+			icon: faGears,
+		},
 	];
 
 	let confirmDiscard: Confirm;
@@ -262,8 +287,8 @@
 		nameHasBeenChanged = false;
 	}
 
-	function selectBankFromEvent(ev: CustomEvent) {
-		editorState.hand = ev.detail.hand as Hand;
+	function selectBankFromEvent(ev: CustomEvent<BankInvokeData>) {
+		editorState.hand = ev.detail.hand;
 		selectBank(ev.detail.bankNo + (ev.detail.isShift ? 4 : 0), false);
 	}
 
@@ -283,10 +308,16 @@
 			}
 		}
 
-		if ($patchList && currentPatch.data)
-			$patchList.find(v => {
+		if ($patchList && currentPatch.data) {
+			const thePatch = $patchList.find(v => {
 				return v.isThePatch;
-			}).info = structuredClone(currentPatch.data.info);
+			});
+
+			if (thePatch)
+			{
+				thePatch.info = structuredClone(currentPatch.data.info);
+			}
+		}
 
 		if (
 			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
@@ -308,7 +339,7 @@
 				globalVelocity.value =
 					currentPatch?.data?.padbanks?.[editorState.hand][
 						editorState.bank
-					].bank.vel;
+					].bank!.vel!;
 				globalVelocity.isDeviceLevel = false;
 			} else {
 				globalVelocity.value = deviceLevelVelocity;
@@ -321,12 +352,12 @@
 				]?.bank?.ch !== undefined &&
 				currentPatch?.data?.padbanks?.[editorState.hand][
 					editorState.bank
-				].bank.ch !== -1
+				].bank!.ch! !== -1
 			) {
 				globalChannel.value =
 					currentPatch?.data?.padbanks?.[editorState.hand][
 						editorState.bank
-					].bank.ch;
+					].bank!.ch!;
 				globalChannel.isDeviceLevel = false;
 			} else {
 				globalChannel.value = deviceLevelChannel;
@@ -337,7 +368,7 @@
 				currentPatch.data.encoders = [];
 				for (
 					let i = 0;
-					i < $deviceDefinition.model.hardware.encoders;
+					i < $deviceDefinition.model.hardware!.encoders!;
 					i++
 				)
 					currentPatch?.data?.encoders.push({});
@@ -347,10 +378,14 @@
 
 	let outline: Outline;
 
-	let checkPatchEqualTimeout = null;
+	let checkPatchEqualTimeout: null | number = null;
 
 	function clearCheckPatchEqualTimeout() {
-		if (!checkPatchEqualTimeout) return;
+		if (!checkPatchEqualTimeout)
+		{
+			return;
+		}
+
 		clearTimeout(checkPatchEqualTimeout);
 		checkPatchEqualTimeout = null;
 	}
@@ -362,7 +397,7 @@
 
 	function markUnsaved() {
 		clearCheckPatchEqualTimeout();
-		checkPatchEqualTimeout = setTimeout(() => {
+		checkPatchEqualTimeout = window.setTimeout(() => {
 			if (isSame(currentPatch.data, currentPatch.originalState))
 				markUnsaved();
 			clearCheckPatchEqualTimeout();
@@ -386,8 +421,8 @@
 		}
 	}
 
-	function ondrawer(ev: CustomEvent) {
-		setDrawer(ev.detail.drawer);
+	function ondrawer(ev: CustomEvent<string>) {
+		setDrawer(ev.detail);
 	}
 
 	let alertPatchLock: Alert;
@@ -396,8 +431,8 @@
 		await alertPatchLock.confirm();
 	}
 
-	function handleSysExPush(ev: CustomEvent) {
-		let midiResult: Result = ev.detail.data;
+	function handleSysExPush(ev: CustomEvent<Result>) {
+		const midiResult: Result = ev.detail.data;
 
 		switch (midiResult.command) {
 			case Command.READPATCH:
@@ -408,20 +443,16 @@
 </script>
 
 <svelte:body
-	on:patchchange={markUnsaved}
-	on:patchlock={alertAboutPatchLock}
-	on:sysexpush={handleSysExPush}
-	on:drawer={ondrawer}
-	on:invokebank={selectBankFromEvent}
-	on:opennewui={() => openNewUI(true)}
-	on:closenewui={() => {
+	onpatchchange={markUnsaved}
+	onpatchlock={alertAboutPatchLock}
+	onsysexpush={handleSysExPush}
+	ondrawer={ondrawer}
+	oninvokebank={selectBankFromEvent}
+	onopennewui={() => openNewUI(true)}
+	onclosenewui={() => {
 		newInterfaceOpen = false;
 	}}
 />
-
-<!-- export function deviceRefusedToChangePatches() { quickNormal("patchlock"); }
-export function invokeControl(kind: number, no: number) { quickCustom("invoke", {controlKind: kind, controlNo: no}); }
-export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: data }) } -->
 
 <dialog class="modal" bind:this={dialogPatchList}>
 	<SectionPatches
@@ -613,9 +644,12 @@ export function pushFromSysEx(data: Result) { quickCustom('sysexpush', { data: d
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<span
 						class="unreal"
+						role="tab"
+						tabindex="0"
 						class:sel={drawer === oneDrawer.id}
 						on:click={() => setDrawer(oneDrawer.id)}
-						>{oneDrawer.title}</span
+						><FontAwesomeIcon icon={oneDrawer.icon} />
+						{oneDrawer.title}</span
 					>
 				{/each}
 			</div>

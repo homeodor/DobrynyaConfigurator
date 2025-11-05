@@ -3,7 +3,7 @@
 	import { lastColourPaintLayer, lastColourPaintHex } from "./ts/stores";
 
 	import { sysExTestPattern } from "./ts/midi_core";
-	import { patchChanged } from "./ts/event_helpers";
+	import { patchChanged, type InvokeControlData } from "./ts/event_helpers";
 	import { getIconURL, getIconCSS } from "./ts/icons";
 	import {
 		ColourPaintLayer,
@@ -21,7 +21,6 @@
 	import { expandSetSanize } from "./ts/data_expandsanize";
 
 	import { Control, type ColourArray } from "./ts/types";
-	import type { InvokeControlEventData } from "./ts/event_helpers";
 	import type { BranchBank } from "./ts/types_patch";
 	import {
 		getCurrentHexes,
@@ -202,7 +201,7 @@
 			: colourOff;
 	}
 
-	export function paintEvent(data: InvokeControlEventData) {
+	export function paintEvent(data: CustomEvent<InvokeControlData>) {
 		releaseToolUsed = true;
 
 		let hexFixed = fixHex(hex);

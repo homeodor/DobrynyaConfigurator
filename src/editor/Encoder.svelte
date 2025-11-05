@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from "svelte";
 	import InnerControl from "./InnerControl.svelte";
 	import { Control } from "../ts/types";
-	import type { InvokeControlEvent } from "../ts/event_helpers";
+	import type { InvokeControlData, InvokeControlEvent } from "../ts/event_helpers";
 	import { filterInvoke } from "../ts/event_helpers";
 	import type { BranchControl } from "../ts/types_patch";
 
@@ -27,12 +27,12 @@
 		dispatch("click", { encEl: theElement });
 	}
 
-	function invokeControl(ev: InvokeControlEvent) {
+	function invokeControl(ev: CustomEvent<InvokeControlData>) {
 		filterInvoke(ev, Control.EncRotate, controlNo, dispatchClick);
 	}
 </script>
 
-<svelte:body on:invoke={invokeControl} />
+<svelte:body oninvoke={invokeControl} />
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div

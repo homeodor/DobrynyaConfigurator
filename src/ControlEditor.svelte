@@ -1,4 +1,4 @@
-<svelte:options accessors={true} />
+<svelte:options />
 
 <script lang="ts">
 	import { tick, onDestroy, untrack } from "svelte";
@@ -13,7 +13,7 @@
 		MidiCtrl,
 	} from "./ts/midi_utils";
 	import { colourOff } from "./ts/colour_utils";
-	import { Hand, Control, EncoderBehaviour } from "./ts/types";
+	import { Control, EncoderBehaviour } from "./ts/types";
 	import type { DeviceOrBankValue, HexColour } from "./ts/types";
 	import type { Patch, BranchControl } from "./ts/types_patch";
 	import { createPadsIfAbsent } from "./ts/data_utils";
@@ -37,15 +37,7 @@
 	import EncoderParameters from "./editor/EncoderParameters.svelte";
 	import { sysExCalibrateAccel } from "./ts/midi_core";
 	import { assertDefined } from "./ts/basic";
-	import {
-		burstToKindFlags,
-		burstToMode,
-		burstToPaletteFlags,
-		checkIfBurstIsOn,
-		k_palettesUsedFromMode,
-	} from "./ts/bursts";
-
-	//	export let hand: Hand = Hand.None; // !!!!!!! Hand should be an enum, too
+	import { checkIfBurstIsOn } from "./ts/bursts";
 
 	let {
 		currentPatch,
@@ -92,8 +84,6 @@
 
 	let isKeyOfScale = $state<boolean>(false);
 	let scaleNote = $state<number>(-1);
-
-	let encModePrev = -1;
 
 	let midiControlEditor = $state<MidiControl>();
 	let keyboardEditor = $state<KeyboardEditor>();
@@ -322,7 +312,6 @@
 		}
 
 		untrack(() => {
-			encModePrev = -1;
 			initEditorAfterTick();
 		});
 	});
@@ -458,7 +447,7 @@
 
 	{#if editorData?.combo != undefined}
 		<KeyboardEditor
-			on:input={patchMaybeChanged}
+			onValueChange={patchMaybeChanged}
 			{theControl}
 			bind:value={editorData.combo}
 			bind:this={keyboardEditor}

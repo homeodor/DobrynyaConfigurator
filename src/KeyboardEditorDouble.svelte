@@ -5,35 +5,51 @@
 		KeyboardAvailable,
 		type ControlDefinition,
 	} from "./ts/control_defs";
-	import { settings } from "./ts/settings_utils"
+	import { settings } from "./ts/settings_utils";
 
-	export let theControl: ControlDefinition;
-	export let value: number = 0;
+	let {
+		theControl,
+		value = $bindable<number>(),
+		onValueChange,
+	}: {
+		theControl: ControlDefinition;
+		value: number;
+		onValueChange: () => void;
+	} = $props();
 
-	let lowValue = 0;
-	let highValue = 0;
-	let prevValue = -1;
-
-	let ed1: KeyboardEditor;
-	let ed2: KeyboardEditor;
+	let ed1 = $state<KeyboardEditor>();
+	let ed2 = $state<KeyboardEditor>();
 
 	export function update() {
 		ed1?.update();
 		ed2?.update();
 	}
 
-	$: {
-		if (prevValue != value) {
-			lowValue = value & 0xffff;
-			highValue = (value >> 16) & 0xffff;
-			prevValue = value;
-		} else {
-			prevValue = value =
-				theControl.keyboard == KeyboardAvailable.double
-					? lowValue | (highValue << 16)
-					: lowValue;
+	let lowValue = $state(value & 0xffff);
+	let highValue = $state((value >>> 16) & 0xffff);
+
+	$effect(() => {
+		const l = value & 0xffff;
+		const h = (value >>> 16) & 0xffff;
+
+		if (l !== lowValue) {
+			lowValue = l;
 		}
-	}
+		if (h !== highValue) {
+			highValue = h;
+		}
+	});
+
+	$effect(() => {
+		const next =
+			theControl.keyboard === KeyboardAvailable.double
+				? (lowValue & 0xffff) | ((highValue & 0xffff) << 16)
+				: lowValue & 0xffff;
+
+		if (next !== value) {
+			value = next;
+		}
+	});
 </script>
 
 {#if theControl.keyboard != KeyboardAvailable.no}
@@ -62,25 +78,24 @@
 				</p>
 			</Halp>
 		</legend>
-		<!-- TODO: fix all the fucking type error -->
-		{#if settings.input.flags.flag[0]}
+		{#if settings.input.items.flags.flag![0]}
 			<p class="explain">
 				Keyboard has been disabled in settings. This will have no
 				effect.
 			</p>
 		{/if}
 		<div class="ce-block controlparammode" id="cbm-keyboardedtor">
-			{#if theControl.keyboard == KeyboardAvailable.double}
+			{#if theControl.keyboard === KeyboardAvailable.double}
 				<KeyboardEditor
-					on:input
+					{onValueChange}
 					header="Rotate +"
 					bind:value={highValue}
 					bind:this={ed1}
 				/>
 			{/if}
 			<KeyboardEditor
-				on:input
-				header={theControl.keyboard != KeyboardAvailable.double
+				{onValueChange}
+				header={theControl.keyboard !== KeyboardAvailable.double
 					? ""
 					: "Rotate –"}
 				bind:value={lowValue}
