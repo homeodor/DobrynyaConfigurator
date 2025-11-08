@@ -10,6 +10,7 @@
 		FirmwareState,
 		setDevice,
 		deviceDefinition,
+		getDevice,
 	} from "device";
 	import {
 		sysExDiskMode,
@@ -25,7 +26,7 @@
 		getFactorySettings,
 	} from "settings_utils";
 	import { WaitingBlock } from "waitingblock";
-	import { isAlt, isMacLike } from "stores";
+	import { extraContent, isAlt, isMacLike } from "stores";
 	import {
 		loadPatchInfo,
 		fillPatchList,
@@ -50,6 +51,7 @@
 		"patches",
 		"settings",
 		"firmware",
+		"content",
 		"device",
 	];
 
@@ -117,6 +119,8 @@
 	import type { VersionData } from "device";
 	import { getLatestVersion, versionCompare } from "device";
 	import CornerDevice from "./widgets/CornerDevice.svelte";
+	import SectionSoundbanks from "./SectionSoundpacks.svelte";
+	import { checkSigning, getContentList } from "./ts/download";
 
 	let versionInfo: VersionData;
 	let hasNewFirmware = FirmwareState.Unknown;
@@ -161,8 +165,13 @@
 		if (previousSerial === $deviceDefinition.serial && stuffHasBeenLoaded)
 			return; // same device, no need to reload everything, assume no changes happened
 
-		updateVersionInfo();
-		getFactorySettings(); // yup
+		await updateVersionInfo();
+		await getFactorySettings(); // yup
+
+		if ($deviceDefinition.model.testSignResult) {
+			$deviceDefinition.supportsSigning = await checkSigning();
+			$extraContent = await getContentList();
+		}
 		sysExLockPatchSwitching(false); // the device might have locked patch switching, so unlock it
 
 		await getSettingsFromDevice();
@@ -284,17 +293,19 @@
 
 <div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<div
-			on:click={() => section(sect)}
-			class:sel={openSection == sect}
-			class:newfirmware={hasNewFirmware == FirmwareState.Outdated &&
-				sect == "firmware"}
-			class:disabled={!sectionSwitchingAllowed && sect != "firmware"}
-			id="show-{sect}"
-		>
-			{sect[0].toUpperCase() + sect.substring(1)}
-		</div>
+		{#if (sect != "content" || $deviceDefinition.supportsSigning) && (sect != "firmware" || $deviceDefinition.model.canHid)}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<div
+				on:click={() => section(sect)}
+				class:sel={openSection == sect}
+				class:newfirmware={hasNewFirmware == FirmwareState.Outdated &&
+					sect == "firmware"}
+				class:disabled={!sectionSwitchingAllowed && sect != "firmware"}
+				id="show-{sect}"
+			>
+				{sect[0].toUpperCase() + sect.substring(1)}
+			</div>
+		{/if}
 	{/each}
 </div>
 
@@ -368,6 +379,9 @@
 	{/if}
 	{#if openSection == "device"}
 		<SectionDevice on:section={section} />
+	{/if}
+	{#if openSection == "content" && $deviceDefinition.supportsSigning}
+		<SectionSoundbanks />
 	{/if}
 	{#if openSection == "firmware"}
 		<SectionFirmware

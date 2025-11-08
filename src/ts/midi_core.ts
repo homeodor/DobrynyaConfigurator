@@ -1,7 +1,7 @@
 import { WaitingBlock } from "waitingblock";
 import { type Result, Command, Status } from "configurator";
 import { SysExParser } from "./sysex_parser";
-import type { HexColour, ColourArray, Hand } from "types";
+import type { HexColour, ColourArray, Hand, SignKind } from "types";
 import { batteryInfo } from "./stores";
 import {
 	getChecksumCalculator,
@@ -403,7 +403,9 @@ function sysExFilename(cmd: Command, load: string) {
 }
 
 async function waitForMidi(theCommand = null, timeout = 500): Promise<Result> {
-	if (!portIn) throw "No midi port found";
+	if (!portIn) {
+		throw "No midi port found";
+	}
 
 	const parser = new SysExParser();
 
@@ -462,7 +464,6 @@ async function waitForMidiResult(
 			WaitingBlock.unblockOrError(theCommand, result.status);
 			enablePing();
 			throw new MidiResultException(theCommand, result);
-			// return false;
 		}
 
 		handler(result.data, result.filename);
@@ -551,9 +552,10 @@ export async function sysExAndDo(
 
 async function sysExAndWait(
 	theCommand: Command,
-	timeout: number = 500
-): Promise<any> {
-	sysEx(theCommand);
+	timeout: number = 500,
+	load: any = null
+): Promise<Result> {
+	sysEx(theCommand, load);
 	return await waitForMidi(theCommand, timeout);
 }
 
@@ -617,4 +619,23 @@ export function sysExCalibrateAccel() {
 
 export function sysExStorageMode() {
 	sysEx(Command.STORAGEMODE);
+}
+
+export async function sysExSign(
+	data: Uint8Array,
+	kind: SignKind
+): Promise<Uint8Array> {
+	return new Promise(async (resolve, reject) => {
+		const result = await sysExAndWait(
+			Command.SIGN,
+			1000,
+			eightToSeven(Uint8Array.from([kind, 0x0, ...data]), null)
+		);
+
+		if (result.success) {
+			resolve(result.data);
+		} else {
+			reject(result.status);
+		}
+	});
 }

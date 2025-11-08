@@ -100,6 +100,8 @@
 		{/if}
 		<h4>Processor</h4>
 		<div>{chipName}</div>
+		<h4>Signing</h4>
+		<div>{$deviceDefinition.supportsSigning ? "Yes" : "No"}</div>
 	</div>
 
 	{#if $importantFactorySettings.batteryCapacity}

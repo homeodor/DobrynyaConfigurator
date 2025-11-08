@@ -81,6 +81,7 @@ export interface Model {
 	chip?: ModelChip;
 	hardware?: ModelHardware;
 	patch?: ModelPatchSections;
+	testSignResult?: string;
 }
 
 export interface Capabilities {
@@ -138,6 +139,7 @@ export function defaultStatusResult(isC: boolean = false): StatusResult {
 		},
 		battery: { status: BatteryStatus.noBattery, percent: 0 },
 		legacyChecksum: false,
+		supportsSigning: false,
 	};
 }
 
@@ -178,6 +180,7 @@ export const models: Model[][] = [
 				hands: 1,
 				banks: 4,
 			},
+			testSignResult: "okL3BhtuImFQmQuLM5TdW3mFjpHBNdZZkrM4hw3tI3g=",
 		},
 	],
 	[
@@ -409,26 +412,31 @@ export const ChipIDs = {
 		name: "SAMD21x18",
 		code: 18,
 		mhz: 48,
+		supportsSigning: false,
 	},
 	6: {
 		name: "SAMD21x17",
 		code: 17,
 		mhz: 48,
+		supportsSigning: false,
 	},
 	21: {
 		name: "SAME51J20",
 		code: 20,
 		mhz: 120,
+		supportsSigning: false,
 	},
 	1: {
 		name: "ESP32-S3",
 		code: 2,
 		mhz: 240,
+		supportsSigning: true,
 	},
 	2: {
 		name: "ESP32-S3",
 		code: 2,
 		mhz: 240,
+		supportsSigning: true,
 	},
 };
 

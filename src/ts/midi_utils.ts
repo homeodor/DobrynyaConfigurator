@@ -233,7 +233,8 @@ export function eightToSeven(
 
 	) {
 		let resultByte: number;
-		let byte = parseInt(arr[i]);
+		let byte =
+			typeof arr === "string" ? arr.charCodeAt(i) : parseInt(arr[i]);
 		if (isNaN(byte)) byte = parseInt(arr[i], 16);
 
 		if (byte > 255) {
@@ -241,7 +242,11 @@ export function eightToSeven(
 		}
 
 		if (sevenBitCounter < 8) {
-			checksum.next(byte);
+			if (checksum)
+			{
+				checksum.next(byte);
+			}
+			
 			resultByte = nextByte | (byte >> sevenBitCounter);
 			nextByte = (byte << (7 - sevenBitCounter)) & 0x7f;
 			sevenBitCounter++;

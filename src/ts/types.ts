@@ -119,4 +119,11 @@ export interface StatusResult {
 	has: Capabilities;
 	battery: BatteryInfo;
 	legacyChecksum: boolean;
+	supportsSigning: boolean;
+}
+
+export enum SignKind {
+	Type0 = 0,
+	Type1 = 1,
+	Type2 = 2,
 }
