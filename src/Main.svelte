@@ -10,6 +10,7 @@
 		FirmwareState,
 		setDevice,
 		deviceDefinition,
+		getDevice,
 	} from "./ts/device";
 	import {
 		sysExDiskMode,
@@ -26,7 +27,7 @@
 		getFactorySettings,
 	} from "./ts/settings_utils";
 	import { WaitingBlock } from "./ts/waitingblock";
-	import { isAlt, isMacLike } from "./ts/stores";
+	import { extraContent, isAlt, isMacLike } from "./ts/stores";
 	import {
 		loadPatchInfo,
 		fillPatchList,
@@ -62,6 +63,7 @@
 		"settings",
 		...(hidAvailable() ? ["firmware"] : []),
 		...(signatureAvailable() ? ["soundpacks"] : []),
+		"content",
 		"device",
 	];
 
@@ -131,6 +133,8 @@
 	import type { VersionData } from "./ts/device";
 	import { getLatestVersion, versionCompare } from "./ts/device";
 	import CornerDevice from "./widgets/CornerDevice.svelte";
+	import SectionSoundbanks from "./SectionSoundpacks.svelte";
+	import { checkSigning, getContentList } from "./ts/download";
 
 	let versionInfo: VersionData;
 	let hasNewFirmware = FirmwareState.Unknown;
@@ -177,8 +181,13 @@
 		if (previousSerial === $deviceDefinition.serial && stuffHasBeenLoaded)
 			return; // same device, no need to reload everything, assume no changes happened
 
-		updateVersionInfo();
-		getFactorySettings(); // yup
+		await updateVersionInfo();
+		await getFactorySettings(); // yup
+
+		if ($deviceDefinition.model.testSignResult) {
+			$deviceDefinition.supportsSigning = await checkSigning();
+			$extraContent = await getContentList();
+		}
 		sysExLockPatchSwitching(false); // the device might have locked patch switching, so unlock it
 
 		await getSettingsFromDevice();
@@ -300,7 +309,8 @@
 
 <div id="maintabs" class:switching-allowed={sectionSwitchingAllowed}>
 	{#each sections as sect}
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		{#if (sect != "content" || $deviceDefinition.supportsSigning) && (sect != "firmware" || $deviceDefinition.model.canHid)}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div
 			role="button"
 			tabindex="0"
@@ -313,6 +323,7 @@
 		>
 			{sect[0].toUpperCase() + sect.substring(1)}
 		</div>
+		{/if}
 	{/each}
 </div>
 
@@ -376,6 +387,9 @@
 	{/if}
 	{#if openSection == "device"}
 		<SectionDevice on:section={section} />
+	{/if}
+	{#if openSection == "content" && $deviceDefinition.supportsSigning}
+		<SectionSoundbanks />
 	{/if}
 	{#if openSection == "firmware"}
 		<SectionFirmware

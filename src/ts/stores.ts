@@ -1,6 +1,7 @@
 import { readable, writable } from "svelte/store";
 import { colourOff } from "./colour_utils.svelte";
 import { type BatteryInfo, BatteryStatus } from "./types";
+import type { ExtraContent } from "./download";
 
 export const isMacLike = readable(
 	/(Mac|iPhone|iPod|iPad|Apple)/i.test(navigator.platform)
@@ -26,4 +27,9 @@ export const stateOfCharge = writable(-1);
 export const batteryInfo = writable<BatteryInfo>({
 	status: BatteryStatus.noBattery,
 	percent: 0,
+});
+
+export const extraContent = writable<ExtraContent>({
+	packs: [],
+	videos: [],
 });

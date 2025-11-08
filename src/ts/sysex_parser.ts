@@ -39,6 +39,7 @@ k_decode7to8.set(Command.GETSERIAL, false);
 k_decode7to8.set(Command.GETVERSION, false);
 k_decode7to8.set(Command.GETFACTORYSETTINGS, false);
 k_decode7to8.set(Command.GETSETTINGS, false);
+k_decode7to8.set(Command.SIGN, false);
 
 export class SysExParser {
 	constructor() {
@@ -187,6 +188,11 @@ export class SysExParser {
 					output.version.startsWith("2.0") ||
 					output.version.startsWith("1.");
 
+				output.supportsSigning =
+					output.supportsSigning &&
+					!output.version.startsWith("2.0") &&
+					!output.version.startsWith("1.");
+
 				if (rawData.length >= 35) {
 					// battery info
 					output.battery.status = rawData[33];
@@ -312,7 +318,8 @@ export class SysExParser {
 			}
 
 			case Command.GETFACTORYSETTINGS: // not used in the Configurator
-			case Command.GETSETTINGS: {
+			case Command.GETSETTINGS:
+			case Command.SIGN: {
 				if (!midiResult.success) {
 				break;
 			}
@@ -408,6 +415,7 @@ export class SysExParser {
 
 		output.model.chip.name = ChipIDs[output.variant].name;
 		output.model.chip.code = ChipIDs[output.variant].code;
+		output.supportsSigning = ChipIDs[output.variant].supportsSigning;
 	}
 
 	private assemble(d: Uint8Array): Uint8Array | null {
