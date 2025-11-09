@@ -204,7 +204,7 @@ function settingsModel(): SettingsObject {
 
 		ble: {
 			offset: 0x50,
-			onoff: {
+			flags: {
 				isFlag: true,
 			},
 			power: {

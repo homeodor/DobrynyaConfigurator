@@ -1,7 +1,7 @@
 import { readable, writable } from "svelte/store";
 import { colourOff } from "colour_utils";
 import { type BatteryInfo, BatteryStatus } from "./types";
-import { ExtraContent } from "./download";
+import { type ExtraContent } from "./download";
 
 export const isMacLike = readable(
 	/(Mac|iPhone|iPod|iPad|Apple)/i.test(navigator.platform)

@@ -1,8 +1,6 @@
 import { getDevice } from "./device";
 import { sysExSign } from "./midi_core";
-import { decode } from "js-base64";
 import { SignKind } from "./types";
-import { extraContent } from "./stores";
 
 const baseUrl = "https://dbr-cdn.ru/astrid";
 const k_signTestString = "DobrynyaConfigurator";

@@ -95,26 +95,43 @@
 		>
 	</div>
 	<div id="settings" class="columnizer">
-		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
-			<fieldset id="se-wireless">
-				<legend>
+		<fieldset id="se-wireless">
+			<legend>
+				{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
 					<label
 						><input
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={settings.ble.onoff.flag[0]}
+							bind:checked={settings.ble.flags.flag[0]}
 						/><mark></mark> Wireless</label
-					></legend
+					>
+				{:else}Wireless{/if}</legend
+			>
+
+			{#if !settings.ble.flags.flag[0] && isSavedNow && false}
+				<p class="explain">
+					Enabling wireless requires a restart of Dobrynya.
+				</p>
+			{/if}
+			<h4>
+				<label
+					><input
+						type="checkbox"
+						class="appleswitch"
+						on:input={markSettingsUnsavedNow}
+						bind:checked={settings.ble.flags.flag[1]}
+					/><mark></mark> Advertise on start</label
 				>
 
-				{#if !settings.ble.onoff.flag[0] && isSavedNow}
-					<p class="explain">
-						Enabling wireless requires a restart of Dobrynya.
-					</p>
-				{/if}
+				<p class="explain">
+					If previously bonded, Dobrynya will advertise itself on
+					start, which makes certain hosts automatically connect to
+					it. Otherwise, enter menu mode to enable advertising.
+				</p>
+			</h4>
 
-				<!-- <div class="ce-block">
+			<!-- <div class="ce-block">
 					<h4>Name</h4>
 					<input
 						type="text"
@@ -122,8 +139,7 @@
 						bind:value={settings.ble.name.text}
 					/>
 				</div> -->
-			</fieldset>
-		{/if}
+		</fieldset>
 		<fieldset id="se-leds">
 			<legend>Light</legend>
 
