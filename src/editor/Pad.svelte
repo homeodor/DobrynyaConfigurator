@@ -4,52 +4,39 @@
 		gracefulGetColour,
 		ColourPaintLayer,
 		colourOff,
-	} from "../ts/colour_utils";
+	} from "../ts/colour_utils.svelte";
 	import type { BranchControl } from "../ts/types_patch";
 	import { Control } from "../ts/types";
-	import type { HexColour } from "../ts/types";
+	import type { ColourArray, HexColour } from "../ts/types";
 	import { filterInvoke } from "../ts/event_helpers";
-	import type {
-	InvokeControlData,
-		InvokeControlEvent,
-		InvokeControlEventData,
-	} from "../ts/event_helpers";
+	import type { InvokeControlData } from "../ts/event_helpers";
 	import InnerControl from "./InnerControl.svelte";
 
-	import { createEventDispatcher } from "svelte";
 	import { deviceDefinition } from "../ts/device";
 
-	export let colourPaintShowBank: boolean;
-	export let colourPaintMode: ColourPaintLayer;
-
-	export let controlNo: number;
-	export let data: BranchControl;
-
-	export let pattern: number;
-	export let globalColours: number[];
-	export let isKeyOfScale: boolean = false;
-	export let scaleNote: number = 0;
-
-	let dispatch = createEventDispatcher();
-
-	let cherry = false;
-	let sharp = false;
-
-	let padColours = [];
-
-	let activeColour: string = "transparent";
-	let normalColour: string = "transparent";
-	let backgroundColour: string = "transparent";
-	let colourpaintColour: string = "transparent";
-
-	let colourpaint: boolean = colourPaintMode != ColourPaintLayer.Off;
-
-	let moreData: { noColour: boolean } = { noColour: false };
-
-	let hex = colourOff;
-	let ultimateHex = 0;
-
-	let theDiv: HTMLDivElement;
+	let {
+		openEditor,
+		onPaint,
+		colourPaintShowBank,
+		colourPaintMode,
+		controlNo,
+		data,
+		pattern,
+		globalColours,
+		isKeyOfScale = false,
+		scaleNote = 0,
+	}: {
+		openEditor: (element: HTMLElement, kind: Control, i: number) => void;
+		onPaint: (data: InvokeControlData) => void;
+		colourPaintShowBank: boolean;
+		colourPaintMode: ColourPaintLayer;
+		controlNo: number;
+		data: BranchControl | null;
+		pattern: number;
+		globalColours: number[];
+		isKeyOfScale: boolean;
+		scaleNote: number;
+	} = $props();
 
 	function customClick(ev: MouseEvent) {
 		sendEvent(ev.type, ev.buttons, ev.altKey, ev.shiftKey);
@@ -62,66 +49,109 @@
 		evAltKey: boolean = false,
 		evShiftKey: boolean = false
 	) {
-		let eventToDispatch: string = "";
+		if (!theDiv) {
+			throw new Error("Pad's div has not been defined");
+		}
 
 		if (colourPaintMode != ColourPaintLayer.Off) {
 			// colour paint
-			if (evType != "click" && evButtons & 0x1) eventToDispatch = "paint";
+			if (evType != "click" && evButtons & 0x1) {
+				let dispatchData: InvokeControlData = {
+					controlKind: Control.Pad,
+					target: theDiv,
+					controlNo: controlNo,
+					hex: hex,
+					ultimateHex: ultimateHex,
+					altKey: evAltKey,
+					shiftKey: evShiftKey,
+				};
+				onPaint(dispatchData);
+			}
 		} else {
-			if (evType != "click") return; // mouseover?
-			eventToDispatch = "click";
+			if (evType != "click") {
+				return; // mouseover?
+			}
+			openEditor(theDiv, Control.Pad, controlNo);
+			return;
 		}
-
-		if (!eventToDispatch) return;
-
-		let dispatchData: InvokeControlEventData = {
-			controlKind: Control.Pad,
-			target: theDiv,
-			controlNo: controlNo,
-			hex: hex,
-			ultimateHex: ultimateHex,
-			altKey: evAltKey,
-			shiftKey: evShiftKey,
-		};
-
-		dispatch(eventToDispatch, dispatchData);
 	}
 
 	function invokeControl(ev: CustomEvent<InvokeControlData>) {
 		filterInvoke(ev, Control.Pad, controlNo, () => sendEvent("click"));
 	}
 
-	$: {
-		colourpaint = colourPaintMode != ColourPaintLayer.Off;
+	let colourpaint = $derived<boolean>(
+		colourPaintMode != ColourPaintLayer.Off
+	);
+	let padColours = $derived<ColourArray>(data?.colour ?? []);
+	let activeColour = $derived<string>(
+		hexToCSS(
+			gracefulGetColour(1, padColours, globalColours, isKeyOfScale).hex
+		)
+	);
+	let normalColour = $derived<string>(
+		hexToCSS(
+			gracefulGetColour(0, padColours, globalColours, isKeyOfScale).hex
+		)
+	);
 
-		padColours: ColourArray[] = [];
+	let cherry = $derived(
+		$deviceDefinition.model.code!.includes("pocket") ||
+			$deviceDefinition.model.code!.includes("aurora")
+	);
+	let sharp = $derived($deviceDefinition.model.code!.includes("sharp"));
 
-		if (data?.colour) padColours = data.colour;
-
-		activeColour = hexToCSS(
-			gracefulGetColour(1, padColours, globalColours, isKeyOfScale)
-		);
-		normalColour = hexToCSS(
-			gracefulGetColour(0, padColours, globalColours, isKeyOfScale)
-		);
-
-		moreData.noColour = false;
-
+	let hex = $derived.by<HexColour>(() => {
 		if (colourpaint) {
+			if (colourPaintMode != ColourPaintLayer.Pattern) {
+				return padColours[colourPaintMode] ?? colourOff;
+			} else {
+				return pattern;
+			}
+		}
+
+		return colourOff;
+	});
+
+	let theDiv = $state<HTMLDivElement>();
+
+	interface Derivision {
+		ultimateHex: number;
+		nocolour: boolean;
+		backgroundColour: string;
+		colourpaintColour: string;
+	}
+
+	let { ultimateHex, nocolour, backgroundColour, colourpaintColour } =
+		$derived.by<Derivision>(() => {
+			if (!colourpaint) {
+				return {
+					ultimateHex: 0,
+					nocolour: false,
+					backgroundColour: "",
+					colourpaintColour: "transparent",
+				};
+			}
+
 			let backgroundHex: HexColour;
+			let backgroundColour: string;
+			let colourpaintColour: string;
+			let ultimateHex: HexColour;
+			let nocolour: boolean;
 
 			if (colourPaintMode != ColourPaintLayer.Pattern) {
-				backgroundHex = ultimateHex = gracefulGetColour(
+				const result = gracefulGetColour(
 					colourPaintMode,
 					padColours,
 					colourPaintShowBank ? globalColours : [],
 					isKeyOfScale,
-					false,
-					moreData
+					false
 				);
-				hex = padColours[colourPaintMode] ?? colourOff;
+				backgroundHex = ultimateHex = result.hex;
+				nocolour = result.noColour;
 			} else {
-				backgroundHex = hex = ultimateHex = pattern;
+				backgroundHex = ultimateHex = pattern;
+				nocolour = backgroundHex == colourOff;
 			}
 
 			if ((ultimateHex & 0xf) == 0) ultimateHex = 0;
@@ -130,37 +160,27 @@
 				backgroundHex == colourOff ? 0 : backgroundHex
 			);
 			backgroundColour = `background-color: ${colourpaintColour}`;
-		} else {
-			hex = colourOff; // not needed in non-colourpaint
-			ultimateHex = 0; // same
-			backgroundColour = "";
-			colourpaintColour = "transparent";
-		}
-		//
-		// console.log(moreData.noColour);
-		// console.log(activeColour, normalColour, backgroundColour, isColourPaint, colourPaintMode);
 
-		cherry =
-			$deviceDefinition.model.code.includes("pocket") ||
-			$deviceDefinition.model.code.includes("aurora");
-
-		sharp = $deviceDefinition.model.code.includes("sharp");
-	}
-	//
-	// console.log("DATA IS ", data)
+			return {
+				ultimateHex,
+				nocolour,
+				backgroundColour,
+				colourpaintColour,
+			};
+		});
 </script>
 
 <svelte:body oninvoke={invokeControl} />
 
-<!-- svelte-ignore a11y-mouse-events-have-key-events --><!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_mouse_events_have_key_events --><!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
 	role="button"
 	tabindex="0"
 	bind:this={theDiv}
-	on:click={customClick}
-	on:mouseover={customClick}
-	on:mousedown={customClick}
-	class:nocolour={moreData.noColour}
+	onclick={customClick}
+	onmouseover={customClick}
+	onmousedown={customClick}
+	class:nocolour
 	class="dobrynya-pad editablecontrol colourablecontrol"
 	class:colourpaint
 	class:sharp

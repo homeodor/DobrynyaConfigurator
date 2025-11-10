@@ -16,6 +16,7 @@
 		flipConnected,
 		sysExLockPatchSwitching,
 		sysExBootloader,
+		MidiResultException,
 	} from "./ts/midi_core";
 	import { Status } from "./ts/configurator";
 	import {
@@ -32,15 +33,14 @@
 		patchList,
 		loadCurrentPatch,
 		newPatch,
-	} from "./ts/patch";
-	import { randomPattern } from "./ts/colour_utils";
+	} from "./ts/patch.svelte";
+	import { randomPattern } from "./ts/colour_utils.svelte";
 
 	import GotIt from "./widgets/GotIt.svelte";
 	import NoPatches from "./widgets/NoPatches.svelte";
 	import Alert from "./widgets/Alert.svelte";
 
 	import SectionEditor from "./SectionEditor.svelte";
-	import SectionPatches from "./SectionPatches.svelte";
 	import SectionSettings from "./SectionSettings.svelte";
 	import SectionDevice from "./SectionDevice.svelte";
 	import SectionFirmware from "./SectionFirmware.svelte";
@@ -83,7 +83,9 @@
 	let alertNoPatches: NoPatches;
 
 	function romanize(num: number) {
-		if (isNaN(num)) return NaN;
+		if (isNaN(num)) {
+			return NaN;
+		}
 
 		let i = 3;
 		let digits = String(+num).split("");
@@ -121,7 +123,7 @@
 		];
 		let roman = "";
 
-		while (i--) roman = (key[+digits.pop() + i * 10] || "") + roman;
+		while (i--) roman = (key[+digits.pop()! + i * 10] || "") + roman;
 
 		return Array(+digits.join("") + 1).join("M") + roman;
 	}
@@ -170,7 +172,7 @@
 			return;
 		}
 
-		fixSettings($deviceDefinition.model.settingsLength); // if settings need fixing, this will be done NOW
+		fixSettings($deviceDefinition.model.settingsLength!); // if settings need fixing, this will be done NOW
 
 		if (previousSerial === $deviceDefinition.serial && stuffHasBeenLoaded)
 			return; // same device, no need to reload everything, assume no changes happened
@@ -185,7 +187,7 @@
 			await getPalettesFromDevice();
 		} catch (ex) {
 			console.warn("Getting palettes is not implemented");
-			if (ex.status != Status.NOT_IMPLEMENTED) {
+			if ((ex as MidiResultException).status != Status.NOT_IMPLEMENTED) {
 				throw ex;
 			}
 		}
@@ -196,7 +198,7 @@
 				break;
 			} catch (e) {
 				console.log(e);
-				if (e.status != Status.NO_FILE) {
+				if ((e as MidiResultException).status != Status.NO_FILE) {
 					throw e;
 				}
 				WaitingBlock.unblock();
@@ -355,14 +357,10 @@
 		I may do something else here, i.e. decode settings in Main, but for now I think there are more cons to this -->
 		<SectionEditor
 			bind:this={editor}
-			on:section={section}
+			onSection={section}
 			isOnline={isOnline && isConnected}
 			deviceLevelVelocity={window.settings?.midi.items.vel.value ?? 0x7f}
 			deviceLevelChannel={window.settings?.midi.items.channel.value ?? 0}
-			on:section={ev => {
-				console.log(ev.detail.section);
-				openSection = ev.detail.section;
-			}}
 			{openSection}
 		/>
 	{/if}

@@ -11,7 +11,7 @@
 		hexToCSS,
 		randomPattern,
 		Tool,
-	} from "./ts/colour_utils";
+	} from "./ts/colour_utils.svelte";
 	import {
 		createObjectIfAbsent,
 		createPadsIfAbsent,
@@ -38,7 +38,7 @@
 	import CTFade from "./colourtools/Fade.svelte";
 	import CTCopy from "./colourtools/Copy.svelte";
 
-	export let paintData: InvokeControlEventData | null = null;
+	export let paintData: InvokeControlData | null = null;
 
 	export let bank: BranchBank;
 	export let pattern: number[];
@@ -201,7 +201,7 @@
 			: colourOff;
 	}
 
-	export function paintEvent(data: CustomEvent<InvokeControlData>) {
+	export function paintEvent(data: InvokeControlData) {
 		releaseToolUsed = true;
 
 		let hexFixed = fixHex(hex);
@@ -426,7 +426,7 @@
 				bind:hex
 				bind:this={mainColourWell}
 				name="Brush colour"
-				on:close={() => {
+				onclose={() => {
 					updateCursor();
 					updateDevicePreview(true);
 				}}

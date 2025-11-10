@@ -1,7 +1,7 @@
 <svelte:options accessors />
 
 <script lang="ts">
-	import { colourOff } from "../ts/colour_utils";
+	import { colourOff } from "../ts/colour_utils.svelte";
 
 	import { fill, HueMode, FillMode } from "./fill_func";
 

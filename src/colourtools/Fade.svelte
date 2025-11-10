@@ -1,7 +1,7 @@
 <svelte:options accessors />
 
 <script lang="ts">
-	import { colourOff, ColourPaintLayer } from "../ts/colour_utils";
+	import { colourOff, ColourPaintLayer } from "../ts/colour_utils.svelte";
 
 	import {
 		ctStart,

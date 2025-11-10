@@ -18,7 +18,7 @@
 	import Halp from "./widgets/Halp.svelte";
 	import Bursts from "./editor/Bursts.svelte";
 
-	import type { CurrentPatchInfo } from "./ts/patch";
+	import type { CurrentPatchInfo } from "./ts/patch.svelte";
 
 	export let currentPatch: CurrentPatchInfo;
 	export let model: Model;

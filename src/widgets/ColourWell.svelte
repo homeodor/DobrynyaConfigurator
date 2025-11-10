@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { sysExColourReset } from "../ts/midi_core";
 	import type { HexColour } from "../ts/types";
-	import { colourOff, hexToCSS, gracefulGetColour } from "../ts/colour_utils";
+	import { colourOff, hexToCSS, gracefulGetColour } from "../ts/colour_utils.svelte";
 	import Colour from "../Colour.svelte";
 
 	let {
-		hex = colourOff,
+		hex = $bindable(colourOff),
 		name = "",
 		large = false,
 		colourIndex = -1,
@@ -49,7 +49,7 @@
 		if (resetColour) sysExColourReset();
 	}
 
-	let backgroundColourHex = $derived(
+	let backgroundColourHex = $derived<number>(
 		colourIndex == -1
 			? hex
 			: gracefulGetColour(
@@ -58,10 +58,10 @@
 					globalColours,
 					isKeyOfScale,
 					false
-				)
+				).hex
 	);
 
-	let auxHex = $derived(
+	let auxHex = $derived<number>(
 		colourIndex == -1
 			? colourOff
 			: gracefulGetColour(
@@ -70,7 +70,7 @@
 					globalColours,
 					isKeyOfScale,
 					false
-				)
+				).hex
 	);
 
 	$effect(() => {

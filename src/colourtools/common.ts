@@ -1,9 +1,14 @@
 import type { BranchBank } from "../ts/types_patch";
-import { numberOfPads, createPadsIfAbsent } from '../ts/data_utils'
+import { numberOfPads, createPadsIfAbsent } from "../ts/data_utils";
 import { patchChanged } from "../ts/event_helpers";
-import { copyPattern, colourOff, ColourPaintLayer, gracefulGetColour } from '../ts/colour_utils'
+import {
+	copyPattern,
+	colourOff,
+	ColourPaintLayer,
+	gracefulGetColour,
+} from "../ts/colour_utils.svelte";
 import type { ColourArray } from "../ts/types";
-import { getNoteInCurrentScale } from '../ts/midi_utils'
+import { getNoteInCurrentScale } from "../ts/midi_utils";
 
 /*
 
@@ -21,24 +26,26 @@ const coloursPerPad = 2; // change definitions of HexArrays, too
 */
 
 export interface HexArrays {
-	pattern: number[],
-	bank: number[],
-	pads: [number[], number[]],
-	before?: number[],
-	after?: number[],
-	keys: boolean[],
-};
+	pattern: number[];
+	bank: number[];
+	pads: [number[], number[]];
+	before?: number[];
+	after?: number[];
+	keys: boolean[];
+}
 
 export interface CTData {
-	hexStorage: HexArrays | null,
-	bank: BranchBank,
-	pattern: number[],
-	layer?: ColourPaintLayer,
-	hex?: number
+	hexStorage: HexArrays | null;
+	bank: BranchBank;
+	pattern: number[];
+	layer?: ColourPaintLayer;
+	hex?: number;
 }
 
 export enum CTAffect {
-	All, Explicit, Bank
+	All,
+	Explicit,
+	Bank,
 }
 
 /*
@@ -57,7 +64,12 @@ export function ctExit(dialog: HTMLDialogElement, data: CTData) {
 	dialog.close();
 }
 
-export function ctFinish(dialog: HTMLDialogElement, action: Function, params: any, data: CTData) {
+export function ctFinish(
+	dialog: HTMLDialogElement,
+	action: Function,
+	params: any,
+	data: CTData
+) {
 	if (data.hexStorage) {
 		action(params, data.hexStorage, data.layer);
 		setCurrentHexes(data.hexStorage, data.bank, data.pattern);
@@ -81,11 +93,14 @@ export function getEmptyHexArray() {
 		bank: [],
 		pads: [[], []],
 		before: null,
-		after: null
-	}
+		after: null,
+	};
 }
 
-export function getCurrentHexes(theBank: BranchBank, pattern: number[]): HexArrays {
+export function getCurrentHexes(
+	theBank: BranchBank,
+	pattern: number[]
+): HexArrays {
 	let hex: HexArrays = {
 		pattern: [],
 		bank: [],
@@ -99,21 +114,21 @@ export function getCurrentHexes(theBank: BranchBank, pattern: number[]): HexArra
 
 	//	console.log("PATTERN", hex.pattern);
 
-
-	for (let i = 0; i < coloursPerBank; i++) hex.bank.push(
-		(theBank?.bank?.colour !== undefined) ?
-			(theBank.bank.colour?.[i] ?? colourOff) :
-			colourOff
-	);
+	for (let i = 0; i < coloursPerBank; i++)
+		hex.bank.push(
+			theBank?.bank?.colour !== undefined
+				? theBank.bank.colour?.[i] ?? colourOff
+				: colourOff
+		);
 
 	for (let i = 0; i < numberOfPads; i++) {
 		hex.keys.push(getNoteInCurrentScale(i, theBank).isKeyOfScale);
 
 		for (let j = 0; j < coloursPerPad; j++) {
 			hex.pads[j].push(
-				(theBank?.pads?.[i]?.colour !== undefined) ?
-					(theBank?.pads?.[i]?.colour?.[j] ?? colourOff) :
-					colourOff
+				theBank?.pads?.[i]?.colour !== undefined
+					? theBank?.pads?.[i]?.colour?.[j] ?? colourOff
+					: colourOff
 			);
 		}
 	}
@@ -125,17 +140,27 @@ export function colourIsExplicitlySet(hex: number, layerNo: ColourPaintLayer) {
 	return (hex != 0 && layerNo == -1) || (hex != colourOff && layerNo != -1);
 }
 
-export function assembleLayerFromHexes(hex: HexArrays, layerNo: ColourPaintLayer): ColourArray {
+export function assembleLayerFromHexes(
+	hex: HexArrays,
+	layerNo: ColourPaintLayer
+): ColourArray {
 	let layer = getLayerFromHexes(hex, layerNo);
 
 	if (layerNo == ColourPaintLayer.Pattern) return [...layer]; // pattern
 
-	let result = [];
+	let result: ColourArray = [];
 
-	layer.forEach(
-		(lhex, i) => {
-			result.push(gracefulGetColour(layerNo, [lhex, lhex], hex.bank, hex.keys[i], false))
-		});
+	layer.forEach((lhex, i) => {
+		result.push(
+			gracefulGetColour(
+				layerNo,
+				[lhex, lhex],
+				hex.bank,
+				hex.keys[i],
+				false
+			).hex
+		);
+	});
 
 	// for (let lhex of layer)
 	// {
@@ -149,12 +174,19 @@ export function assembleLayerFromHexes(hex: HexArrays, layerNo: ColourPaintLayer
 	return [...result];
 }
 
-export function getLayerFromHexes(hex: HexArrays, layer: ColourPaintLayer): number[] {
+export function getLayerFromHexes(
+	hex: HexArrays,
+	layer: ColourPaintLayer
+): number[] {
 	if (layer === ColourPaintLayer.Off) {
-		throw new Error("getLayerFromHexes received ColourPaintLayer.Off as the layer");
+		throw new Error(
+			"getLayerFromHexes received ColourPaintLayer.Off as the layer"
+		);
 	}
 
-	return [...((layer == ColourPaintLayer.Pattern) ? hex.pattern : hex.pads[layer])];
+	return [
+		...(layer == ColourPaintLayer.Pattern ? hex.pattern : hex.pads[layer]),
+	];
 }
 
 function getNumberOfValidColours(a: number[]) {
@@ -169,12 +201,20 @@ function getNumberOfValidColours(a: number[]) {
 	return result;
 }
 
-export function setCurrentHexes(hex: HexArrays, theBank: BranchBank, pattern: number[]) {
+export function setCurrentHexes(
+	hex: HexArrays,
+	theBank: BranchBank,
+	pattern: number[]
+) {
 	if (
-		!hex.bank || !hex.pattern || !hex.pads ||
+		!hex.bank ||
+		!hex.pattern ||
+		!hex.pads ||
 		hex.bank.length != coloursPerBank ||
 		hex.pattern.length != numberOfPads ||
-		hex.pads.length != coloursPerPad || hex.pads[0].length != numberOfPads || hex.pads[1].length != numberOfPads
+		hex.pads.length != coloursPerPad ||
+		hex.pads[0].length != numberOfPads ||
+		hex.pads[1].length != numberOfPads
 	) {
 		console.log(hex);
 		throw "setCurrentHexes received wrong data";
@@ -184,23 +224,29 @@ export function setCurrentHexes(hex: HexArrays, theBank: BranchBank, pattern: nu
 
 	// console.log("Droppin colourz", window.currentPatch.padbanks[0][0]?.bank?.colour?.[0], theBank.bank.colour, hex.bank);
 
-	if (theBank?.bank?.colour) delete theBank.bank.colour;
+	if (theBank?.bank?.colour) {
+		delete theBank.bank.colour;
+	}
 
 	let validBankColours = getNumberOfValidColours(hex.bank);
 
 	// console.log("Droppin colourz", window.currentPatch.padbanks[0][0]?.bank?.colour?.[0], theBank.bank.colour, hex.bank, validBankColours);
 
 	if (validBankColours) {
-		if (!("bank" in theBank)) theBank.bank = {};
-		theBank.bank.colour = [];
-		for (let i = 0; i < validBankColours; i++) theBank.bank.colour.push(hex.bank[i]);
+		if (!("bank" in theBank)) {
+			theBank.bank = {};
+		}
+		theBank.bank!.colour = [];
+		for (let i = 0; i < validBankColours; i++) {
+			theBank.bank!.colour.push(hex.bank[i]);
+		}
 	}
 	// console.log("Droppin colourz", window.currentPatch.padbanks[0][0]?.bank?.colour?.[0], theBank.bank.colour, hex.bank, validBankColours);
 
 	for (let pad of hex.pads) {
 		for (let hx of pad) {
-			if (hx != colourOff) // we find at least one colour
-			{
+			if (hx != colourOff) {
+				// we find at least one colour
 				// if found, we try to create the pads array
 				createPadsIfAbsent(theBank);
 				break; // and break out
@@ -214,18 +260,17 @@ export function setCurrentHexes(hex: HexArrays, theBank: BranchBank, pattern: nu
 
 			if (hex.pads[0][i] == colourOff && hex.pads[1][i] == colourOff)
 				validColoursOfThisPad = 0;
-			else if (hex.pads[1][i] == colourOff)
-				validColoursOfThisPad = 1;
-			else
-				validColoursOfThisPad = 2;
+			else if (hex.pads[1][i] == colourOff) validColoursOfThisPad = 1;
+			else validColoursOfThisPad = 2;
 
 			if (!validColoursOfThisPad) {
-				if (theBank.pads[i].colour) delete theBank.pads[i].colour;
+				if (theBank.pads![i].colour) delete theBank.pads![i].colour;
 			} else {
-				theBank.pads[i].colour = [];
-				for (let j = 0; j < validColoursOfThisPad; j++) theBank.pads[i].colour.push(hex.pads[j][i]);
+				theBank.pads![i].colour = [];
+				for (let j = 0; j < validColoursOfThisPad; j++) {
+					theBank.pads![i].colour!.push(hex.pads[j][i]);
+				}
 			}
 		}
 	}
 }
-

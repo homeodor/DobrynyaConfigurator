@@ -33,13 +33,13 @@ export interface CurrentEditorState {
 	bank: number;
 }
 
-export const currentPatch: CurrentPatchInfo = {
+export const currentPatch = $state<CurrentPatchInfo>({
 	data: undefined,
 	originalState: undefined,
 	name: "",
 	value: "",
 	isSaved: true,
-};
+});
 
 export const editorState: CurrentEditorState = {
 	hand: Hand.LEFT,
@@ -48,14 +48,6 @@ export const editorState: CurrentEditorState = {
 
 export function isSaved(): boolean {
 	return currentPatch.isSaved;
-}
-
-export function getCurrentPatch(): Patch {
-	if (!currentPatch.data) {
-		throw new Error("Cannot get current patch data: it is undefined");
-	}
-
-	return currentPatch.data;
 }
 
 export function setCurrentPatchName(v: string) {
@@ -158,7 +150,13 @@ export async function newPatch(
 		createPadsIfAbsent(patchData.padbanks[0][0]);
 	} else {
 		if (patchData === null) {
-			patchData = structuredClone(getCurrentPatch());
+			if (!currentPatch.data) {
+				throw new Error(
+					"Cannot get current patch data: it is undefined"
+				);
+			}
+
+			patchData = structuredClone(currentPatch.data);
 		}
 	}
 

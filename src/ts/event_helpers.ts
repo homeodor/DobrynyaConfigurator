@@ -2,7 +2,7 @@ import type { Result } from "./configurator";
 import type { Hand, Control, HexColour } from "./types";
 
 import { lastColourPaintLayer } from "./stores";
-import { ColourPaintLayer } from "./colour_utils";
+import { ColourPaintLayer } from "./colour_utils.svelte";
 
 export interface InvokeControlData {
 	target: HTMLElement;

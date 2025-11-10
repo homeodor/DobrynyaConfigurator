@@ -40,6 +40,7 @@
 		"@sveltejs/vite-plugin-svelte": "^6.1.1",
 		"@tsconfig/svelte": "^5.0.4",
 		"@types/node": "^24.3.0",
+		"@types/ua-parser-js": "^0.7.39",
 		"svelte": "^5.38.1",
 		"svelte-check": "^4.3.1",
 		"typescript": "~5.8.3",

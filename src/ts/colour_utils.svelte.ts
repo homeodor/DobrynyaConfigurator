@@ -133,20 +133,19 @@ export function gracefulGetColour(
 	padArrayIn: ColourArray | HexColour | null = null, // the pad array, which is 2 items, or a single colour (then transformed into array)
 	bankArrayIn: ColourArray | null = null, // the bank array, can be 4 items
 	isKeyOfScale: boolean = false, // is music key of the scale
-	fallbackFromActive: boolean = true, // if no active colour is found, should we fall back to idle one?
-	moreData: any = { noColour: false } // just a way to return some data for further use
-): number {
+	fallbackFromActive: boolean = true // if no active colour is found, should we fall back to idle one?
+): { hex: number; noColour: boolean } {
 	if (typeof padArrayIn === "number") padArrayIn = [padArrayIn, padArrayIn]; // if a signle colour was given, make an array out of it
 
 	if (colourIndex >= 2) {
 		console.error(
 			`gracefulGetColour received colour index ${colourIndex}, which is >= than 2`
 		);
-		return colourOff;
+		return { hex: colourOff, noColour: true };
 	}
 
-	let padArray = padArrayIn === null ? [] : structuredClone(padArrayIn);
-	let bankArray = bankArrayIn === null ? [] : structuredClone(bankArrayIn);
+	let padArray = padArrayIn === null ? [] : structuredClone($state.snapshot(padArrayIn));
+	let bankArray = bankArrayIn === null ? [] : structuredClone($state.snapshot(bankArrayIn));
 
 	while (padArray.length < 2) padArray.push(colourOff);
 	while (bankArray.length < 4) bankArray.push(colourOff);
@@ -154,18 +153,17 @@ export function gracefulGetColour(
 	// console.log("GRACEFUL", colourIndex, padArrayIn, padArray, bankArrayIn, bankArray, isKeyOfScale);
 
 	while (true) {
-		if (padArray[colourIndex] !== colourOff) return padArray[colourIndex]; // if there is a colour in the pad itself, return it
+		if (padArray[colourIndex] !== colourOff) {
+			return { hex: padArray[colourIndex], noColour: false }; // if there is a colour in the pad itself, return it
+		}
 		if (isKeyOfScale && bankArray[colourIndex + 2] !== colourOff) {
-			moreData.noColour = true;
-			return bankArray[colourIndex + 2];
+			return { hex: bankArray[colourIndex + 2], noColour: true };
 		} // otherwise, if it is the key, try to get the key colour
 		if (bankArray[colourIndex] !== colourOff) {
-			moreData.noColour = true;
-			return bankArray[colourIndex];
+			return { hex: bankArray[colourIndex], noColour: true };
 		} // if it is not the key, or the previous failed, get something from the bank colour
 		if (colourIndex === 0 || !fallbackFromActive) {
-			moreData.noColour = true;
-			return colourOff;
+			return { hex: colourOff, noColour: true };
 		} // we have exhausted all the options now for colourIndex === 0
 		colourIndex--; // so we try to step down from Active (1) to Normal (0) colour and try again!
 	}

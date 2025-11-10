@@ -9,7 +9,7 @@
 		dimS,
 		maxV,
 		maxS,
-	} from "../ts/colour_utils";
+	} from "../ts/colour_utils.svelte";
 	import { ParamSatVal, type CTCopyParams } from "./copy";
 
 	import {

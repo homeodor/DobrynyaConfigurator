@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
 
-	import { colourOff } from "./ts/colour_utils";
+	import { colourOff } from "./ts/colour_utils.svelte";
 	import {
 		scales,
 		fakeNoteOff,

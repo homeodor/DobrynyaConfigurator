@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { Control, type DeviceOrBankValue } from "../ts/types";
-	import { getCurrentPatch, type CurrentEditorState, type CurrentPatchInfo } from "../ts/patch";
+	import {
+		type CurrentEditorState,
+		type CurrentPatchInfo,
+	} from "../ts/patch.svelte";
 	import { CaseColour, deviceDefinition } from "../ts/device";
-	import type { InvokeControlEventData } from "../ts/event_helpers";
-	import { ColourPaintLayer } from "../ts/colour_utils";
+	import type { InvokeControlData } from "../ts/event_helpers";
+	import { ColourPaintLayer } from "../ts/colour_utils.svelte";
 	import PanePads from "./PanePads.svelte";
 	import { importantFactorySettings } from "../ts/settings_utils";
 	import ControlEditor from "../ControlEditor.svelte";
 	import { onMount, tick } from "svelte";
 	import { currentKeyInfoToKey } from "../ts/midi_utils";
+
+	export let onPaint: (data: InvokeControlData) => void;
 
 	export let currentPatch: CurrentPatchInfo;
 	export let colourPaintMode: ColourPaintLayer;
@@ -217,7 +222,7 @@
 		<!-- <li data-card="jopa"><PaneJopa /></li> -->
 		<li data-card="pads">
 			<PanePads
-				on:paint
+				{onPaint}
 				{openEditor}
 				{currentPatch}
 				{colourPaintMode}
@@ -230,8 +235,7 @@
 	{#if editorData}
 		<div id="controleditor" class="controleditor" class:dead={!editorAlive}>
 			<ControlEditor
-				on:closeeditor
-				currentPatch={getCurrentPatch()}
+				currentPatch={currentPatch.data!}
 				{editorState}
 				controlKind={editorControlKind}
 				controlNumber={editorControlNumber}
@@ -240,11 +244,11 @@
 				{globalChannel}
 				globalColours={currentPatch?.data?.padbanks?.[editorState.hand][
 					editorState.bank
-				].bank?.colour}
+				].bank?.colour!}
 				scaleIsOn={currentKeyInfoToKey(
 					currentPatch?.data?.padbanks?.[editorState.hand][
 						editorState.bank
-					]
+					]!
 				) !== false}
 			/>
 		</div>

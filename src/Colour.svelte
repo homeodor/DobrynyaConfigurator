@@ -11,7 +11,7 @@
 		invH,
 		dimV,
 		dimS,
-	} from "./ts/colour_utils";
+	} from "./ts/colour_utils.svelte";
 	import { isSame } from "./ts/basic";
 	import type { HexColour, HexObject } from "./ts/types";
 

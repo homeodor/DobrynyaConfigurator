@@ -2,35 +2,29 @@
 	import Pads from "./Pads.svelte";
 	import Encoder from "./Encoder.svelte";
 	import { Control } from "../ts/types";
-	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch";
+	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch.svelte";
 	import { deviceDefinition } from "../ts/device";
-	import type { InvokeControlEventData } from "../ts/event_helpers";
-	import { ColourPaintLayer } from "../ts/colour_utils";
+	import type { InvokeControlData } from "../ts/event_helpers";
+	import { ColourPaintLayer } from "../ts/colour_utils.svelte";
 	import Accelerometer from "./Accelerometer.svelte";
 
-	export let openEditor: (
-		element: HTMLElement,
-		kind: Control,
-		i: number
-	) => void;
-	export let currentPatch: CurrentPatchInfo;
-	export let colourPaintMode: ColourPaintLayer;
-	export let colourPaintShowBank: boolean;
-	export let editorState: CurrentEditorState;
+	let {
+		openEditor,
+		onPaint,
+		currentPatch,
+		colourPaintMode,
+		colourPaintShowBank,
+		editorState,
+	}: {
+		openEditor: (element: HTMLElement, kind: Control, i: number) => void;
+		onPaint: (data: InvokeControlData) => void;
+		currentPatch: CurrentPatchInfo;
+		colourPaintMode: ColourPaintLayer;
+		colourPaintShowBank: boolean;
+		editorState: CurrentEditorState;
+	} = $props();
 
-	let pocket = false;
-
-	function openEditorForPad(ev: CustomEvent) {
-		openEditor(
-			ev.detail.target as HTMLElement,
-			ev.detail.controlKind as Control,
-			ev.detail.controlNo as number
-		);
-	}
-
-	$: {
-		pocket = $deviceDefinition.model.code == "pocket";
-	}
+	let pocket = $derived<boolean>($deviceDefinition.model.code == "pocket");
 </script>
 
 <div
@@ -40,36 +34,28 @@
 >
 	{#if pocket}
 		<div class="balance-accel-div">
-			<Accelerometer
-				dataAll={currentPatch.data.accel}
-				on:click={ev =>
-					openEditor(
-						ev.detail.accelElement,
-						ev.detail.control,
-						ev.detail.index
-					)}
-			/>
+			<Accelerometer dataAll={currentPatch.data!.accel!} {openEditor} />
 		</div>
 	{/if}
 	<Encoder
 		on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 0)}
 		controlNo={0}
-		dataAll={currentPatch.data.encoders}
+		dataAll={currentPatch.data!.encoders}
 	/>
 	<Encoder
 		on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 1)}
 		controlNo={1}
-		dataAll={currentPatch.data.encoders}
+		dataAll={currentPatch.data!.encoders}
 	/>
-	{#if $deviceDefinition.model.hardware.encoders >= 3}<Encoder
+	{#if $deviceDefinition.model.hardware!.encoders! >= 3}<Encoder
 			on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 2)}
 			controlNo={2}
-			dataAll={currentPatch.data.encoders}
+			dataAll={currentPatch.data!.encoders}
 		/>{/if}
-	{#if $deviceDefinition.model.hardware.encoders >= 4}<Encoder
+	{#if $deviceDefinition.model.hardware!.encoders! >= 4}<Encoder
 			on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 3)}
 			controlNo={3}
-			dataAll={currentPatch.data.encoders}
+			dataAll={currentPatch.data!.encoders}
 		/>{/if}
 
 	{#if pocket}
@@ -78,10 +64,10 @@
 </div>
 
 <Pads
-	on:click={openEditorForPad}
-	on:paint
-	bank={currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]}
-	pattern={currentPatch.data.info.pattern}
+	{openEditor}
+	{onPaint}
+	bank={currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]!}
+	pattern={currentPatch.data!.info.pattern}
 	{colourPaintMode}
 	{colourPaintShowBank}
 />

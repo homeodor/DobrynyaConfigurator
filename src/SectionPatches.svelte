@@ -37,17 +37,17 @@
 		patchAsFileFromData,
 		getPatch,
 	} from "./ts/data_utils";
-	import { hexToCSS } from "./ts/colour_utils";
+	import { hexToCSS } from "./ts/colour_utils.svelte";
 	import { sysExDiskMode, sysExBootloader } from "./ts/midi_core";
 	import type { PatchInfoItem } from "./ts/types_patch";
 
 	import {
 		newPatch,
-		getCurrentPatch,
 		setCurrentPatchName,
 		isSaved,
-	} from "./ts/patch";
-	import { hueShiftPattern } from "./ts/colour_utils";
+		currentPatch,
+	} from "./ts/patch.svelte";
+	import { hueShiftPattern } from "./ts/colour_utils.svelte";
 
 	import { deviceDefinition } from "./ts/device";
 
@@ -210,7 +210,10 @@
 			confirmDownloadOfCurrent
 		);
 
-		if (patchData === null && isThePatch) patchData = getCurrentPatch();
+		if (patchData === null && isThePatch)
+		{
+			patchData = currentPatch.data!;
+		}
 
 		let downloadAction = async () => {
 			patchAsFileFromData(

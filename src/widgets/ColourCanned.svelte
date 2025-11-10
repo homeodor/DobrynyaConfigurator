@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { hexToCSS, isSameColour } from "../ts/colour_utils";
+	import { hexToCSS, isSameColour } from "../ts/colour_utils.svelte";
 
 	let {
 		className = "",

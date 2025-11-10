@@ -16,6 +16,7 @@ declare module "svelte/elements" {
 		onopennewui?: () => void;
 		onclosenewui?: () => void;
 		onsection?: (e: CustomEvent<string>) => void;
+		oncloseeditor?: () => Promise<void>;
 	}
 
 	interface GlobalEventHandlersEventMap {
@@ -32,6 +33,7 @@ declare module "svelte/elements" {
 		opennewui: CustomEvent<unknown>;
 		closeeditor: CustomEvent<unknown>;
 		closenewui: CustomEvent<unknown>;
+		closeeditor: CustomEvent<unknown>;
 	}
 }
 

@@ -3,28 +3,25 @@
 	import accelArrow from "../../i/accel-arrow.svg";
 
 	import InnerControl from "./InnerControl.svelte";
-	import { createEventDispatcher } from "svelte";
+	import { onMount } from "svelte";
 	import { Control } from "../ts/types";
 
-	export let dataAll: BranchControl[];
+	let {
+		dataAll,
+		openEditor,
+	}: {
+		dataAll: BranchControl[] | undefined;
+		openEditor: (element: HTMLElement, kind: Control, i: number) => void;
+	} = $props();
 
-	const dispatch = createEventDispatcher();
-
-	function dispatchClick(ev: MouseEvent) {
-		const element = ev.currentTarget as HTMLElement;
-		const index = Array.from(
-			document.querySelectorAll(".accelerometer .axis")
-		).indexOf(element);
-		const control = index ? Control.AccelY : Control.AccelX;
-
-		dispatch("click", {
-			accelElement: element,
-			index,
-			control,
-		});
+	function fixUndefined() {
+		if (dataAll === undefined) {
+			dataAll = [{}, {}];
+		}
 	}
 
-	$: dataAll = dataAll !== undefined ? dataAll : [{}, {}];
+	onMount(fixUndefined);
+	$effect(fixUndefined);
 </script>
 
 <fieldset class="accelerometer-uber-container">
@@ -34,25 +31,35 @@
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<div
 				class="axis"
-				on:click={dispatchClick}
+				onclick={(ev: MouseEvent) =>
+					openEditor(
+						ev.currentTarget as HTMLElement,
+						Control.AccelX,
+						0
+					)}
 				role="button"
 				tabindex="0"
 			>
 				<div>X <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
-					<InnerControl showEmpty={true} data={dataAll[0]} />
+					<InnerControl showEmpty={true} data={dataAll?.[0]} />
 				</div>
 			</div>
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<div
 				class="axis axis-vertical"
-				on:click={dispatchClick}
+				onclick={(ev: MouseEvent) =>
+					openEditor(
+						ev.currentTarget as HTMLElement,
+						Control.AccelY,
+						1
+					)}
 				role="button"
 				tabindex="0"
 			>
 				<div>Y <img src={accelArrow} alt="accelerometer" /></div>
 				<div class="axis-value">
-					<InnerControl showEmpty={true} data={dataAll[1]} />
+					<InnerControl showEmpty={true} data={dataAll?.[1]} />
 				</div>
 			</div>
 		</div>
@@ -85,11 +92,6 @@
 		color: var(--somewhat-yellow);
 		font-size: 1em;
 		opacity: 0.7;
-	}
-
-	div.accelerometer-uber-container {
-		position: relative;
-		padding: 2em;
 	}
 
 	div.accelerometer-container {

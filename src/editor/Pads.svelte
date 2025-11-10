@@ -3,34 +3,37 @@
 
 	import Pad from "./Pad.svelte";
 
-	import type { ColourPaintLayer } from "../ts/colour_utils";
-	import type { Pattern } from "../ts/types";
+	import type { ColourPaintLayer } from "../ts/colour_utils.svelte";
+	import type { ColourArray, Control, Pattern } from "../ts/types";
 	import type { BranchBank, BranchControl } from "../ts/types_patch";
 	import { getNoteInCurrentScale } from "../ts/midi_utils";
 	import { numberOfPads } from "../ts/data_utils";
+	import type { InvokeControlData } from "../ts/event_helpers";
 
-	export let pattern: Pattern;
-	export let bank: BranchBank;
-	export let colourPaintMode: ColourPaintLayer;
-	export let colourPaintShowBank: boolean;
-
-	// let dispatch = createEventDispatcher();
+	let {
+		openEditor,
+		onPaint,
+		pattern,
+		bank,
+		colourPaintMode,
+		colourPaintShowBank,
+	}: {
+		openEditor: (element: HTMLElement, kind: Control, i: number) => void;
+		onPaint: (data: InvokeControlData) => void;
+		pattern: Pattern;
+		bank: BranchBank;
+		colourPaintMode: ColourPaintLayer;
+		colourPaintShowBank: boolean;
+	} = $props();
 
 	interface PadObject {
-		object: BranchControl;
+		object: BranchControl | null;
 		scaleNote: number;
 		isKeyOfScale: boolean;
 	}
 
-	let pads: PadObject[];
-
-	let globalColours = [];
-
-	$: {
-		pads = [];
-		globalColours = [];
-
-		if (bank?.bank?.colour) globalColours = bank.bank.colour;
+	let pads = $derived.by<PadObject[]>(() => {
+		let pads = [];
 
 		for (let i = 0; i < numberOfPads; i++) {
 			let noteInfo = getNoteInCurrentScale(i, bank);
@@ -41,7 +44,11 @@
 				isKeyOfScale: noteInfo.isKeyOfScale,
 			});
 		}
-	}
+
+		return pads;
+	});
+
+	let globalColours = $derived<ColourArray>(bank?.bank?.colour ?? []);
 </script>
 
 <div
@@ -52,8 +59,8 @@
 >
 	{#each pads as pad, i}
 		<Pad
-			on:click
-			on:paint
+			{openEditor}
+			{onPaint}
 			data={pad.object}
 			controlNo={i}
 			{globalColours}

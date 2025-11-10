@@ -8,7 +8,7 @@
 
 	import { getRandomIntInclusive } from "../ts/basic";
 	import { numberOfPads } from "../ts/data_utils";
-	import { colourOff, ColourPaintLayer } from "../ts/colour_utils";
+	import { colourOff, ColourPaintLayer } from "../ts/colour_utils.svelte";
 
 	import {
 		ctStart,

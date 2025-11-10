@@ -12,7 +12,7 @@
 		getNoteInCurrentScale,
 		MidiCtrl,
 	} from "./ts/midi_utils";
-	import { colourOff } from "./ts/colour_utils";
+	import { colourOff } from "./ts/colour_utils.svelte";
 	import { Control, EncoderBehaviour } from "./ts/types";
 	import type { DeviceOrBankValue, HexColour } from "./ts/types";
 	import type { Patch, BranchControl } from "./ts/types_patch";
@@ -24,7 +24,7 @@
 	} from "./ts/data_expandsanize";
 	import { dispatchEditorClose } from "./ts/event_helpers";
 	import { patchChanged } from "./ts/event_helpers";
-	import type { CurrentEditorState } from "./ts/patch";
+	import type { CurrentEditorState } from "./ts/patch.svelte";
 	import NoteEditor from "./NoteEditor.svelte";
 	import MidiControl from "./editor/MidiControl.svelte";
 	import ColourWellsEditor from "./ColourWellsEditor.svelte";

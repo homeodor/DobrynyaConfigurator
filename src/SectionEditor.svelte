@@ -7,10 +7,8 @@
 		faWandMagicSparkles,
 	} from "@fortawesome/free-solid-svg-icons";
 
-	import { createEventDispatcher } from "svelte";
-
 	import { openPatternEditor } from "./ts/event_helpers";
-	import type { BankInvokeData, InvokeControlEventData } from "./ts/event_helpers";
+	import type { BankInvokeData, InvokeControlData } from "./ts/event_helpers";
 	import { isAlt, isColourPreviewMode } from "./ts/stores";
 	import { defaultPatches } from "./ts/defaultpatches";
 
@@ -34,7 +32,7 @@
 
 	import SectionPatches from "./SectionPatches.svelte";
 
-	import { Hand, NewPatchDecision } from "./ts/types";
+	import { NewPatchDecision } from "./ts/types";
 	import {
 		NameFailsBecause,
 		checkIfPatchNameIsValid,
@@ -49,17 +47,27 @@
 		randomPattern,
 		hueShiftPattern,
 		hexToCSS,
-	} from "./ts/colour_utils";
-	import { CaseColour, deviceDefinition } from "./ts/device";
+	} from "./ts/colour_utils.svelte";
+	import { deviceDefinition } from "./ts/device";
 
-	import { patchToDevice, patchList, getCurrentPatch } from "./ts/patch";
+	import { patchToDevice, patchList } from "./ts/patch.svelte";
 
 	import { isSame } from "./ts/basic";
 
-	export let deviceLevelVelocity: number;
-	export let deviceLevelChannel: number;
-	export let openSection: string;
-	export let isOnline: boolean;
+	let {
+		deviceLevelVelocity,
+		deviceLevelChannel,
+		openSection,
+		isOnline,
+		onSection,
+	}: {
+		deviceLevelVelocity: number;
+		deviceLevelChannel: number;
+		openSection: string;
+		isOnline: boolean;
+		onSection: (section: string) => void;
+	} = $props();
+
 	export function getIsSaved(): boolean {
 		return currentPatch.isSaved;
 	}
@@ -69,32 +77,10 @@
 		newPatch,
 		patchAction,
 		editorState,
-	} from "./ts/patch";
+	} from "./ts/patch.svelte";
 	import Outline from "./editor/Outline.svelte";
 	import BankSelector from "./editor/BankSelector.svelte";
 	import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
-
-	let numberOfActiveBanks = 0;
-
-	let newInterfaceOpen: boolean;
-	let newPatchNameIsValid: NameFailsBecause = NameFailsBecause.Empty;
-	let newPatchName = "";
-	let useCleanSlate: NewPatchDecision = NewPatchDecision.Duplicate;
-	let useCleanSlatePrev: NewPatchDecision = NewPatchDecision.Invalid;
-	let useTemplate = "fd";
-	let nameHasBeenChanged = false;
-
-	let dispatch = createEventDispatcher();
-
-	let drawer = "";
-
-	let colourPaintDrawer: DrawerColour;
-	let colourPaintMode: ColourPaintLayer = ColourPaintLayer.Off;
-	let colourPaintShowBank: boolean = true;
-	let paintData: InvokeControlEventData;
-
-	let globalChannel: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
-	let globalVelocity: DeviceOrBankValue = { value: 0, isDeviceLevel: true };
 
 	const drawers = [
 		{
@@ -119,23 +105,16 @@
 		},
 	];
 
-	let confirmDiscard: Confirm;
-	let confirmDiscardThis: Confirm;
-
-	let patchSelector: HTMLSelectElement;
-
-	let dialogPatchList: HTMLDialogElement;
-
 	function openPatchList() {
-		if (dialogPatchList.open) {
+		if (dialogPatchList?.open) {
 			return;
 		}
 
-		dialogPatchList.showModal();
+		dialogPatchList?.showModal();
 	}
 
 	function closePatchList() {
-		dialogPatchList.close();
+		dialogPatchList?.close();
 	}
 
 	export async function selectPatch(
@@ -157,7 +136,7 @@
 				? confirmDiscardThis
 				: confirmDiscard;
 
-		if (!currentPatch.isSaved && !(await confirmationDialog.confirm())) {
+		if (!currentPatch.isSaved && !(await confirmationDialog?.confirm())) {
 			if (typeof ev !== "string") ev.preventDefault();
 			currentPatch.value = currentPatch.name;
 			return false;
@@ -172,12 +151,12 @@
 			patchNameRequested,
 			(data: Patch, filename: string) => {
 				patchAction(data, filename);
-				if (!quiet) dispatch("section", { section: "editor" });
+				if (!quiet) {
+					onSection("editor");
+				}
 			}
 		);
 	}
-
-	let uploadButton: ButtonUpload;
 
 	function openNewUI(force: boolean = false) {
 		newPatchNameIsValid = checkIfPatchNameIsValid(newPatchName, $patchList);
@@ -193,18 +172,28 @@
 	}
 
 	async function uploadThePatch() {
+		if (!colourPaintDrawer) {
+			throw new Error("Colour paint drawer not defined");
+		}
+
 		await patchToDevice(
 			Command.OVERWRITEPATCH,
 			currentPatch.name,
 			() =>
 				//(data: any, filename: string) =>
 				{
+					if (!colourPaintDrawer || !uploadButton) {
+						throw new Error(
+							"Colour paint drawer or upload button not defined"
+						);
+					}
+
 					if (drawer === "colourpaint")
 						colourPaintDrawer.updateDevicePreview(true); // force device to redraw
 					uploadButton.ok();
 					currentPatch.isSaved = true;
 				},
-			getCurrentPatch()
+			currentPatch.data!
 		);
 
 		if ($isColourPreviewMode) {
@@ -215,7 +204,7 @@
 	let alertJsonLoadFailed: Alert;
 
 	const defaultNewPatchHandler = () => {
-		uploadButton.ok();
+		uploadButton?.ok();
 	};
 
 	function createNewLocal() {
@@ -299,90 +288,124 @@
 		editorState.bank = no;
 	}
 
-	$: {
-		numberOfActiveBanks = 0;
+	let numberOfActiveBanks = $derived<number>(
+		currentPatch?.data
+			? currentPatch?.data?.padbanks[editorState.hand].filter(
+					v => !isSame(v, {})
+				).length
+			: 0
+	);
 
-		if (currentPatch?.data) {
-			for (let bank of currentPatch?.data?.padbanks[editorState.hand]) {
-				if (!isSame(bank, {})) numberOfActiveBanks++;
+	let globalChannel = $derived(
+		currentPatch?.data
+			? currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]
+					?.bank?.ch !== undefined &&
+				currentPatch?.data?.padbanks?.[editorState.hand][
+					editorState.bank
+				].bank!.ch! !== -1
+				? {
+						value: currentPatch?.data?.padbanks?.[editorState.hand][
+							editorState.bank
+						].bank!.ch!,
+						isDeviceLevel: false,
+					}
+				: {
+						value: deviceLevelChannel,
+						isDeviceLevel: true,
+					}
+			: { value: 0, isDeviceLevel: true }
+	);
+
+	let globalVelocity = $derived(
+		currentPatch?.data
+			? currentPatch?.data?.padbanks?.[editorState.hand][editorState.bank]
+					?.bank?.vel !== undefined
+				? {
+						value: currentPatch?.data?.padbanks?.[editorState.hand][
+							editorState.bank
+						].bank!.vel!,
+						isDeviceLevel: false,
+					}
+				: {
+						value: deviceLevelVelocity,
+						isDeviceLevel: true,
+					}
+			: { value: 0, isDeviceLevel: true }
+	);
+
+	$effect(() => {
+		if (
+			currentPatch?.data &&
+			typeof currentPatch?.data.encoders === "undefined"
+		) {
+			currentPatch.data.encoders = [];
+			for (
+				let i = 0;
+				i < $deviceDefinition.model.hardware!.encoders!;
+				i++
+			) {
+				currentPatch?.data?.encoders.push({});
 			}
 		}
+	});
 
+	$effect(() => {
 		if ($patchList && currentPatch.data) {
 			const thePatch = $patchList.find(v => {
 				return v.isThePatch;
 			});
 
-			if (thePatch)
-			{
-				thePatch.info = structuredClone(currentPatch.data.info);
+			if (thePatch) {
+				thePatch.info = structuredClone(
+					$state.snapshot(currentPatch.data.info)
+				);
 			}
 		}
+	});
 
-		if (
-			!newInterfaceOpen || // if it is safe to update the name, because the interface is closed, or
-			useCleanSlate != useCleanSlatePrev // if the user changed the useCleanSlate param
-		) {
+	let drawer = $state<string>("");
+
+	let colourPaintDrawer = $state<DrawerColour>();
+	let nameHasBeenChanged = $state<boolean>(false);
+	let newPatchName = $state<string>("");
+
+	let newInterfaceOpen = $state<boolean>(false);
+	let newPatchNameIsValid = $state<NameFailsBecause>(NameFailsBecause.Empty);
+	let useCleanSlate = $state<NewPatchDecision>(NewPatchDecision.Duplicate);
+	let useTemplate = $state<string>("fd");
+
+	let colourPaintMode = $state<ColourPaintLayer>(ColourPaintLayer.Off);
+	let colourPaintShowBank = $state<boolean>(true);
+	let paintData = $state<InvokeControlData>();
+
+	let outline = $state<Outline>();
+	let confirmDiscard = $state<Confirm>();
+	let confirmDiscardThis = $state<Confirm>();
+
+	let patchSelector = $state<HTMLSelectElement>();
+	let uploadButton = $state<ButtonUpload>();
+	let dialogPatchList = $state<HTMLDialogElement>();
+
+	$effect(() => {
+		useCleanSlate;
+		updateNewPatchName();
+	});
+
+	$effect(() => {
+		if (!newInterfaceOpen) {
+			// if it is safe to update the name, because the interface is closed
 			updateNewPatchName();
-			useCleanSlatePrev = useCleanSlate;
 		}
+	});
 
+	$effect(() => {
 		currentPatch.value = currentPatch.name;
-
-		if (currentPatch?.data) {
-			//			deviceLevelVelocity
-			if (
-				currentPatch?.data?.padbanks?.[editorState.hand][
-					editorState.bank
-				]?.bank?.vel !== undefined
-			) {
-				globalVelocity.value =
-					currentPatch?.data?.padbanks?.[editorState.hand][
-						editorState.bank
-					].bank!.vel!;
-				globalVelocity.isDeviceLevel = false;
-			} else {
-				globalVelocity.value = deviceLevelVelocity;
-				globalVelocity.isDeviceLevel = true;
-			}
-
-			if (
-				currentPatch?.data?.padbanks?.[editorState.hand][
-					editorState.bank
-				]?.bank?.ch !== undefined &&
-				currentPatch?.data?.padbanks?.[editorState.hand][
-					editorState.bank
-				].bank!.ch! !== -1
-			) {
-				globalChannel.value =
-					currentPatch?.data?.padbanks?.[editorState.hand][
-						editorState.bank
-					].bank!.ch!;
-				globalChannel.isDeviceLevel = false;
-			} else {
-				globalChannel.value = deviceLevelChannel;
-				globalChannel.isDeviceLevel = true;
-			}
-
-			if (!("encoders" in currentPatch?.data)) {
-				currentPatch.data.encoders = [];
-				for (
-					let i = 0;
-					i < $deviceDefinition.model.hardware!.encoders!;
-					i++
-				)
-					currentPatch?.data?.encoders.push({});
-			}
-		}
-	}
-
-	let outline: Outline;
+	});
 
 	let checkPatchEqualTimeout: null | number = null;
 
 	function clearCheckPatchEqualTimeout() {
-		if (!checkPatchEqualTimeout)
-		{
+		if (!checkPatchEqualTimeout) {
 			return;
 		}
 
@@ -446,7 +469,7 @@
 	onpatchchange={markUnsaved}
 	onpatchlock={alertAboutPatchLock}
 	onsysexpush={handleSysExPush}
-	ondrawer={ondrawer}
+	{ondrawer}
 	oninvokebank={selectBankFromEvent}
 	onopennewui={() => openNewUI(true)}
 	onclosenewui={() => {
@@ -487,7 +510,7 @@
 							tabindex="0"
 							data-colour="0"
 							style="background-color: {hexToCSS(colour)}"
-							on:click={openPatternEditor}
+							onclick={openPatternEditor}
 						></span>
 					{/each}
 				{/if}
@@ -496,12 +519,12 @@
 				bind:this={patchSelector}
 				disabled={!isOnline}
 				id="patchselector"
-				on:click={ev => {
+				onclick={ev => {
 					openPatchList();
 					ev.preventDefault();
 					ev.stopPropagation();
 				}}
-				on:input={selectPatch}
+				oninput={selectPatch}
 				value={currentPatch.value}
 				style="height:2.5rem"
 			>
@@ -518,7 +541,7 @@
 				bind:this={uploadButton}
 				>{#if $isAlt}Revert{:else}Upload to device{/if}</ButtonUpload
 			>
-			<button disabled={!isOnline} on:click={() => openNewUI()}
+			<button disabled={!isOnline} onclick={() => openNewUI()}
 				>New...</button
 			>
 		</div>
@@ -532,7 +555,7 @@
 					<h3>Name</h3>
 					<input
 						type="text"
-						on:input={checkIfNewPatchNameIsValid}
+						oninput={checkIfNewPatchNameIsValid}
 						bind:value={newPatchName}
 						class:invalid={newPatchNameIsValid !=
 							NameFailsBecause.Empty &&
@@ -610,13 +633,13 @@
 
 					<p>
 						<button
-							on:click={createNewLocal}
+							onclick={createNewLocal}
 							disabled={!isOnline ||
 								newPatchNameIsValid != NameFailsBecause.Nothing}
 							>New</button
 						>
 						<button
-							on:click={() => {
+							onclick={() => {
 								newInterfaceOpen = false;
 							}}>Close</button
 						>
@@ -647,7 +670,7 @@
 						role="tab"
 						tabindex="0"
 						class:sel={drawer === oneDrawer.id}
-						on:click={() => setDrawer(oneDrawer.id)}
+						onclick={() => setDrawer(oneDrawer.id)}
 						><FontAwesomeIcon icon={oneDrawer.icon} />
 						{oneDrawer.title}</span
 					>
@@ -716,7 +739,7 @@
 		<Outline
 			bind:this={outline}
 			{currentPatch}
-			on:paint={ev => (paintData = ev.detail)}
+			onPaint={incomingData => (paintData = incomingData)}
 			{colourPaintMode}
 			{colourPaintShowBank}
 			{editorState}

@@ -397,7 +397,7 @@ function sysExFilename(cmd: Command, load: string) {
 	midiSendTerminated(message);
 }
 
-async function waitForMidi(theCommand = null, timeout = 500): Promise<Result> {
+async function waitForMidi(theCommand: Command | null = null, timeout = 500): Promise<Result> {
 	if (portIn === null) {
 		throw "No midi port found";
 	}

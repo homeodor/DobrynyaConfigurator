@@ -6,7 +6,7 @@ import {
 	getS,
 	getV,
 	hexFromComponents,
-} from "../ts/colour_utils";
+} from "../ts/colour_utils.svelte";
 import type { HexArrays } from "./common";
 import {
 	CTAffect,
