@@ -5,6 +5,7 @@
 		KeyboardAvailable,
 		type ControlDefinition,
 	} from "./ts/control_defs";
+	import { settings } from "./ts/settings_utils";
 
 	export let theControl: ControlDefinition;
 	export let value: number = 0;
@@ -62,7 +63,7 @@
 			</Halp>
 		</legend>
 		<!-- TODO: fix all the fucking type error -->
-		{#if settings.input.flags.flag[0]}
+		{#if $settings.input.flags.flag[0]}
 			<p class="explain">
 				Keyboard has been disabled in settings. This will have no
 				effect.

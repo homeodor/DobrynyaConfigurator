@@ -2,10 +2,10 @@ import { WaitingBlock } from "waitingblock";
 import { sysExAndDo } from "midi_core";
 import { CaseColour } from "device";
 import { eightToSeven } from "midi_utils";
-import { Command } from "configurator";
+import { Command, Status } from "configurator";
 
 import type ButtonUpload from "../widgets/ButtonUpload.svelte";
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import { getChecksumCalculator, selectChecksum } from "./checksum";
 
 interface SettingsObjectItem {
@@ -229,22 +229,25 @@ function settingsModel(): SettingsObject {
 	};
 }
 
-window.settings = settingsModel();
-
-export let settings = window.settings;
+export let settings = writable<SettingsObject>(settingsModel());
 
 export function parseSettingsData() {
-	if (settingsObjectIsValid) return; // it’s all good, no need to re-parse
+	if (settingsObjectIsValid) {
+		return; // it’s all good, no need to re-parse
+	}
 
-	if (!isSaved) return; // there was a previous state available
+	if (!isSaved) {
+		return; // there was a previous state available
+	}
 
 	let arp = 0;
+	let newSettings = settingsModel();
 
-	for (let i in window.settings) {
+	for (let i in newSettings) {
 		if (i == "fakeparam") continue;
 
-		for (let j in window.settings[i]) {
-			const param = window.settings[i][j];
+		for (let j in newSettings[i]) {
+			const param = newSettings[i][j];
 
 			if (typeof param === "number") {
 				if (arp !== param) {
@@ -296,6 +299,8 @@ export function parseSettingsData() {
 		}
 	}
 
+	settings.set(newSettings);
+	window.settings = get(settings);
 	settingsObjectIsValid = true;
 }
 
@@ -319,15 +324,34 @@ function encodeStringToUtf8Array(input: string, length: number): Uint8Array {
 	return result;
 }
 
+export async function resetToDefaults(resetToDefaultsButton: ButtonUpload) {
+	await sysExAndDo(
+		Command.SAVESETTINGS,
+		(d: Uint8Array) => {
+			resetToDefaultsButton?.ok();
+			isSaved = true;
+			settingsObjectIsValid = false;
+			settingsRawData = d;
+		},
+		500,
+		null,
+		null,
+		Status.RESET
+	);
+	parseSettingsData();
+}
+
 export async function saveSettings(
 	settingsLength: number,
 	uploadButton: ButtonUpload = null
 ) {
 	let b8 = [];
 
-	for (let i in window.settings) {
-		for (let j in window.settings[i]) {
-			let param: SettingsObjectItem | number = window.settings[i][j];
+	const currentSettings = get(settings);
+
+	for (let i in currentSettings) {
+		for (let j in currentSettings[i]) {
+			let param: SettingsObjectItem | number = currentSettings[i][j];
 
 			if (typeof param === "number") {
 				continue;
@@ -370,7 +394,7 @@ export async function saveSettings(
 	await sysExAndDo(
 		Command.SAVESETTINGS,
 		() => {
-			if (uploadButton) uploadButton.ok();
+			uploadButton?.ok();
 			isSaved = true;
 		},
 		1000,
@@ -396,8 +420,7 @@ export async function fixSettings(settingsLength: number) {
 	console.warn("Fixing settings requested");
 
 	settingsObjectIsValid = false; // invalidate the object
-	window.settings = settingsModel(); // reset the object
-	settings = window.settings;
+	settings.set(settingsModel());
 
 	await getSettingsFromDevice();
 	await saveSettings(settingsLength);
@@ -446,4 +469,7 @@ export async function getFactorySettings() {
 
 		importantFactorySettings.set(importantFactorySettingsNew);
 	});
+}
+function $store<T>(arg0: SettingsObject) {
+	throw new Error("Function not implemented.");
 }

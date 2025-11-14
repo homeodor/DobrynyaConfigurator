@@ -39,6 +39,7 @@ k_decode7to8.set(Command.GETSERIAL, false);
 k_decode7to8.set(Command.GETVERSION, false);
 k_decode7to8.set(Command.GETFACTORYSETTINGS, false);
 k_decode7to8.set(Command.GETSETTINGS, false);
+k_decode7to8.set(Command.SAVESETTINGS, false);
 k_decode7to8.set(Command.SIGN, false);
 
 export class SysExParser {
@@ -313,6 +314,7 @@ export class SysExParser {
 
 			case Command.GETFACTORYSETTINGS: // not used in the Configurator
 			case Command.GETSETTINGS:
+			case Command.SAVESETTINGS:
 			case Command.SIGN: {
 				if (!midiResult.success) {
 					break;

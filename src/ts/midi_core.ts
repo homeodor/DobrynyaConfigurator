@@ -320,7 +320,10 @@ function sysExFile(cmd: Command, filename: string, filedata: Uint8Array) {
 }
 
 function sysExArray(cmd: Command, status = Status.REQUEST): number[] {
-	if (status == Status.USECHECKSUM) status |= Status.USECHECKSUM;
+	if (status == Status.USECHECKSUM) {
+		status |= Status.USECHECKSUM;
+	}
+
 	return [0xf0, 0x0, 0x39, 0x40, 0x77, 0x76, 0x0, 0x0, 0x0, 0x0, cmd, status];
 }
 
@@ -357,12 +360,13 @@ export function sysExBank(hand: Hand, shift: boolean, bank: number) {
 function sysEx(
 	cmd: Command,
 	load: any = null,
-	checksum: LengthChecksum | null = null
+	checksum: LengthChecksum | null = null,
+	status: Status = Status.REQUEST
 ) {
 	//	if (lockMidi) return;
 	let message: number[] = checksum
-		? sysExArray(cmd, Status.USECHECKSUM | Status.REQUEST)
-		: sysExArray(cmd);
+		? sysExArray(cmd, Status.USECHECKSUM | status)
+		: sysExArray(cmd, status);
 
 	if (checksum) {
 		const lengthChecksum = [
@@ -537,11 +541,12 @@ export async function sysExAndDo(
 	handler: Function,
 	timeout: number = 500,
 	load: any = null,
-	checksum: LengthChecksum | null = null
+	checksum: LengthChecksum | null = null,
+	status: Status = Status.REQUEST
 ): Promise<any> {
 	WaitingBlock.block(theCommand);
 	disablePing();
-	sysEx(theCommand, load, checksum);
+	sysEx(theCommand, load, checksum, status);
 	try {
 		let result = await waitForMidiResult(theCommand, handler, timeout);
 		return result;
@@ -571,6 +576,10 @@ export function sysExTestFill(hex: HexColour) {
 
 export function sysExColourReset() {
 	midiSendTerminated(sysExArray(Command.LIGHTUP, Status.RESET));
+}
+
+export function sysExSettingsToDefaults() {
+	midiSendTerminated(sysExArray(Command.SAVESETTINGS, Status.RESET));
 }
 
 function colourToSysExArray(hex: HexColour) {

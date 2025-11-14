@@ -24,6 +24,7 @@
 		getSettingsFromDevice,
 		getPalettesFromDevice,
 		getFactorySettings,
+		settings,
 	} from "settings_utils";
 	import { WaitingBlock } from "waitingblock";
 	import { extraContent, isAlt, isMacLike } from "stores";
@@ -352,8 +353,8 @@
 			bind:this={editor}
 			on:section={section}
 			isOnline={isOnline && isConnected}
-			deviceLevelVelocity={window.settings?.midi.vel.value ?? 0x7f}
-			deviceLevelChannel={window.settings?.midi.channel.value ?? 0}
+			deviceLevelVelocity={$settings.midi.vel.value ?? 0x7f}
+			deviceLevelChannel={$settings.midi.channel.value ?? 0}
 			on:section={ev => {
 				console.log(ev.detail.section);
 				openSection = ev.detail.section;
