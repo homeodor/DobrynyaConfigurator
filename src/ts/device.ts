@@ -528,7 +528,7 @@ export function versionCompare(currentVersionIn: string, newVersionIn: string) {
 	const currentVersion = explodeVersion(currentVersionIn);
 	const newVersion = explodeVersion(newVersionIn);
 
-	if (currentVersion[2] === "L") {
+	if (currentVersion[2] === "L" || currentVersion[2] === "Local") {
 		return false;
 	}
 
