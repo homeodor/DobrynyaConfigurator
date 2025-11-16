@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deviceDefinition } from "./ts/device";
+	import { deviceDefinition, FirmwareState } from "./ts/device";
 
 	const realChips = {
 		microv2: {
@@ -23,16 +23,45 @@
 	import type { StatusResult } from "./ts/types";
 	import Opensource from "./Opensource.svelte";
 	import { CaseColour } from "./ts/device";
-	import { sysExStorageMode } from "./ts/midi_core";
+	import { sysExAndDo, sysExStorageMode } from "./ts/midi_core";
 	import Halp from "./widgets/Halp.svelte";
+	import { getFirmwareBlob } from "./ts/download";
+	import { Command } from "./ts/configurator";
+	import { getChecksumCalculator, selectChecksum } from "./ts/checksum";
+	import { eightToSeven } from "./ts/midi_utils";
+	import { isAlt } from "./ts/stores";
 
 	let imageURL = imageMiniV2;
 
 	// export let isOnline: boolean;
 
+	export let hasNewFirmware: FirmwareState;
+	export let latestFw: string | null;
+
 	let chipName = "";
 
 	let showOpenSource = false;
+
+	function optimizeBuildNumber(version: string)
+	{
+		const cleanVersion = version.split("/");
+		const parts = cleanVersion[0].split(".");
+		parts[2] = parseInt(parts[2]).toString();
+		return parts.join(".") + "/" + cleanVersion[1];
+	}
+
+	async function updateFirmwareEsp32() {
+		const buffer = await (await getFirmwareBlob()).arrayBuffer();
+		const array = new Uint8Array(buffer);
+		const checksum = getChecksumCalculator(selectChecksum());
+		sysExAndDo(
+			Command.UPLOADFIRMWARE,
+			() => {},
+			30000,
+			eightToSeven(array, checksum),
+			checksum
+		);
+	}
 
 	$: {
 		if (realChips[$deviceDefinition.model.code]) {
@@ -87,7 +116,20 @@
 		<h4>Revision</h4>
 		<div>Rev. {$deviceDefinition.revision}</div>
 		<h4>Firmware</h4>
-		<div>{$deviceDefinition.version}</div>
+		<div>
+			{optimizeBuildNumber($deviceDefinition.version)}
+			{#if latestFw == $deviceDefinition.version}
+				(latest)
+			{/if}
+		</div>
+		{#if latestFw && latestFw != $deviceDefinition.version}
+			<h4>Latest firmware</h4>
+			<div>{optimizeBuildNumber(latestFw)}</div>
+		{/if}
+		{#if (hasNewFirmware == FirmwareState.Outdated || hasNewFirmware == FirmwareState.Obsolete || $isAlt) && !$deviceDefinition.model.canHid}
+			<h4>&nbsp;</h4>
+			<div><button on:click={updateFirmwareEsp32}>Update</button></div>
+		{/if}
 		<h4>Serial No.</h4>
 		<div>{$deviceDefinition.serial}</div>
 		{#if $importantFactorySettings.boardRevision}

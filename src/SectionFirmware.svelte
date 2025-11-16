@@ -25,7 +25,7 @@
 
 	export let isOnline: boolean;
 	export let isConnected: boolean;
-	export let flipDisconnectNow: Function;
+	export let flipDisconnectNow: (ev: MouseEvent) => void;
 	export let hasNewFirmware: FirmwareState;
 	export let updateVersionInfo: Function;
 	export let isBootloader: boolean;

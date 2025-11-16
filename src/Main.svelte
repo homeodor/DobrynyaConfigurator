@@ -130,25 +130,36 @@
 		return Array(+digits.join("") + 1).join("M") + roman;
 	}
 
-	import type { VersionData } from "./ts/device";
 	import { getLatestVersion, versionCompare } from "./ts/device";
 	import CornerDevice from "./widgets/CornerDevice.svelte";
 	import SectionSoundbanks from "./SectionSoundpacks.svelte";
-	import { checkSigning, getContentList } from "./ts/download";
+	import {
+		checkSigning,
+		getContentList,
+		getUpdates,
+		type UpdatesInfo,
+	} from "./ts/download";
 
-	let versionInfo: VersionData;
+	let versionInfo: UpdatesInfo;
 	let hasNewFirmware = FirmwareState.Unknown;
+	let latestFw: string | null = null;
 
 	let uaParserEngine = new UAParser().getEngine();
 
 	async function updateVersionInfo() {
-		if (hasNewFirmware == FirmwareState.Obsolete) return; // do not set anything, it’s already clear it’s old as balls
+		latestFw = null;
+
+		if (hasNewFirmware == FirmwareState.Obsolete) {
+			return; // do not set anything, it’s already clear it’s old as balls
+		}
+
 		hasNewFirmware = FirmwareState.Checking;
 		try {
-			versionInfo = await getLatestVersion($deviceDefinition.model);
+			versionInfo = await getUpdates();
+			latestFw = versionInfo.latest.version;
 			hasNewFirmware = versionCompare(
 				$deviceDefinition.version,
-				versionInfo
+				versionInfo.latest.version
 			)
 				? FirmwareState.Outdated
 				: FirmwareState.UpToDate;
@@ -164,7 +175,8 @@
 
 		let previousSerial = $deviceDefinition.serial;
 
-		if ((ev as CustomEvent).detail) {
+		if ((ev as CustomEvent).detail)
+		{
 			setDevice((ev as CustomEvent).detail);
 			// there’s nothing bad in updating the details each time, because there might’ve been a firmware update or something
 		}
@@ -317,7 +329,8 @@
 			on:click={() => section(sect)}
 			class:sel={openSection == sect}
 			class:newfirmware={hasNewFirmware == FirmwareState.Outdated &&
-				sect == "firmware"}
+					((sect == "firmware" && $deviceDefinition.model.canHid) ||
+						(sect == "device" && !$deviceDefinition.model.canHid))}
 			class:disabled={!sectionSwitchingAllowed && sect != "firmware"}
 			id="show-{sect}"
 		>
@@ -386,7 +399,7 @@
 		/>
 	{/if}
 	{#if openSection == "device"}
-		<SectionDevice on:section={section} />
+		<SectionDevice on:section={section} {hasNewFirmware} {latestFw} />
 	{/if}
 	{#if openSection == "content" && $deviceDefinition.supportsSigning}
 		<SectionSoundbanks />

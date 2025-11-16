@@ -160,6 +160,15 @@ export class SysExParser {
 
 				let output: StatusResult = defaultStatusResult();
 
+				// older format uses 38 bytes, newer uses 41
+
+				const isFormatBeforeNov2025 = rawData.length === 39;
+
+				const batteryStateOffset = isFormatBeforeNov2025 ? 37 : 40;
+				const batteryPercentageOffset = batteryStateOffset + 1;
+				const versionStringOffset = 13;
+				const versionStringLength = isFormatBeforeNov2025 ? 24 : 26;
+
 				output.isCorrect = rawData[0] === 0x1;
 
 				if (output.isCorrect) {
@@ -182,7 +191,12 @@ export class SysExParser {
 					}
 				}
 
-				output.version = this.versionDataToString(rawData.slice(9 + 4)); // 9 bytes of serial number, 4 bytes of flags
+				output.version = this.versionDataToString(
+					rawData.slice(
+						versionStringOffset,
+						versionStringOffset + versionStringLength
+					)
+				);
 
 				output.legacyChecksum =
 					output.version.startsWith("2.0") ||
@@ -195,8 +209,8 @@ export class SysExParser {
 
 				if (rawData.length >= 35) {
 					// battery info
-					output.battery.status = rawData[33];
-					output.battery.percent = rawData[34];
+					output.battery.status = rawData[batteryStateOffset];
+					output.battery.percent = rawData[batteryPercentageOffset];
 				} else {
 					output.battery.status = BatteryStatus.noBattery;
 					output.battery.percent = 0;
