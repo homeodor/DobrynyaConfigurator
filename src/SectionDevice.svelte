@@ -30,6 +30,7 @@
 	import { getChecksumCalculator, selectChecksum } from "./ts/checksum";
 	import { eightToSeven } from "./ts/midi_utils";
 	import { isAlt } from "./ts/stores";
+	import Confirm from "./widgets/Confirm.svelte";
 
 	let imageURL = imageMiniV2;
 
@@ -42,8 +43,9 @@
 
 	let showOpenSource = false;
 
-	function optimizeBuildNumber(version: string)
-	{
+	let uploadConfirm: Confirm;
+
+	function optimizeBuildNumber(version: string) {
 		const cleanVersion = version.split("/");
 		const parts = cleanVersion[0].split(".");
 		parts[2] = parseInt(parts[2]).toString();
@@ -51,13 +53,17 @@
 	}
 
 	async function updateFirmwareEsp32() {
+		if (!(await uploadConfirm.confirm())) {
+			return;
+		}
+
 		const buffer = await (await getFirmwareBlob()).arrayBuffer();
 		const array = new Uint8Array(buffer);
 		const checksum = getChecksumCalculator(selectChecksum());
 		sysExAndDo(
 			Command.UPLOADFIRMWARE,
 			() => {},
-			30000,
+			120000,
 			eightToSeven(array, checksum),
 			checksum
 		);
@@ -184,6 +190,13 @@
 		<Opensource />
 	{/if}
 </section>
+
+<Confirm bind:this={uploadConfirm} okText="Upload">
+	<p>
+		This will update the device to version {optimizeBuildNumber(latestFw)}.
+		This will take a while. Do not unplug the device.
+	</p>
+</Confirm>
 
 <style>
 	#tab-info h1 {
