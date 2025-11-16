@@ -22,12 +22,14 @@ export enum CaseColour {
 	Gray,
 }
 
-const minimumFirmware: VersionDataShort = {
-	fullVersion: "2.0-1.05.2023",
-	comparableVersion: [2, 0, 2023, 5, 1],
-	version: "2.0",
-	date: "1.05.2023",
-};
+const minimumFirmware = "2.0/1.05.2023";
+
+// const minimumFirmware: VersionDataShort = {
+// 	fullVersion: "2.0-1.05.2023",
+// 	comparableVersion: [2, 0, 2023, 5, 1],
+// 	version: "2.0",
+// 	date: "1.05.2023",
+// };
 
 export interface VersionData extends VersionDataShort {
 	isBootloader: boolean;
@@ -500,27 +502,28 @@ function explodeVersionPart(incoming: string): string[] {
 	return incoming.trim().replace(/\0/g, "").split(".");
 }
 
-export function versionCompare(
-	currentVersion: string,
-	newVersion: VersionDataShort
-) {
-	// 2.0/26.06.2022-13:51
-
-	let currVersionWithoutTime = currentVersion.split("-")[0].split("/");
+function explodeVersion(version: string) {
+	let currVersionWithoutTime = version.split("-")[0].split("/");
 
 	const incomingVersion = [
 		...explodeVersionPart(currVersionWithoutTime[0]),
 		...explodeVersionPart(currVersionWithoutTime[1]).reverse(),
 	];
 
-	if (incomingVersion[2] === "L") {
+	return incomingVersion;
+}
+
+export function versionCompare(currentVersionIn: string, newVersionIn: string) {
+	// 2.0/26.06.2022-13:51
+
+	const currentVersion = explodeVersion(currentVersionIn);
+	const newVersion = explodeVersion(newVersionIn);
+
+	if (currentVersion[2] === "L") {
 		return false;
 	}
 
-	return versionCompareRaw(
-		incomingVersion,
-		structuredClone(newVersion.comparableVersion)
-	);
+	return versionCompareRaw(currentVersion, newVersion);
 }
 
 export function isMinimumVersion(currentVersion: string) {

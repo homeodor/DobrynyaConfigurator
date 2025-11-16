@@ -60,6 +60,36 @@ export interface ExtraContent {
 	videos: ExtraVideo[];
 }
 
+export interface UpdatesInfo {
+	latest: {
+		build: number | null;
+		version: string;
+	};
+}
+
+export async function getUpdates(): Promise<any> {
+	const downloadFetch = await fetch(`${baseUrl}/updates`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			deviceData: {
+				model: getDevice().model.code,
+				serial: getDevice().serial,
+			},
+		}),
+	});
+
+	const list = await downloadFetch.json();
+
+	if (list.status !== "OK" || !list.payload) {
+		throw new Error(list.message);
+	}
+
+	return list.payload as any;
+}
+
 export async function getContentList(): Promise<ExtraContent> {
 	const downloadFetch = await fetch(`${baseUrl}/list`, {
 		method: "POST",
@@ -83,7 +113,7 @@ export async function getContentList(): Promise<ExtraContent> {
 	return list.payload as ExtraContent;
 }
 
-export async function getDownloadLink(file: string) {
+async function sign() {
 	if (!getDevice().supportsSigning) {
 		throw new Error("Device does not support signing");
 	}
@@ -111,7 +141,11 @@ export async function getDownloadLink(file: string) {
 		binaryString,
 		challenge.payload.signKind as SignKind
 	);
-	const base64 = toBase64(result);
+	return { base64: toBase64(result), session: challenge.payload.session };
+}
+
+export async function getDownloadLink(file: string) {
+	const { base64, session } = await sign();
 
 	const downloadFetch = await fetch(`${baseUrl}/download`, {
 		method: "POST",
@@ -124,7 +158,7 @@ export async function getDownloadLink(file: string) {
 				serial: getDevice().serial,
 			},
 			file,
-			session: challenge.payload.session,
+			session: session,
 			response: base64,
 		}),
 	});
@@ -137,4 +171,36 @@ export async function getDownloadLink(file: string) {
 
 	console.log(download);
 	return download.payload.url;
+}
+
+export async function getFirmwareBlob(): Promise<Blob | null> {
+	const { base64, session } = getDevice().supportsSigning
+		? await sign()
+		: {
+				base64: "",
+				session: "",
+			};
+
+	const downloadFetch = await fetch(`${baseUrl}/firmware`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			deviceData: {
+				model: getDevice().model.code,
+				serial: getDevice().serial,
+			},
+			session,
+			response: base64,
+		}),
+	});
+
+	try {
+		const json = await downloadFetch.clone().json();
+		console.log(json);
+		return null;
+	} catch (e) {}
+
+	return await downloadFetch.blob();
 }
