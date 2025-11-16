@@ -48,7 +48,10 @@
 	function optimizeBuildNumber(version: string) {
 		const cleanVersion = version.split("/");
 		const parts = cleanVersion[0].split(".");
-		parts[2] = parseInt(parts[2]).toString();
+		parts[2] =
+			parts[2] === "L" || parts[2] === "Local"
+				? parts[2]
+				: parseInt(parts[2]).toString();
 		return parts.join(".") + "/" + cleanVersion[1];
 	}
 
