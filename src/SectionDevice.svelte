@@ -66,7 +66,7 @@
 		sysExAndDo(
 			Command.UPLOADFIRMWARE,
 			() => {},
-			120000,
+			15 * 60 * 1000,
 			eightToSeven(array, checksum),
 			checksum
 		);
