@@ -137,7 +137,15 @@
 		{/if}
 		{#if (hasNewFirmware == FirmwareState.Outdated || hasNewFirmware == FirmwareState.Obsolete || $isAlt) && !$deviceDefinition.model.canHid}
 			<h4>&nbsp;</h4>
-			<div><button on:click={updateFirmwareEsp32}>Update</button></div>
+			<div>
+				<button on:click={updateFirmwareEsp32}>
+					{#if latestFw && latestFw != $deviceDefinition.version}
+						Update firmware
+					{:else}
+						Upload firmware
+					{/if}
+				</button>
+			</div>
 		{/if}
 		<h4>Serial No.</h4>
 		<div>{$deviceDefinition.serial}</div>
@@ -188,9 +196,9 @@
 
 <Confirm bind:this={uploadConfirm} okText="Upload">
 	<p>
-		This will update the device to version {optimizeBuildNumber(latestFw)}.
-		This will take a while. Do not unplug the device.
+		This will update Dobrynya to version {optimizeBuildNumber(latestFw)}.
 	</p>
+	<p>This will take a while. Do not unplug Dobrynya.</p>
 </Confirm>
 
 <style>
