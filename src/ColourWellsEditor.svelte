@@ -1,13 +1,37 @@
 <script lang="ts">
-	import type { ColourArray } from '../ts/types';
-	import ColourWell from './widgets/ColourWell.svelte';
-	export let colours: ColourArray;
-	export let globalColours: number[];
-	export let isKeyOfScale: boolean;
+	import type { ColourArray } from "./ts/types";
+	import ColourWell from "./widgets/ColourWell.svelte";
+
+	let {
+		colours = $bindable<ColourArray>(),
+		globalColours,
+		oninput,
+		isKeyOfScale,
+	}: {
+		colours: ColourArray;
+		globalColours: ColourArray;
+		oninput: () => void;
+		isKeyOfScale: boolean;
+	} = $props();
 </script>
 
-
-	<div class="colourselector">
-		<ColourWell on:input name="Idle"   bind:hex={colours[0]} coloursArray={colours} {isKeyOfScale} {globalColours} colourIndex={0} />
-		<ColourWell on:input name="Active" bind:hex={colours[1]} coloursArray={colours} {isKeyOfScale} {globalColours} colourIndex={1} />
-	</div>
+<div class="colourselector">
+	<ColourWell
+		{oninput}
+		name="Idle"
+		bind:hex={colours[0]}
+		coloursArray={colours}
+		{isKeyOfScale}
+		{globalColours}
+		colourIndex={0}
+	/>
+	<ColourWell
+		{oninput}
+		name="Active"
+		bind:hex={colours[1]}
+		coloursArray={colours}
+		{isKeyOfScale}
+		{globalColours}
+		colourIndex={1}
+	/>
+</div>

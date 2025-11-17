@@ -123,7 +123,9 @@ export function arrayToFlag(arr: boolean[]): number {
 
 export function flagToArray(arr: boolean[], flag: number) {
 	for (let i: number = 0; i < arr.length; i++)
+	{
 		arr[i] = (flag & (1 << i)) != 0;
+	}
 }
 
 export async function getPatch(

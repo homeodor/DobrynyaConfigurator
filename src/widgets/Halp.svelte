@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { tick } from "svelte";
 
-	let { dark, children }: { dark: boolean; children: Function } = $props();
+	let { dark = false, children }: { dark?: boolean; children: Function } = $props();
 
 	let hovered = $state(false);
 	let halpWidget = $state<HTMLSpanElement>();

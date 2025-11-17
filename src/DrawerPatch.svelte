@@ -7,8 +7,6 @@
 	import {
 		patchAsFileFromData,
 		getPatch,
-		arrayToFlag,
-		flagToArray,
 	} from "./ts/data_utils";
 	import { ExpanderSanizer } from "./ts/data_expandsanize";
 

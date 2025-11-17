@@ -29,11 +29,11 @@
 		onclose?: () => void;
 	} = $props();
 
-	let hexOriginal: number = colourOff;
+	let hexOriginal = $state<HexColour>(colourOff);
 	const hexWhite: number = 0xf;
 	const hexBlack: number = 0x0;
 
-	let theDialog: HTMLDialogElement;
+	let theDialog = $state<HTMLDialogElement>();
 
 	let colourGen: number[] = [];
 
@@ -57,19 +57,18 @@
 
 	onMount(() => {
 		hexOriginal = hex;
-		if (startHex != colourOff) hex = startHex;
+		if (startHex != colourOff) {
+			hex = startHex;
+		}
+
+		if (!theDialog) {
+			throw new Error("Dialog not defined in Colour.svelte");
+		}
+
 		theDialog.showModal();
 	});
 
-	onDestroy(() => theDialog.close());
-
-	// async function dispatchAndClose(isOK: boolean)
-	// {
-	// 	if (!isOK) hex = hexOriginal;
-	// 	await tick();
-	// 	theDialog.close();
-	// 	dispatchEvent("close");
-	// }
+	onDestroy(() => theDialog?.close());
 
 	class ComplimentaryColourStorage {
 		inv: HexColour = colourOff;

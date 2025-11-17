@@ -371,7 +371,7 @@
 		hexCSS = hexToCSS(hex);
 
 		if (paintData) {
-			paintData = paintEvent(paintData);
+			paintData = paintEvent(paintData)!;
 		}
 
 		colourPaintModeBankName = setColourPaintModeBankName();

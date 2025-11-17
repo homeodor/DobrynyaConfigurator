@@ -215,7 +215,7 @@
 			</legend>
 			<div class="colourselector">
 				<ColourWellsBank
-					on:input={patchChanged}
+					oninput={patchChanged}
 					bind:colours={currentBank.bank.colour}
 				/>
 			</div>

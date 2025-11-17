@@ -285,7 +285,9 @@
 	}
 
 	function patchMaybeChanged() {
-		if (patchCanChange) patchChanged();
+		if (patchCanChange) {
+			patchChanged();
+		}
 	}
 
 	$effect(() => {
@@ -355,7 +357,7 @@
 		>
 			<legend>Colours <Overridable /> </legend>
 			<ColourWellsEditor
-				on:input={patchMaybeChanged}
+				oninput={patchMaybeChanged}
 				bind:colours={editorData.colour}
 				{globalColours}
 				{isKeyOfScale}
