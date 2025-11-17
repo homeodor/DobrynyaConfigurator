@@ -14,14 +14,13 @@
 	} from "./ts/midi_utils";
 	import { colourOff } from "./ts/colour_utils.svelte";
 	import { Control, EncoderBehaviour } from "./ts/types";
-	import type { DeviceOrBankValue, HexColour } from "./ts/types";
+	import { Hand, type DeviceOrBankValue, type HexColour } from "./ts/types";
 	import type { Patch, BranchControl } from "./ts/types_patch";
-	import { createPadsIfAbsent } from "./ts/data_utils";
 	import {
-		ExpanderSanizer,
-		expandData,
-		sanizeData,
-	} from "./ts/data_expandsanize";
+		createPadsIfAbsent,
+		getBranchControl,
+		setBranchControl,
+	} from "./ts/data_utils";
 	import { dispatchEditorClose } from "./ts/event_helpers";
 	import { patchChanged } from "./ts/event_helpers";
 	import type { CurrentEditorState } from "./ts/patch.svelte";
@@ -38,6 +37,11 @@
 	import { sysExCalibrateAccel } from "./ts/midi_core";
 	import { assertDefined } from "./ts/basic";
 	import { checkIfBurstIsOn } from "./ts/bursts";
+	import {
+		applyDefaults,
+		DefaultsManager,
+		stripDefaults,
+	} from "./ts/defaults";
 
 	let {
 		currentPatch,
@@ -60,11 +64,6 @@
 	} = $props();
 
 	let patchCanChange = $state(false);
-
-	// let prevControlKind: Control = Control.Generic;
-	// let prevControlNumber: number = -1;
-	// let prevHand: Hand = Hand.NONE;
-	// let prevBank: number = -1;
 
 	let theControl = $derived.by<ControlDefinition>(() => {
 		const kind = controlKind;
@@ -97,12 +96,12 @@
 	}
 
 	let burstIsOn = $derived.by<boolean>(() =>
-		checkIfBurstIsOn(editorData.burst)
+		checkIfBurstIsOn(editorData?.burst)
 	);
 
 	function onBurstsClose() {
 		burstIsOpen = false;
-		burstIsOn = checkIfBurstIsOn(editorData.burst);
+		burstIsOn = checkIfBurstIsOn(editorData?.burst);
 	}
 
 	const fullDataTreeModel: BranchControl = {
@@ -124,55 +123,56 @@
 		},
 	};
 
-	function getEditorData(currentPatchNow: Patch): BranchControl {
-		let editorDataNow: BranchControl;
+	let editorData = $state<BranchControl>();
 
-		switch (controlKind) {
-			case Control.AccelX:
-				editorDataNow = assertDefined(
-					currentPatchNow.accel,
-					"Accel branch must be defined"
-				)[0];
-				break;
-			case Control.AccelY:
-				editorDataNow = assertDefined(
-					currentPatchNow.accel,
-					"Accel branch must be defined"
-				)[1];
-				break;
-			case Control.EncRotate:
-				editorDataNow = currentPatchNow.encoders[controlNumber];
-				break;
-			case Control.Pad: {
-				createPadsIfAbsent(
-					currentPatchNow.padbanks[editorState.hand][editorState.bank]
-				);
-				editorDataNow = assertDefined(
-					currentPatchNow.padbanks[editorState.hand][editorState.bank]
-						.pads,
-					"Pads must be defined"
-				)[controlNumber];
-				break;
-			}
-			default:
-				throw new Error(`Unknown control kind: ${controlKind}`);
-		}
+	let previousControlKind = Control.None;
+	let previousControlNumber = 0;
+	let previousHand = Hand.NONE;
+	let previousBank = -1;
 
-		return editorDataNow;
-	}
+	$effect(() => {
+		currentPatch;
+		controlKind;
+		controlNumber;
 
-	let editorData = $derived.by<BranchControl>(() => {
 		if (currentPatch === undefined) {
 			throw new Error("currentPatch has been undefined");
 		}
 
-		let editorDataNow = getEditorData(currentPatch);
+		previousControlKind = controlKind;
+		previousControlNumber = controlNumber;
+		previousHand = editorState.hand;
+		previousBank = editorState.bank;
 
-		expanderSanizer.sanize();
-		// setCorrectEditorData();
-		expanderSanizer.expand(editorDataNow);
+		const editorDataNow = getBranchControl(
+			currentPatch,
+			controlKind,
+			controlNumber,
+			editorState.hand,
+			editorState.bank
+		);
 
-		return editorDataNow;
+		editorData = applyDefaults(fullDataTreeModel, editorDataNow);
+
+		return () => {
+			console.log(
+				"Previous control number",
+				previousControlNumber,
+				"current Control number",
+				controlNumber
+			);
+
+			if (editorData) {
+				setBranchControl(
+					currentPatch,
+					stripDefaults(fullDataTreeModel, editorData),
+					previousControlKind,
+					previousControlNumber,
+					previousHand,
+					previousBank
+				);
+			}
+		};
 	});
 
 	let editorDataPrev = $state<BranchControl>();
@@ -185,10 +185,10 @@
 	);
 
 	export function sanizeNow() {
-		sanizeData(fullDataTreeModel, editorData);
+		stripDefaults(fullDataTreeModel, editorData);
 	}
 	export function expandNow() {
-		expandData(fullDataTreeModel, editorData);
+		applyDefaults(fullDataTreeModel, editorData);
 	}
 
 	let disableResetToBankColours = $derived(
@@ -197,15 +197,12 @@
 			editorData.colour![1] == colourOff
 	);
 
-	let expanderSanizer = new ExpanderSanizer(
-		// @ts-ignore
-		{
-			model: fullDataTreeModel, // data will be attached in reactive block
-		},
-		() => {} // cleanup function
-	);
+	const defaultsManager = new DefaultsManager<BranchControl>({
+		model: fullDataTreeModel,
+		diff: null,
+	});
 
-	onDestroy(() => expanderSanizer.kill());
+	onDestroy(() => defaultsManager.kill());
 
 	function resetAll() {
 		let setTo =
@@ -314,10 +311,6 @@
 		untrack(() => {
 			initEditorAfterTick();
 		});
-	});
-
-	$effect(() => {
-		expanderSanizer.expand(editorData);
 	});
 
 	$effect(() => {

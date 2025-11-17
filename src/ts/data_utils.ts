@@ -1,8 +1,9 @@
-import { isEmpty } from "./basic";
+import { assertDefined, isEmpty } from "./basic";
 import { ExpanderSanizer } from "./data_expandsanize";
+import type { DeepPartial } from "./defaults";
 
 import type { Model } from "./device";
-import type { Pattern } from "./types";
+import { Control, Hand, type Pattern } from "./types";
 import type {
 	Patch,
 	PatchLegacy,
@@ -79,22 +80,22 @@ export function sortPatchList(aX: PatchInfoItem, bX: PatchInfoItem): number {
 		return code > -1
 			? code + 76
 			: ((code = str.charCodeAt(pos) || 0), code < 45 || code > 127)
-				? code
-				: code < 46
-					? 65 // -
-					: code < 48
-						? code - 1
-						: code < 58
-							? code + 18 // 0-9
-							: code < 65
-								? code - 11
-								: code < 91
-									? code + 11 // A-Z
-									: code < 97
-										? code - 37
-										: code < 123
-											? code + 5 // a-z
-											: code - 63;
+			? code
+			: code < 46
+			? 65 // -
+			: code < 48
+			? code - 1
+			: code < 58
+			? code + 18 // 0-9
+			: code < 65
+			? code - 11
+			: code < 91
+			? code + 11 // A-Z
+			: code < 97
+			? code - 37
+			: code < 123
+			? code + 5 // a-z
+			: code - 63;
 	}
 
 	if ((a += "") != (b += ""))
@@ -197,7 +198,7 @@ export function sanizePatch(currentPatch: Patch, model: Model) {
 }
 
 export function createObjectIfAbsent(
-	obj: object,
+	obj: Record<string, any>,
 	name: string,
 	what: any = {}
 ): boolean {
@@ -280,6 +281,115 @@ export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model) {
 			});
 		});
 	});
+}
+
+export function getBranchControl(
+	currentPatchNow: Patch,
+	control: Control,
+	number: number,
+	hand: Hand,
+	bank: number
+): DeepPartial<BranchControl> {
+	let editorDataNow: DeepPartial<BranchControl>;
+
+	if (hand !== Hand.LEFT && hand !== Hand.RIGHT) {
+		throw new Error(`Unknown hand: ${hand}`);
+	}
+
+	if (bank < 0) {
+		throw new Error(`Unknown bank number: ${bank}`);
+	}
+
+	if (number < 0) {
+		throw new Error(`Unknown control number: ${number}`);
+	}
+
+	switch (control) {
+		case Control.AccelX:
+			editorDataNow = assertDefined(
+				currentPatchNow.accel,
+				"Accel branch must be defined"
+			)[0];
+			break;
+		case Control.AccelY:
+			editorDataNow = assertDefined(
+				currentPatchNow.accel,
+				"Accel branch must be defined"
+			)[1];
+			break;
+		case Control.EncRotate:
+			editorDataNow = currentPatchNow.encoders[number];
+			break;
+		case Control.Pad: {
+			createPadsIfAbsent(currentPatchNow.padbanks[hand][bank]);
+			editorDataNow = assertDefined(
+				currentPatchNow.padbanks[hand][bank].pads,
+				"Pads must be defined"
+			)[number];
+			break;
+		}
+		default:
+			throw new Error(`Unknown control kind: ${control}`);
+	}
+
+	return editorDataNow;
+}
+
+export function setBranchControl(
+	currentPatchNow: Patch,
+	value: DeepPartial<BranchControl> | undefined,
+	control: Control,
+	number: number,
+	hand: Hand,
+	bank: number
+): void {
+	if (typeof value === "undefined") {
+		throw new Error(
+			`Trying to set currentPatch's branch with an undefined value`
+		);
+	}
+
+	if (hand !== Hand.LEFT && hand !== Hand.RIGHT) {
+		throw new Error(`Unknown hand: ${hand}`);
+	}
+
+	if (bank < 0) {
+		throw new Error(`Unknown bank number: ${bank}`);
+	}
+
+	if (number < 0) {
+		throw new Error(`Unknown control number: ${number}`);
+	}
+
+	if (
+		(control === Control.AccelX || control === Control.AccelY) &&
+		!currentPatchNow.accel
+	) {
+		currentPatchNow.accel = [];
+	}
+
+	if (control === Control.EncRotate && !currentPatchNow.encoders) {
+		currentPatchNow.encoders = [];
+	}
+
+	switch (control) {
+		case Control.AccelX:
+			currentPatchNow.accel![0] = value;
+			return;
+		case Control.AccelY:
+			currentPatchNow.accel![1] = value;
+			return;
+		case Control.EncRotate:
+			currentPatchNow.encoders[number] = value;
+			return;
+		case Control.Pad: {
+			createPadsIfAbsent(currentPatchNow.padbanks[hand][bank]);
+			currentPatchNow.padbanks[hand][bank].pads![number] = value;
+			return;
+		}
+		default:
+			throw new Error(`Unknown control kind: ${control}`);
+	}
 }
 
 // export function sleep (ms = 1) { return new Promise((rs, rj) => setTimeout(_ => rs(), ms) }

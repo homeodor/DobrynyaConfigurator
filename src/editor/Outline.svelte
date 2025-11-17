@@ -99,7 +99,9 @@
 	export async function closeEditor() {
 		const editorEl = document.getElementById("controleditor");
 
-		if (!editorEl) return; // no editor === no problem
+		if (!editorEl) {
+			return; // no editor === no problem
+		}
 
 		editorEl.style.clipPath = editorEl.style.clipPath.replace(
 			`${editorBigRadius}px`,
@@ -180,14 +182,6 @@
 
 		const thePanes = Array.from(panes.children);
 		thePanes.forEach(card => observer.observe(card));
-
-		// thePanes[1]?.scrollIntoView({
-		// 	behavior: "instant",
-		// 	block: "nearest",
-		// 	inline: "start",
-		// });
-
-		// setTab(1);
 
 		return () => observer.disconnect(); // Cleanup observer
 	});

@@ -57,7 +57,7 @@ export function setCurrentPatchName(v: string) {
 export function patchAction(data: Patch, filename: string) {
 	currentPatch.data = data; // new Proxy (data, markUnsaved);
 
-	currentPatch.originalState = structuredClone(currentPatch.data);
+	currentPatch.originalState = structuredClone($state.snapshot(currentPatch.data));
 	fixAndExpandPatch(currentPatch.data, getDevice().model);
 
 	currentPatch.name = filename;
