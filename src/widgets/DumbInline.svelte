@@ -51,16 +51,12 @@
 		onscrub?: (v: ScrubDispatch) => void;
 	} = $props();
 
-	// display, requireEnter, validatorFunction, scrubbable
-
 	let prevValue = $state(value);
 	let laskKey: string | null = null;
 
 	let theInline: HTMLSpanElement | null = null;
 	let doNotSend: boolean = false;
 
-	// onMount(updateInline);
-	//
 	export function isActive(): boolean {
 		return document.activeElement == theInline;
 	}
