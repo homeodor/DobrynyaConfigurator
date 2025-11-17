@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Inline from "./DumbInline.svelte";
+	import Inline, { type NudgeDispatch } from "./DumbInline.svelte";
 	import { createEventDispatcher } from "svelte";
 
 	const dispatch = createEventDispatcher();
@@ -16,7 +16,7 @@
 	export let nudgeMagnitude: number = 1;
 	export let disabledShowsOff: boolean = true;
 
-	let listElement = null;
+	let listElement: HTMLDataListElement | null = null;
 
 	export let inlineToRange = function (v: string): number | false {
 		return parseInt(v.replace("–", "-"));
@@ -62,11 +62,16 @@
 		value = defValue;
 	}
 
-	function nudge(ev: CustomEvent) {
-		let nudgeValue = ev.detail.value;
-		value = value + nudgeValue;
-		if (nudgeValue >= 0 && value > max) value = max;
-		if (nudgeValue < 0 && value < min) value = min;
+	function nudge(nudge: NudgeDispatch) {
+		value = value + nudge.value;
+
+		if (nudge.value >= 0 && value > max) {
+			value = max;
+		}
+
+		if (nudge.value < 0 && value < min) {
+			value = min;
+		}
 		updateInline();
 	}
 
@@ -111,12 +116,12 @@
 	<Inline
 		bind:this={theInline}
 		bind:value={inlineValue}
-		on:input={updateRange}
-		on:cancel={updateInline}
+		oninput={updateRange}
+		oncancel={updateInline}
 		{width}
 		{disabled}
 		{nudgeMagnitude}
-		on:nudge={nudge}
+		onnudge={nudge}
 		verticalalign="top"
 	/>
 </div>
