@@ -75,8 +75,8 @@ export class SysExParser {
 			(d[11] & Status.USECHECKSUM) != Status.USECHECKSUM
 				? WhichChecksum.NONE
 				: isV20
-					? WhichChecksum.LEGACY
-					: WhichChecksum.CRC16;
+				? WhichChecksum.LEGACY
+				: WhichChecksum.CRC16;
 
 		const usefulOffset =
 			whichChecksum === WhichChecksum.NONE
@@ -94,7 +94,7 @@ export class SysExParser {
 
 			rawData = decodeResult.data;
 			filename = hasFilename
-				? sysExableStringToUTF8(decodeResult.filename).string
+				? sysExableStringToUTF8(decodeResult.filename!).string
 				: null;
 		}
 
@@ -127,13 +127,13 @@ export class SysExParser {
 			midiResult: {
 				command,
 				status,
-			model:
-				d[4] in models && d[5] in models[d[4]]
-					? models[d[4]][d[5]]
-					: models[0][0],
-			filename: "",
-			data: null,
-			success: (d[11] & 0x3f) == Status.OK,
+				model:
+					d[4] in models && d[5] in models[d[4]]
+						? models[d[4]][d[5]]
+						: models[0][0],
+				filename: "",
+				data: null,
+				success: (d[11] & 0x3f) == Status.OK,
 			},
 			rawestData: d,
 		};
@@ -263,6 +263,10 @@ export class SysExParser {
 					break;
 				}
 
+				if (!filename) {
+					throw new Error("Filename is null in GETPATCHINFO");
+				}
+
 				try {
 					midiResult.data = BSON.deserialize(new Uint8Array(rawData));
 					midiResult.filename = filename;
@@ -276,6 +280,10 @@ export class SysExParser {
 			case Command.READPATCHTHROUGH: {
 				if (!midiResult.success) {
 					break;
+				}
+
+				if (!filename) {
+					throw new Error("Filename is null in READPATCHTHROUGH");
 				}
 
 				midiResult.data = new Uint8Array(rawData);
@@ -335,11 +343,11 @@ export class SysExParser {
 			case Command.GETSETTINGS:
 			case Command.SIGN: {
 				if (!midiResult.success) {
-				break;
-			}
+					break;
+				}
 				midiResult.data = rawData;
 				break;
-		}
+			}
 		}
 
 		return midiResult;
@@ -360,11 +368,12 @@ export class SysExParser {
 
 		switch (midiResult.command) {
 			case Command.READPATCH: {
-				if (midiResult.status != Status.PUSH) break;
-
-				if (!temporaryArray.filename) {
-					console.error("READPATCH had no filename");
+				if (midiResult.status != Status.PUSH) {
 					break;
+				}
+
+				if (!filename) {
+					throw new Error("Filename is null in READPATCH");
 				}
 
 				try {
@@ -429,7 +438,8 @@ export class SysExParser {
 
 		output.model.chip.name = ChipIDs[output.variant].name;
 		output.model.chip.code = ChipIDs[output.variant].code;
-		output.supportsSigning = ChipIDs[output.variant].supportsSigning;
+		output.supportsSigning =
+			ChipIDs[output.variant].supportsSigning ?? false;
 	}
 
 	private assemble(d: Uint8Array): Uint8Array | null {

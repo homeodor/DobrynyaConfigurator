@@ -412,7 +412,7 @@
 			<div class="">
 				<h4>Channel <Overridable /></h4>
 				<Channel
-					on:input={patchMaybeChanged}
+					oninput={patchMaybeChanged}
 					bind:value={editorData.midi.ch}
 					channelDefault={globalChannel.value & 0xf}
 					channelDefaultName={globalChannel.isDeviceLevel

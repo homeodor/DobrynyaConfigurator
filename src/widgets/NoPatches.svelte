@@ -1,5 +1,3 @@
-<svelte:options accessors />
-
 <script lang="ts">
 	import OkCancel from "./OkCancel.svelte";
 	import type { NoPatchesObject } from "../ts/types";
@@ -11,13 +9,13 @@
 
 	import { deviceDefinition } from "../ts/device";
 
-	let okText = "OK";
-	let cancelText = "Cancel";
+	const okText = "OK";
+	const cancelText = "Cancel";
 
-	let dialog: HTMLDialogElement;
+	let dialog = $state<HTMLDialogElement>();
 	let resolveFunction: (value: NoPatchesObject) => void;
-	let useCleanSlate: NewPatchDecision = NewPatchDecision.Template;
-	let useTemplate: DefaultPatchDescriptor;
+	let useCleanSlate = $state(NewPatchDecision.Template);
+	let useTemplate = $state<DefaultPatchDescriptor>();
 
 	let cancelFunction = () =>
 		resolveFunction({
@@ -26,6 +24,10 @@
 			filename: "",
 		});
 	let okayFunction = () => {
+		if (!useTemplate) {
+			throw new Error("No template selected");
+		}
+
 		resolveFunction({
 			decision: useCleanSlate,
 			template: useTemplate.id,
@@ -37,7 +39,10 @@
 	};
 
 	export function confirm(): Promise<NoPatchesObject> {
-		console.warn("OPENED DIALOG");
+		if (!dialog) {
+			throw new Error("No dialog in NoPatches.svelte");
+		}
+
 		dialog.showModal();
 		return new Promise((resolve, _) => (resolveFunction = resolve));
 	}

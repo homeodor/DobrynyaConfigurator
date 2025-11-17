@@ -49,6 +49,7 @@ interface ModelChip {
 	name?: string;
 	code?: number;
 	mhz?: number;
+	supportsSigning?: boolean;
 }
 
 export enum BLEAvailable {
@@ -98,7 +99,9 @@ export interface Capabilities {
 	sidestick: boolean;
 }
 
-export const capabilityFlags: string[] = [
+export type CapabilitiesKeys = keyof Capabilities;
+
+export const capabilityFlags: CapabilitiesKeys[] = [
 	"accel",
 	"battery",
 	"ble",

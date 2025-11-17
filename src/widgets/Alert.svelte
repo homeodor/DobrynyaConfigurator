@@ -1,23 +1,30 @@
-<svelte:options accessors/>
-
 <script lang="ts">
-	import Ok from './Ok.svelte';
+	import Ok from "./Ok.svelte";
 
-	export let okText = "OK";
-	
-	let dialog: HTMLDialogElement;
+	let {
+		children,
+		okText = "OK",
+	}: {
+		children: Function;
+		okText?: string;
+	} = $props();
+
+	let dialog = $state<HTMLDialogElement>();
 	let resolveFunction: Function;
-	
-	export function confirm()
-	{
+
+	export function confirm() {
+		if (!dialog) {
+			throw new Error("No dialog in Alert.svelte");
+		}
+
 		dialog.showModal();
-		return new Promise((resolve,_)=>resolveFunction = resolve);
-	};
-	
+		return new Promise((resolve, _) => (resolveFunction = resolve));
+	}
 </script>
+
 <dialog bind:this={dialog} class="prompt-or-alert">
 	<div>
-	<slot></slot>
-	<Ok theDialog={dialog} on:ok="{()=>resolveFunction(true)}" {okText} />
+		{@render children?.()}
+		<Ok theDialog={dialog} onok={() => resolveFunction(true)} {okText} />
 	</div>
 </dialog>

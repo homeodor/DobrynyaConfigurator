@@ -195,7 +195,7 @@
 	<div class="ce-block"></div>
 
 	<Pianoroll
-		on:input={calculateNote}
+		oninput={calculateNote}
 		{octave}
 		bind:musicKey
 		musicScaleKey={midiNote == midiUtils.fakeNoteOff ? -1 : scaleNote}

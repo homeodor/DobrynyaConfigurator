@@ -6,10 +6,17 @@
 	import batteryCharged from "../../i/battery_charged.svg";
 	import batteryCharging from "../../i/battery_charging.svg";
 
-	export let isOnline: boolean;
-	export let isConnected: boolean;
-	export let isBootloader: boolean;
-	export let flipDisconnectNow: (ev: MouseEvent) => void;
+	let {
+		isOnline,
+		isConnected,
+		isBootloader,
+		flipDisconnectNow,
+	}: {
+		isOnline: boolean;
+		isConnected: boolean;
+		isBootloader: boolean;
+		flipDisconnectNow: (ev: MouseEvent) => void;
+	} = $props();
 </script>
 
 <div class="cornerdevice">
@@ -21,7 +28,7 @@
 		class:online={isOnline}
 		class:disconnect={!isConnected}
 		class:bootloader={isBootloader}
-		on:click={flipDisconnectNow}
+		onclick={flipDisconnectNow}
 	>
 		{$deviceDefinition.model.name}
 	</div>

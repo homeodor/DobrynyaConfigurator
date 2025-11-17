@@ -50,14 +50,14 @@
 		if (doNotSend) {
 			doNotSend = false;
 			dispatch("cancel", {
-				value: value,
+				value,
 				prevValue: prevValue,
 				inline: inlineHolder,
 				setValue: setValue,
 			});
 		} else
 			dispatch("input", {
-				value: value,
+				value,
 				prevValue: prevValue,
 				inline: inlineHolder,
 				setValue: setValue,

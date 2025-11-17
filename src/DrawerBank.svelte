@@ -88,13 +88,14 @@
 		patchChanged();
 	};
 
-	interface PianorollEvent extends CustomEvent {
-		detail: { value: number; altKey: boolean };
+	interface PianorollEvent {
+		value: number;
+		altKey: boolean;
 	}
 
 	function pianorollEvent(ev: PianorollEvent) {
 		patchChanged();
-		if (ev.detail.altKey) {
+		if (ev.altKey) {
 			if (scale.mode == 0) {
 				scale.mode = 1;
 			} else if (scale.mode == 1) {
@@ -102,7 +103,7 @@
 			}
 		}
 
-		if (ev.detail.value == -1) {
+		if (ev.value == -1) {
 			scaleEnabled = false;
 		}
 	}
@@ -262,7 +263,7 @@
 
 			<div class="ce-block">
 				<Pianoroll
-					on:input={pianorollEvent}
+					oninput={pianorollEvent}
 					disabled={!scaleEnabled}
 					bind:musicKey={scale.key}
 				/>
@@ -270,10 +271,7 @@
 			<div class="ce-block">
 				<h4 class:disabled={!scaleEnabled}>Scale mode</h4>
 				<!-- Note that Select had on:input={patchChanged}, but it created a loop that broke the switching! -->
-				<select
-					bind:value={scale.mode}
-					disabled={!scaleEnabled}
-				>
+				<select bind:value={scale.mode} disabled={!scaleEnabled}>
 					{#each scales as scaleDef, i}
 						<option value={i}
 							>{Notes[scale.key]} {scaleDef.name}</option
@@ -318,7 +316,7 @@
 			<div class="ce-block">
 				<h4>Channel <Overridable /></h4>
 				<Channel
-					on:input={patchChanged}
+					oninput={patchChanged}
 					bind:value={channelValue}
 					channelDefaultName="Device default"
 					channelDefault={deviceLevelChannel}
@@ -413,7 +411,7 @@
 			<div class="ce-block">
 				<h4 class:disabled={lightshowMode == 0}>Listen on</h4>
 				<Channel
-					on:input={patchChanged}
+					oninput={patchChanged}
 					disabled={lightshowMode == 0}
 					bind:value={lightshowChannel}
 					channelDefaultName="Any channel"

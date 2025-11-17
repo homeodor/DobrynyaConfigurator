@@ -100,7 +100,7 @@
 			disabled={!isOnline}
 			isSaved={isSavedNow}
 			bind:this={uploadButton}
-			on:click={saveSettingsNow}>Save to device</ButtonUpload
+			onclick={saveSettingsNow}>Save to device</ButtonUpload
 		>
 	</div>
 	<div id="settings" class="columnizer">
@@ -339,7 +339,7 @@
 					/>
 				</h4>
 				<Channel
-					on:change={markSettingsUnsavedNow}
+					onchange={markSettingsUnsavedNow}
 					bind:value={settings.midi.items.channel.value}
 				/>
 				<!-- <RangeWithInline on:change={markSettingsUnsavedNow} bind:value={settings.midi.items.channel.value} max="15" defValue={0} /> -->
@@ -492,7 +492,7 @@
 			<div class="ce-block">
 				<h4>Passthru USB → MIDI</h4>
 				<Channel
-					on:change={markSettingsUnsavedNow}
+					onchange={markSettingsUnsavedNow}
 					bind:value={settings.midi.items.passthruusb.value}
 					channelDefaultName="Off"
 					channelDefaultValue={255}
@@ -501,7 +501,7 @@
 				{#if $deviceDefinition.model.hardware!.ble == BLEAvailable.Internal}
 					<h4>Passthru Wireless → MIDI</h4>
 					<Channel
-						on:change={markSettingsUnsavedNow}
+						onchange={markSettingsUnsavedNow}
 						bind:value={settings.midi.items.passthruble.value}
 						channelDefaultName="Off"
 						channelDefaultValue={255}

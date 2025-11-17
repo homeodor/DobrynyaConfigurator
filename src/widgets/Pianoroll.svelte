@@ -1,9 +1,4 @@
 <script lang="ts">
-	//	const jQ = window.$;
-	import { createEventDispatcher } from "svelte";
-
-	const dispatch = createEventDispatcher();
-
 	const whiteKeys: number[] = [0, 2, 4, 5, 7, 9, 11];
 	const whiteKeyLetter: string[] = ["C", "D", "E", "F", "G", "A", "B"];
 	const whiteKeyClasses: string[] = [
@@ -25,25 +20,41 @@
 		"notonoctave10",
 	];
 
-	export let octave: number = 0;
-	export let disabled: boolean = false;
-	export let musicKey: number = -1;
-	export let musicScaleKey: number = -1;
+	export interface PianorollDispatch {
+		value: number;
+		altKey: boolean;
+	}
+
+	let {
+		musicKey = $bindable(),
+		oninput,
+		octave = 0,
+		disabled = false,
+		musicScaleKey = -1,
+	}: {
+		musicKey: number;
+		oninput: (v: PianorollDispatch) => void;
+		octave?: number;
+		disabled?: boolean;
+		musicScaleKey?: number;
+	} = $props();
 
 	function setAndDispatch(v: number, altKey: boolean = false) {
 		musicKey = v;
-		dispatch("input", { value: musicKey, altKey: altKey });
+		oninput({ value: musicKey, altKey: altKey });
 	}
 
-	$: {
-		if (octave >= 10 && musicKey > 7) setAndDispatch(7);
-	}
+	$effect(() => {
+		if (octave >= 10 && musicKey > 7) {
+			setAndDispatch(7);
+		}
+	});
 
 	function setMusicKey(el: HTMLDivElement, altKey: boolean) {
 		setAndDispatch(
-			parseInt(el.dataset.key) == musicKey && !altKey
+			parseInt(el.dataset.key!) == musicKey && !altKey
 				? -1
-				: parseInt(el.dataset.key),
+				: parseInt(el.dataset.key!),
 			altKey
 		);
 	}
@@ -56,7 +67,7 @@
 			<div
 				role="button"
 				tabindex="0"
-				on:click={ev => setMusicKey(ev.currentTarget, ev.altKey)}
+				onclick={ev => setMusicKey(ev.currentTarget, ev.altKey)}
 				class:hh={k > 7 && octave >= 10}
 				class:thescalekey={musicScaleKey === theKey && musicKey < 0}
 				class:thekey={musicKey === theKey}
@@ -72,7 +83,7 @@
 			<div
 				role="button"
 				tabindex="0"
-				on:click={ev => setMusicKey(ev.currentTarget, ev.altKey)}
+				onclick={ev => setMusicKey(ev.currentTarget, ev.altKey)}
 				class:hh={k > 7 && octave >= 10}
 				class:thescalekey={musicScaleKey === theKey && musicKey < 0}
 				class:thekey={musicKey === theKey}

@@ -536,7 +536,7 @@
 			</select>
 			<ButtonUpload
 				disabled={!isOnline}
-				on:click={uploadOrRevert}
+				onclick={uploadOrRevert}
 				isSaved={currentPatch.isSaved}
 				bind:this={uploadButton}
 				>{#if $isAlt}Revert{:else}Upload to device{/if}</ButtonUpload

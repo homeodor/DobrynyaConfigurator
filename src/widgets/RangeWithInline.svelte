@@ -4,6 +4,40 @@
 
 	const dispatch = createEventDispatcher();
 
+	// 	let {
+	// 	disabled = false,
+	// 	min = 0,
+	// 	max = 127,
+	// 	step = 1,
+	// 	value = $bindable(0),
+	// 	defValue = 0,
+	// 	elId = "",
+	// 	width = "2.5em",
+	// 	list = null,
+	// 	nudgeMagnitude = 1,
+	// 	disabledShowsOff = true,
+	// 	inlineToRange = function (v: string): number | false {
+	// 		return parseInt(v.replace("–", "-"));
+	// 	},
+	// 	rangeToInline = function (v: number): string {
+	// 		return String(v).replace("-", "–");
+	// 	},
+	// }: {
+	// 	disabled?: boolean;
+	// 	min?: number;
+	// 	max?: number;
+	// 	step?: number;
+	// 	value?: number;
+	// 	defValue?: number;
+	// 	elId?: string;
+	// 	width?: string;
+	// 	list?: number[] | null;
+	// 	nudgeMagnitude?: number;
+	// 	disabledShowsOff?: boolean;
+	// 	inlineToRange?: (v: string) => number | false;
+	// 	rangeToInline?: (v: number) => string;
+	// } = $props();
+
 	export let disabled: boolean = false;
 	export let min: number = 0;
 	export let max: number = 127;
