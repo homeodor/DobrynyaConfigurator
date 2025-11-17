@@ -22,7 +22,7 @@
 		requireEnter = false,
 		scrubbable = false,
 		nudgeMagnitude = 1,
-		validatorFunction = (_: any) => true,
+		validatorFunction = () => true,
 		onchange = () => {},
 		oncancel = () => {},
 		oninput = () => {},
