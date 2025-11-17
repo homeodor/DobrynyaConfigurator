@@ -3,7 +3,7 @@
 
 	import InnerControl from "./InnerControl.svelte";
 
-	let data: BranchControl = null;
+	let data: BranchControl | null = null;
 </script>
 
 <div class="fader-overall">
@@ -61,7 +61,7 @@
 
 	.thumb-shadow {
 		background-color: transparent;
-        border-radius: 0.6em;
+		border-radius: 0.6em;
 		box-shadow:
 			rgba(0, 0, 0, 0.01) 1px 1px,
 			rgba(0, 0, 0, 0.01) 2px 2px,
@@ -107,8 +107,8 @@
 	}
 
 	.thumb {
-        border-radius: 0.3em;
-        border: 0.1em solid;
+		border-radius: 0.3em;
+		border: 0.1em solid;
 		border-top: 0.5em solid rgba(255, 255, 255, 0.1);
 		border-left: 0.15em solid rgba(255, 255, 255, 0.1);
 		border-right: 0.15em solid rgba(0, 0, 0, 0.2);

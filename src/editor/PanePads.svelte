@@ -2,7 +2,10 @@
 	import Pads from "./Pads.svelte";
 	import Encoder from "./Encoder.svelte";
 	import { Control } from "../ts/types";
-	import type { CurrentEditorState, CurrentPatchInfo } from "../ts/patch.svelte";
+	import type {
+		CurrentEditorState,
+		CurrentPatchInfo,
+	} from "../ts/patch.svelte";
 	import { deviceDefinition } from "../ts/device";
 	import type { InvokeControlData } from "../ts/event_helpers";
 	import { ColourPaintLayer } from "../ts/colour_utils.svelte";
@@ -38,22 +41,22 @@
 		</div>
 	{/if}
 	<Encoder
-		on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 0)}
+		onclick={encEl => openEditor(encEl, Control.EncRotate, 0)}
 		controlNo={0}
 		dataAll={currentPatch.data!.encoders}
 	/>
 	<Encoder
-		on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 1)}
+		onclick={encEl => openEditor(encEl, Control.EncRotate, 1)}
 		controlNo={1}
 		dataAll={currentPatch.data!.encoders}
 	/>
 	{#if $deviceDefinition.model.hardware!.encoders! >= 3}<Encoder
-			on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 2)}
+			onclick={encEl => openEditor(encEl, Control.EncRotate, 2)}
 			controlNo={2}
 			dataAll={currentPatch.data!.encoders}
 		/>{/if}
 	{#if $deviceDefinition.model.hardware!.encoders! >= 4}<Encoder
-			on:click={ev => openEditor(ev.detail.encEl, Control.EncRotate, 3)}
+			onclick={encEl => openEditor(encEl, Control.EncRotate, 3)}
 			controlNo={3}
 			dataAll={currentPatch.data!.encoders}
 		/>{/if}

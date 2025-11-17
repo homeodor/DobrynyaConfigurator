@@ -1,30 +1,30 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
 	import InnerControl from "./InnerControl.svelte";
 	import { Control } from "../ts/types";
-	import type { InvokeControlData, InvokeControlEvent } from "../ts/event_helpers";
+	import type { InvokeControlData } from "../ts/event_helpers";
 	import { filterInvoke } from "../ts/event_helpers";
 	import type { BranchControl } from "../ts/types_patch";
 
-	export let dataAll: BranchControl[];
-	export let controlNo: number;
-
-	let dispatch = createEventDispatcher();
+	let {
+		dataAll,
+		controlNo,
+		onclick,
+	}: {
+		dataAll: BranchControl[];
+		controlNo: number;
+		onclick: (element: HTMLDivElement) => void;
+	} = $props();
 
 	if (typeof dataAll == "undefined") {
 		dataAll = [{}, {}, {}, {}];
 	}
 
-	let data: BranchControl;
-
-	$: {
-		data = dataAll?.[controlNo];
-	}
+	let data: BranchControl = $derived(dataAll?.[controlNo]);
 
 	let theElement: HTMLDivElement;
 
 	function dispatchClick() {
-		dispatch("click", { encEl: theElement });
+		onclick(theElement);
 	}
 
 	function invokeControl(ev: CustomEvent<InvokeControlData>) {
@@ -40,7 +40,7 @@
 	tabindex="0"
 	class="dobrynya-encoder editablecontrol"
 	bind:this={theElement}
-	on:click={dispatchClick}
+	onclick={dispatchClick}
 >
 	{#if data}<InnerControl {data} />{/if}
 </div>

@@ -3,35 +3,40 @@
 	import EncoderShadowCC from "./EncoderShadowCC.svelte";
 	import { quickCustom } from "../ts/event_helpers";
 
-	export let scaleIsOn: boolean;
+	let {
+		scaleIsOn,
+		cc = $bindable<number>(),
+		min = $bindable<number>(),
+		max = $bindable<number>(),
+		par = $bindable<number>(),
+		encmode = $bindable<EncoderBehaviour>(),
+		oninput,
+	}: {
+		scaleIsOn: boolean;
+		cc: number;
+		min: number;
+		max: number;
+		par: number;
+		encmode: EncoderBehaviour;
+		oninput: () => void;
+	} = $props();
 
-	export let cc: number;
-	export let min: number;
-	export let max: number;
-	export let par: number;
-	export let encmode: EncoderBehaviour;
-
-	let encoderIsScale = false;
-	let encoderIsTempo = false;
-	let encoderIsScaleOrTempo = false;
+	let encoderIsScale = $derived(
+		encmode >= EncoderBehaviour.ScaleKey &&
+			encmode <= EncoderBehaviour.ScaleKind
+	);
+	let encoderIsTempo = $derived(encmode === EncoderBehaviour.InternalTempo);
+	let encoderIsScaleOrTempo = $derived(encoderIsScale || encoderIsTempo);
 
 	function openBankSettings() {
 		quickCustom("drawer", { drawer: "banksettings" });
-	}
-
-	$: {
-		encoderIsScale =
-			encmode >= EncoderBehaviour.ScaleKey &&
-			encmode <= EncoderBehaviour.ScaleKind;
-		encoderIsTempo = encmode === EncoderBehaviour.InternalTempo;
-		encoderIsScaleOrTempo = encoderIsScale || encoderIsTempo;
 	}
 </script>
 
 <fieldset id="ce-options">
 	<legend>Behaviour</legend>
 	<div>
-		<select on:input bind:value={encmode}>
+		<select {oninput} bind:value={encmode}>
 			<optgroup label="Control Change">
 				<option value={EncoderBehaviour.Absolute}
 					>Absolute (normal)</option
@@ -67,7 +72,7 @@
 				You can change the scale in
 				<span
 					class="unreal"
-					on:click={openBankSettings}
+					onclick={openBankSettings}
 					role="link"
 					tabindex="0">bank settings</span
 				>.
@@ -79,7 +84,7 @@
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<span
 					class="unreal"
-					on:click={openBankSettings}
+					onclick={openBankSettings}
 					role="link"
 					tabindex="0">bank settings</span
 				>.
@@ -92,6 +97,6 @@
 		bind:max
 		bind:par
 		{encoderIsScaleOrTempo}
-		encoderIsTempo={encmode === EncoderBehaviour.InternalTempo}
+		{encoderIsTempo}
 	/>
 </fieldset>

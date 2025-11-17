@@ -390,6 +390,8 @@
 					<BurstsDialog
 						bind:burst={editorData.burst}
 						onclose={onBurstsClose}
+						{controlKind}
+						{controlNumber}
 					/>
 				{/if}
 			</div>
@@ -399,7 +401,7 @@
 	{#if editorData?.midi}
 		{#if controlKind == Control.EncRotate && editorData?.encmode !== undefined}
 			<EncoderParameters
-				on:input={patchMaybeChanged}
+				oninput={patchMaybeChanged}
 				{scaleIsOn}
 				bind:encmode={editorData.encmode}
 				bind:cc={editorData.midi.cc!}
