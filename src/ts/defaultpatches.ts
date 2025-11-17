@@ -1,18 +1,10 @@
-
-export interface DefaultPatchDescriptor
-{
+export interface DefaultPatchDescriptor {
 	id: string;
 	name: string;
 	filename: string;
-};
+}
 
-interface DefaultPatchObject
-{
-	[index: string]: DefaultPatchDescriptor[]
-};
-
-export const defaultPatches: DefaultPatchObject =
-{
+export const defaultPatches: Record<string, DefaultPatchDescriptor[]> = {
 	miniv2: [
 		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetal" },
 		{ id: "scales", name: "Scales", filename: "Scales" },
@@ -20,5 +12,6 @@ export const defaultPatches: DefaultPatchObject =
 	microv2: [
 		{ id: "fd", name: "Fingerdrumming", filename: "MaxDetalMicro" },
 		{ id: "scales", name: "Scales", filename: "ScalesMicro" },
-	]
+	],
+	pocket: [{ id: "scales", name: "Scales", filename: "ScalesPocket" }],
 };
