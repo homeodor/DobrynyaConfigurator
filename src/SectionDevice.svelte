@@ -45,9 +45,17 @@
 
 	let uploadConfirm: Confirm;
 
-	function optimizeBuildNumber(version: string) {
+	function optimizeBuildNumber(version: string | null) {
+		if (version === null) {
+			return "";
+		}
+
 		const cleanVersion = version.split("/");
 		const parts = cleanVersion[0].split(".");
+		if (parts.length < 3) {
+			return version;
+		}
+
 		parts[2] =
 			parts[2] === "L" || parts[2] === "Local"
 				? parts[2]

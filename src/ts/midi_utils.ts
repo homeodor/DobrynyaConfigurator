@@ -242,11 +242,10 @@ export function eightToSeven(
 		}
 
 		if (sevenBitCounter < 8) {
-			if (checksum)
-			{
+			if (checksum && checksum.takes8bit) {
 				checksum.next(byte);
 			}
-			
+
 			resultByte = nextByte | (byte >> sevenBitCounter);
 			nextByte = (byte << (7 - sevenBitCounter)) & 0x7f;
 			sevenBitCounter++;
@@ -258,10 +257,17 @@ export function eightToSeven(
 		}
 
 		outArr.push(resultByte);
+
+		if (checksum && !checksum.takes8bit) {
+			checksum.next(resultByte);
+		}
 	}
 
 	if (sevenBitCounter !== 1) {
 		outArr.push(nextByte);
+		if (checksum && !checksum.takes8bit) {
+			checksum.next(nextByte);
+		}
 	}
 
 	return outArr;

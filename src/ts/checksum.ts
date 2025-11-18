@@ -10,6 +10,8 @@ export interface LengthChecksum {
 	next: (byte: number) => void;
 	checksum: number;
 	length: number;
+	takes8bit: boolean;
+	padToThreeBytes: boolean;
 }
 
 class NoChecksum implements LengthChecksum {
@@ -19,6 +21,12 @@ class NoChecksum implements LengthChecksum {
 	}
 	public get length() {
 		return 0;
+	}
+	public get takes8bit() {
+		return false;
+	}
+	public get padToThreeBytes() {
+		return false;
 	}
 }
 
@@ -37,6 +45,14 @@ class LegacyChecksum implements LengthChecksum {
 
 	public get length() {
 		return this._length;
+	}
+
+	public get takes8bit() {
+		return false;
+	}
+
+	public get padToThreeBytes() {
+		return true;
 	}
 }
 
@@ -62,6 +78,14 @@ class Crc16 implements LengthChecksum {
 
 	public get length() {
 		return this._length;
+	}
+
+	public get takes8bit() {
+		return true;
+	}
+
+	public get padToThreeBytes() {
+		return false;
 	}
 }
 

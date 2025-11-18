@@ -75,11 +75,13 @@ export class SysExParser {
 					? WhichChecksum.LEGACY
 					: WhichChecksum.CRC16;
 
+		const deductFromLength = isV20 ? 0 : 1;
+
 		const usefulOffset =
 			whichChecksum === WhichChecksum.NONE
 				? k_headerLength
 				: k_headerLength + 8;
-		let rawData = d.subarray(usefulOffset, d.length - 1);
+		let rawData = d.subarray(usefulOffset, d.length - deductFromLength);
 		let filename: string | null = null;
 
 		const command = d[10] as Command;
@@ -87,7 +89,7 @@ export class SysExParser {
 
 		if (k_decode7to8.has(command)) {
 			const hasFilename = k_decode7to8.get(command);
-			const decodeResult = this.sevenToEightTEMP(rawData, hasFilename);
+			const decodeResult = this.sevenToEight(rawData, hasFilename);
 
 			rawData = decodeResult.data;
 			filename = hasFilename
@@ -460,7 +462,7 @@ export class SysExParser {
 		return new TextDecoder().decode(new Uint8Array(versionArrayNormal));
 	}
 
-	private sevenToEightTEMP(
+	private sevenToEight(
 		d: Uint8Array,
 		hasFilename: boolean = false
 	): SevenToEightData {

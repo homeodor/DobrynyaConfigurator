@@ -17,7 +17,6 @@
 	} from "settings_utils";
 
 	import { deviceDefinition, BLEAvailable } from "device";
-	import AppleSwitch from "./widgets/AppleSwitch.svelte";
 	import Confirm from "./widgets/Confirm.svelte";
 
 	export let isOnline: boolean;
@@ -121,51 +120,54 @@
 			bind:this={uploadButton}
 			on:click={saveSettingsNow}>Save to device</ButtonUpload
 		>
-		<ButtonUpload
-			disabled={!isOnline}
-			isSaved={true}
-			bind:this={defaultsButton}
-			on:click={resetToDefaultsNow}>Reset</ButtonUpload
-		>
+		{#if !$deviceDefinition.version.startsWith("2.0")}
+			<ButtonUpload
+				disabled={!isOnline}
+				isSaved={true}
+				bind:this={defaultsButton}
+				on:click={resetToDefaultsNow}>Reset</ButtonUpload
+			>
+		{/if}
 	</div>
 	<div id="settings" class="columnizer">
-		<fieldset id="se-wireless">
-			<legend>
-				{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
+		{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal}
+			<fieldset id="se-wireless">
+				<legend>
+					{#if $deviceDefinition.model.hardware.ble == BLEAvailable.Internal && false}
+						<label
+							><input
+								type="checkbox"
+								class="appleswitch"
+								on:input={markSettingsUnsavedNow}
+								bind:checked={$settings.ble.flags.flag[0]}
+							/><mark></mark> Wireless</label
+						>
+					{:else}Wireless{/if}</legend
+				>
+
+				{#if !$settings.ble.flags.flag[0] && isSavedNow && false}
+					<p class="explain">
+						Enabling wireless requires a restart of Dobrynya.
+					</p>
+				{/if}
+				<h4>
 					<label
 						><input
 							type="checkbox"
 							class="appleswitch"
 							on:input={markSettingsUnsavedNow}
-							bind:checked={$settings.ble.flags.flag[0]}
-						/><mark></mark> Wireless</label
+							bind:checked={$settings.ble.flags.flag[1]}
+						/><mark></mark> Advertise on start</label
 					>
-				{:else}Wireless{/if}</legend
-			>
 
-			{#if !$settings.ble.flags.flag[0] && isSavedNow && false}
-				<p class="explain">
-					Enabling wireless requires a restart of Dobrynya.
-				</p>
-			{/if}
-			<h4>
-				<label
-					><input
-						type="checkbox"
-						class="appleswitch"
-						on:input={markSettingsUnsavedNow}
-						bind:checked={$settings.ble.flags.flag[1]}
-					/><mark></mark> Advertise on start</label
-				>
+					<p class="explain">
+						If previously bonded, Dobrynya will advertise itself on
+						start, which makes certain hosts automatically connect
+						to it. Otherwise, enter menu mode to enable advertising.
+					</p>
+				</h4>
 
-				<p class="explain">
-					If previously bonded, Dobrynya will advertise itself on
-					start, which makes certain hosts automatically connect to
-					it. Otherwise, enter menu mode to enable advertising.
-				</p>
-			</h4>
-
-			<!-- <div class="ce-block">
+				<!-- <div class="ce-block">
 					<h4>Name</h4>
 					<input
 						type="text"
@@ -173,7 +175,8 @@
 						bind:value={$settings.ble.name.text}
 					/>
 				</div> -->
-		</fieldset>
+			</fieldset>
+		{/if}
 		<fieldset id="se-leds">
 			<legend>Light</legend>
 

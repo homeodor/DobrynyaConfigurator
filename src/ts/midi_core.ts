@@ -291,6 +291,7 @@ function sysExFilenameSanize(
 	if (getDevice().legacyChecksum) {
 		while (message.length % 3 != 0) {
 			message.push(0); // добиваем до кратного трём значения — так ровно разбивается по пакетам...
+			checksum?.next(0);
 		}
 	}
 
@@ -300,8 +301,10 @@ function sysExFilenameSanize(
 function sysEx2Filenames(cmd: Command, filename1: string, filename2: string) {
 	let message = [];
 	let filenames = [filename1, filename2];
-	for (let filename of filenames)
+	for (let filename of filenames) {
 		message = sysExFilenameSanize(filename, message, null);
+	}
+	
 	sysEx(cmd, message);
 }
 
@@ -375,6 +378,12 @@ function sysEx(
 		];
 		for (let el of lengthChecksum) {
 			message.push(el);
+		}
+
+		if (checksum.padToThreeBytes) {
+			while (message.length % 3 != 0) {
+				message.push(0);
+			}
 		}
 	}
 
