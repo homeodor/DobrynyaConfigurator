@@ -1,7 +1,7 @@
 <svelte:options />
 
 <script lang="ts">
-	import { tick, onDestroy, untrack } from "svelte";
+	import { tick, onDestroy, untrack, onMount } from "svelte";
 	import { controls } from "./ts/control_defs";
 	import type { ControlDefinition } from "./ts/control_defs";
 	import {
@@ -42,6 +42,7 @@
 		DefaultsManager,
 		stripDefaults,
 	} from "./ts/defaults";
+	import commitWatch from "./ts/commit";
 
 	let {
 		currentPatch,
@@ -123,6 +124,27 @@
 		},
 	};
 
+	function commitBranch() {
+		if (editorData) {
+			setBranchControl(
+				currentPatch,
+				stripDefaults(fullDataTreeModel, editorData),
+				previousControlKind,
+				previousControlNumber,
+				previousHand,
+				previousBank
+			);
+		}
+	}
+
+	onMount(() => {
+		commitWatch.attach(commitBranch);
+	});
+
+	onDestroy(() => {
+		commitWatch.detach(commitBranch);
+	});
+
 	let editorData = $state<BranchControl>();
 
 	let previousControlKind = Control.None;
@@ -154,25 +176,7 @@
 
 		editorData = applyDefaults(fullDataTreeModel, editorDataNow);
 
-		return () => {
-			console.log(
-				"Previous control number",
-				previousControlNumber,
-				"current Control number",
-				controlNumber
-			);
-
-			if (editorData) {
-				setBranchControl(
-					currentPatch,
-					stripDefaults(fullDataTreeModel, editorData),
-					previousControlKind,
-					previousControlNumber,
-					previousHand,
-					previousBank
-				);
-			}
-		};
+		return commitBranch;
 	});
 
 	let editorDataPrev = $state<BranchControl>();
@@ -183,13 +187,6 @@
 			editorData.encmode >= EncoderBehaviour.Relative64Zero &&
 			editorData.encmode <= EncoderBehaviour.RelativeSigned
 	);
-
-	export function sanizeNow() {
-		stripDefaults(fullDataTreeModel, editorData);
-	}
-	export function expandNow() {
-		applyDefaults(fullDataTreeModel, editorData);
-	}
 
 	let disableResetToBankColours = $derived(
 		editorData &&

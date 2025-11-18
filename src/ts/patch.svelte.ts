@@ -14,8 +14,8 @@ import type { PatchInfoItem } from "./types_patch";
 import { sysExFilenameAndDo, sysExAndDo } from "./midi_core";
 import { get, writable } from "svelte/store";
 import { getDevice } from "./device";
-
 import Confirm from "../widgets/Confirm.svelte";
+import { mount } from "svelte";
 
 export const patchList = writable<PatchInfoItem[]>([]);
 export const patchListHasBeenLoaded = writable(false);
@@ -57,7 +57,9 @@ export function setCurrentPatchName(v: string) {
 export function patchAction(data: Patch, filename: string) {
 	currentPatch.data = data; // new Proxy (data, markUnsaved);
 
-	currentPatch.originalState = structuredClone($state.snapshot(currentPatch.data));
+	currentPatch.originalState = structuredClone(
+		$state.snapshot(currentPatch.data)
+	);
 	fixAndExpandPatch(currentPatch.data, getDevice().model);
 
 	currentPatch.name = filename;
@@ -122,12 +124,14 @@ export async function newPatch(
 		throw new Error("#confirmplaceholder element has not been found");
 	}
 
-	const confirmDiscard = new Confirm({
+	const props = $state({
+		children: () =>
+			"You have unsaved changes. Do you want to discard them and open another patch?",
+		okText: "Discard",
+	});
+	const confirmDiscard = mount(Confirm, {
 		target: confirmPlaceholder,
-		props: {
-			html: "You have unsaved changes. Do you want to discard them and open another patch?",
-			okText: "Discard",
-		},
+		props,
 	});
 
 	console.log(confirmDiscard);
@@ -135,7 +139,7 @@ export async function newPatch(
 	if (
 		patchData === currentPatch.data &&
 		!currentPatch.isSaved &&
-		!(await confirmDiscard.props.confirm())
+		!(await confirmDiscard.confirm())
 	)
 		return;
 

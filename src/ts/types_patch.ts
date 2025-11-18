@@ -27,16 +27,18 @@ interface PadOrButton {
 	midi?: BranchMidi;
 }
 
+export interface BranchBankSettings {
+	keyinfo?: number;
+	colour?: ColourArray;
+	ch?: number;
+	vel?: number;
+	midi?: BranchMidi;
+	lightshow?: number;
+	desc?: string;
+}
+
 export interface BranchBank {
-	bank?: {
-		keyinfo?: number;
-		colour?: ColourArray;
-		ch?: number;
-		vel?: number;
-		midi?: BranchMidi;
-		lightshow?: number;
-		desc?: string;
-	};
+	bank?: BranchBankSettings;
 	pads?: PadOrButton[];
 }
 

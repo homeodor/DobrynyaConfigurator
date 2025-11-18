@@ -81,6 +81,7 @@
 	import Outline from "./editor/Outline.svelte";
 	import BankSelector from "./editor/BankSelector.svelte";
 	import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
+	import commitWatch from "./ts/commit";
 
 	const drawers = [
 		{
@@ -172,24 +173,20 @@
 	}
 
 	async function uploadThePatch() {
-		if (!colourPaintDrawer) {
-			throw new Error("Colour paint drawer not defined");
-		}
-
 		await patchToDevice(
 			Command.OVERWRITEPATCH,
 			currentPatch.name,
 			() =>
 				//(data: any, filename: string) =>
 				{
-					if (!colourPaintDrawer || !uploadButton) {
-						throw new Error(
-							"Colour paint drawer or upload button not defined"
-						);
+					if (!uploadButton) {
+						throw new Error("CUpload button not defined");
 					}
 
-					if (drawer === "colourpaint")
-						colourPaintDrawer.updateDevicePreview(true); // force device to redraw
+					if (drawer === "colourpaint") {
+						colourPaintDrawer?.updateDevicePreview(true); // force device to redraw
+					}
+
 					uploadButton.ok();
 					currentPatch.isSaved = true;
 				},
@@ -197,7 +194,7 @@
 		);
 
 		if ($isColourPreviewMode) {
-			colourPaintDrawer.updateDevicePreview();
+			colourPaintDrawer?.updateDevicePreview();
 		}
 	}
 
@@ -265,6 +262,10 @@
 			return;
 		}
 
+		if (!$patchList.length) {
+			return;
+		}
+
 		newPatchName =
 			getNewPatchName(
 				$patchList,
@@ -282,9 +283,16 @@
 	}
 
 	async function selectBank(no: number, sendSysEx: boolean = true) {
-		if (editorState.bank == no) return;
+		if (editorState.bank == no) {
+			return;
+		}
+
 		ExpanderSanizer.latchAll();
-		if (sendSysEx) sysExBank(editorState.hand, no > 3, no % 4);
+		commitWatch.commit();
+		if (sendSysEx) {
+			sysExBank(editorState.hand, no > 3, no % 4);
+		}
+
 		editorState.bank = no;
 	}
 
@@ -388,7 +396,10 @@
 
 	$effect(() => {
 		useCleanSlate;
-		updateNewPatchName();
+
+		if (newInterfaceOpen) {
+			updateNewPatchName();
+		}
 	});
 
 	$effect(() => {
@@ -688,11 +699,8 @@
 			{#if drawer == "banksettings"}
 				<div class="drawerwrapper" id="dw-wrapper-banksettings">
 					<DrawerBank
-						bind:currentBank={
-							currentPatch.data.padbanks[editorState.hand][
-								editorState.bank
-							]
-						}
+						currentPatch={currentPatch.data!}
+						{editorState}
 						{deviceLevelChannel}
 					/>
 				</div>

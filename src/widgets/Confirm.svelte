@@ -28,7 +28,7 @@
 
 <dialog bind:this={dialog} class="prompt-or-alert">
 	<div>
-		{@html html}{@render children()}
+		{@render children()}
 		<OkCancel
 			theDialog={dialog}
 			onok={() => resolveFunction(true)}

@@ -1,92 +1,74 @@
 <script lang="ts">
 	import Inline, { type NudgeDispatch } from "./DumbInline.svelte";
-	import { createEventDispatcher } from "svelte";
 
-	const dispatch = createEventDispatcher();
+	let {
+		disabled = false,
+		min = 0,
+		max = 127,
+		step = 1,
+		value = $bindable(0),
+		defValue = 0,
+		elId = "",
+		width = "2.5em",
+		list = null,
+		nudgeMagnitude = 1,
+		disabledShowsOff = true,
+		inlineToRange = function (v: string): number | false {
+			return parseInt(v.replace("–", "-"));
+		},
+		rangeToInline = function (v: number): string {
+			return String(v).replace("-", "–");
+		},
+		oninput = () => {},
+	}: {
+		disabled?: boolean;
+		min?: number;
+		max?: number;
+		step?: number;
+		value?: number;
+		defValue?: number;
+		elId?: string;
+		width?: string;
+		list?: number[] | null;
+		nudgeMagnitude?: number;
+		disabledShowsOff?: boolean;
+		inlineToRange?: (v: string) => number | false;
+		rangeToInline?: (v: number) => string;
+		oninput?: () => void;
+	} = $props();
 
-	// 	let {
-	// 	disabled = false,
-	// 	min = 0,
-	// 	max = 127,
-	// 	step = 1,
-	// 	value = $bindable(0),
-	// 	defValue = 0,
-	// 	elId = "",
-	// 	width = "2.5em",
-	// 	list = null,
-	// 	nudgeMagnitude = 1,
-	// 	disabledShowsOff = true,
-	// 	inlineToRange = function (v: string): number | false {
-	// 		return parseInt(v.replace("–", "-"));
-	// 	},
-	// 	rangeToInline = function (v: number): string {
-	// 		return String(v).replace("-", "–");
-	// 	},
-	// }: {
-	// 	disabled?: boolean;
-	// 	min?: number;
-	// 	max?: number;
-	// 	step?: number;
-	// 	value?: number;
-	// 	defValue?: number;
-	// 	elId?: string;
-	// 	width?: string;
-	// 	list?: number[] | null;
-	// 	nudgeMagnitude?: number;
-	// 	disabledShowsOff?: boolean;
-	// 	inlineToRange?: (v: string) => number | false;
-	// 	rangeToInline?: (v: number) => string;
-	// } = $props();
+	let listElement = $state<HTMLDataListElement>();
 
-	export let disabled: boolean = false;
-	export let min: number = 0;
-	export let max: number = 127;
-	export let step: number = 1;
-	export let value: number = 0;
-	export let defValue: number = 0;
-	export let elId: string = "";
-	export let width: string = "2.5em";
-	export let list: number[] | null = null;
-	export let nudgeMagnitude: number = 1;
-	export let disabledShowsOff: boolean = true;
+	// export let inlineToRange = function (v: string): number | false {
+	// 	return parseInt(v.replace("–", "-"));
+	// };
+	// export let rangeToInline = function (v: number): string {
+	// 	return String(v).replace("-", "–");
+	// }; // oh so pedantic
 
-	let listElement: HTMLDataListElement | null = null;
+	function getInline(): string {
+		return (disabled && disabledShowsOff) ? "Off" : rangeToInline(value);
+	}
 
-	export let inlineToRange = function (v: string): number | false {
-		return parseInt(v.replace("–", "-"));
-	};
-	export let rangeToInline = function (v: number): string {
-		return String(v).replace("-", "–");
-	}; // oh so pedantic
+	function setInline(v: string) {
+		const parsed = inlineToRange(v);
+		value = parsed === false ? defValue : parsed;
+	}
 
 	export function reset() {
 		value = defValue;
 	}
 
 	let range: HTMLInputElement;
-	let theInline: any;
-	let inlineValue: string = "0";
+	let inlineValue = $state("0");
 
 	export function updateInline() {
 		inlineValue =
 			disabled && disabledShowsOff ? "Off" : rangeToInline(value);
 	}
 
-	//	onMount(updateInline);
-
-	$: {
-		if (!theInline || !theInline.isActive()) {
-			inlineValue = rangeToInline(value);
-		}
-
-		if (disabled && disabledShowsOff) {
-			inlineValue = "Off";
-		}
-	}
-
 	function dispatchChange() {
-		dispatch("input");
-		dispatch("change");
+		oninput();
 	}
 
 	function maybeReset(ev: MouseEvent) {
@@ -121,7 +103,10 @@
 			}
 		}
 
-		if (hasChanged) dispatchChange();
+		if (hasChanged)
+		{
+			dispatchChange();
+		}
 
 		updateInline(); // reset, or just make sure it is synced
 	}
@@ -142,14 +127,13 @@
 		bind:this={range}
 		bind:value
 		id={elId}
-		on:input={dispatchChange}
-		on:click={maybeReset}
+		oninput={dispatchChange}
+		onclick={maybeReset}
 		{disabled}
 		list={listElement ? listElement.id : ""}
 	/>
 	<Inline
-		bind:this={theInline}
-		bind:value={inlineValue}
+		bind:value={getInline, setInline}
 		oninput={updateRange}
 		oncancel={updateInline}
 		{width}

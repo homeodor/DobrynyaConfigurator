@@ -1,4 +1,5 @@
 import { assertDefined, isEmpty } from "./basic";
+import commitWatch from "./commit";
 import { ExpanderSanizer } from "./data_expandsanize";
 import type { DeepPartial } from "./defaults";
 
@@ -10,6 +11,7 @@ import type {
 	PatchInfoItem,
 	BranchBank,
 	BranchControl,
+	BranchBankSettings,
 } from "./types_patch";
 
 export const numberOfPads = 16;
@@ -122,8 +124,7 @@ export function arrayToFlag(arr: boolean[]): number {
 }
 
 export function flagToArray(arr: boolean[], flag: number) {
-	for (let i: number = 0; i < arr.length; i++)
-	{
+	for (let i: number = 0; i < arr.length; i++) {
 		arr[i] = (flag & (1 << i)) != 0;
 	}
 }
@@ -131,9 +132,9 @@ export function flagToArray(arr: boolean[], flag: number) {
 export async function getPatch(
 	thePatch: Patch,
 	model: Model,
-	action: Function
+	action: () => Promise<void>
 ) {
-	ExpanderSanizer.latchAll(); // sanize all data and re-expand on the next ineration
+	commitWatch.commit(); // commit whatever is loaned to trunk
 	sanizePatch(thePatch, model); // sanize the patch in general
 	await action(); // wait for the actual stuff to happen, i.e. upload the patch or download it as file
 	fixAndExpandPatch(thePatch, model); // re-expand it
@@ -285,6 +286,48 @@ export function fixAndExpandPatch(currentPatch: PatchLegacy, model: Model) {
 	});
 }
 
+export function assertBranchParams(
+	hand: Hand,
+	bank: number,
+	controlNumber: number = 0
+) {
+	if (hand !== Hand.LEFT && hand !== Hand.RIGHT) {
+		throw new Error(`Unknown hand: ${hand}`);
+	}
+
+	if (bank < 0) {
+		throw new Error(`Unknown bank number: ${bank}`);
+	}
+
+	if (controlNumber < 0) {
+		throw new Error(`Unknown control number: ${controlNumber}`);
+	}
+}
+
+export function getBranchBankSettings(
+	currentPatchNow: Patch,
+	bank: number,
+	hand: Hand
+): DeepPartial<BranchBankSettings> {
+	assertBranchParams(hand, bank);
+
+	if (!currentPatchNow.padbanks[hand][bank].bank) {
+		currentPatchNow.padbanks[hand][bank].bank = {};
+	}
+
+	return currentPatchNow.padbanks[hand][bank].bank;
+}
+
+export function setBranchBankSettings(
+	currentPatchNow: Patch,
+	value: DeepPartial<BranchBankSettings> | undefined,
+	bank: number,
+	hand: Hand
+): void {
+	assertBranchParams(hand, bank);
+	currentPatchNow.padbanks[hand][bank].bank = value;
+}
+
 export function getBranchControl(
 	currentPatchNow: Patch,
 	control: Control,
@@ -294,17 +337,7 @@ export function getBranchControl(
 ): DeepPartial<BranchControl> {
 	let editorDataNow: DeepPartial<BranchControl>;
 
-	if (hand !== Hand.LEFT && hand !== Hand.RIGHT) {
-		throw new Error(`Unknown hand: ${hand}`);
-	}
-
-	if (bank < 0) {
-		throw new Error(`Unknown bank number: ${bank}`);
-	}
-
-	if (number < 0) {
-		throw new Error(`Unknown control number: ${number}`);
-	}
+	assertBranchParams(hand, bank, number);
 
 	switch (control) {
 		case Control.AccelX:
@@ -351,17 +384,7 @@ export function setBranchControl(
 		);
 	}
 
-	if (hand !== Hand.LEFT && hand !== Hand.RIGHT) {
-		throw new Error(`Unknown hand: ${hand}`);
-	}
-
-	if (bank < 0) {
-		throw new Error(`Unknown bank number: ${bank}`);
-	}
-
-	if (number < 0) {
-		throw new Error(`Unknown control number: ${number}`);
-	}
+	assertBranchParams(hand, bank, number);
 
 	if (
 		(control === Control.AccelX || control === Control.AccelY) &&
