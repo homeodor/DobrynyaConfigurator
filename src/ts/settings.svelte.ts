@@ -41,14 +41,19 @@ function fixDeviceName(v: string) {
 	return v;
 }
 
-export let isSaved: boolean = $state(true);
+let isSaved_: boolean = $state(true);
 let settingsRawData: Uint8Array;
 let settingsNeedFixing: boolean = false;
 let settingsObjectIsValid: boolean = false;
 
-export function markSettingsUnsaved() {
-	isSaved = false;
+export function isSaved() {
+	return isSaved_;
 }
+
+export function markSettingsUnsaved() {
+	isSaved_ = false;
+}
+
 export function markSettingsDirty() {
 	settingsNeedFixing = true;
 }
@@ -260,7 +265,7 @@ export function parseSettingsData() {
 		return;
 	}
 
-	if (!isSaved) {
+	if (!isSaved_) {
 		// there was a previous state available
 		return;
 	}
@@ -418,7 +423,7 @@ export async function saveSettings(
 		Command.SAVESETTINGS,
 		() => {
 			if (uploadButton) uploadButton.ok();
-			isSaved = true;
+			isSaved_ = true;
 		},
 		1000,
 		eightToSeven(b8, checksum),

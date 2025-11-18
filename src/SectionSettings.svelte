@@ -116,7 +116,7 @@
 					{:else}Wireless{/if}</legend
 				>
 
-				{#if !settings.ble.items.flags.flag![0] && isSaved && false}
+				{#if !settings.ble.items.flags.flag![0] && isSaved() && false}
 					<p class="explain">
 						Enabling wireless requires a restart of Dobrynya.
 					</p>

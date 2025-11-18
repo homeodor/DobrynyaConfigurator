@@ -13,8 +13,6 @@
 	import Halp from "../widgets/Halp.svelte";
 	import Preview from "./Preview.svelte";
 
-	//export let bank: any, pattern: number[], colourPaintMode: ColourPaintLayer;
-
 	let dialog: HTMLDialogElement;
 	let warn = false;
 
