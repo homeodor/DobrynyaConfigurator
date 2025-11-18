@@ -1,5 +1,5 @@
 import { writeUF2Data, exitBootloader } from "./hid";
-import { markSettingsDirty } from "./settings_utils";
+import { markSettingsDirty } from "./settings.svelte";
 
 export enum UF2State {
 	Empty,

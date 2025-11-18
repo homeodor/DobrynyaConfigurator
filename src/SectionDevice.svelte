@@ -28,7 +28,7 @@
 		pocket: { name: "ESP32-S3", mhz: 240 },
 	};
 
-	import { importantFactorySettings } from "./ts/settings_utils";
+	import { importantFactorySettings } from "./ts/settings.svelte";
 	import imageMiniV2 from "../i/devices/miniv2.webp";
 	import imagePocket from "../i/devices/pocket.webp";
 	import imageMicroV2Dark from "../i/devices/microv2_dark.webp";

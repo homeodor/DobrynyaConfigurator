@@ -41,7 +41,7 @@ function fixDeviceName(v: string) {
 	return v;
 }
 
-export let isSaved: boolean = true;
+export let isSaved: boolean = $state(true);
 let settingsRawData: Uint8Array;
 let settingsNeedFixing: boolean = false;
 let settingsObjectIsValid: boolean = false;

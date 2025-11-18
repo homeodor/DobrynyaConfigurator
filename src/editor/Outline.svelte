@@ -8,7 +8,7 @@
 	import type { InvokeControlData } from "../ts/event_helpers";
 	import { ColourPaintLayer } from "../ts/colour_utils.svelte";
 	import PanePads from "./PanePads.svelte";
-	import { importantFactorySettings } from "../ts/settings_utils";
+	import { importantFactorySettings } from "../ts/settings.svelte";
 	import ControlEditor from "../ControlEditor.svelte";
 	import { onMount, tick } from "svelte";
 	import { currentKeyInfoToKey } from "../ts/midi_utils";

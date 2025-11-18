@@ -11,11 +11,11 @@
 		saveSettings,
 		isSaved,
 		markSettingsUnsaved,
-	} from "./ts/settings_utils";
+	} from "./ts/settings.svelte";
 
 	import { deviceDefinition, BLEAvailable } from "./ts/device";
 
-	export let isOnline: boolean;
+	let { isOnline }: { isOnline: boolean } = $props();
 
 	const logtime: number[] = [
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35,
@@ -25,20 +25,17 @@
 		1320, 1440, 1500, 1560, 1680, 1800,
 	];
 
-	let uploadButton: ButtonUpload;
-	let isSavedNow: boolean = isSaved; // to make it reactive
+	let uploadButton = $state<ButtonUpload>();
 
 	async function saveSettingsNow() {
 		await saveSettings(
 			$deviceDefinition.model.settingsLength!,
 			uploadButton
 		);
-		isSavedNow = isSaved; // make it reactive
 	}
 
 	async function markSettingsUnsavedNow() {
 		markSettingsUnsaved();
-		isSavedNow = isSaved; // make it reactive
 	}
 
 	//	parseSettingsData();
@@ -98,7 +95,7 @@
 	<div style="margin:2em">
 		<ButtonUpload
 			disabled={!isOnline}
-			isSaved={isSavedNow}
+			{isSaved}
 			bind:this={uploadButton}
 			onclick={saveSettingsNow}>Save to device</ButtonUpload
 		>
@@ -112,14 +109,14 @@
 							><input
 								type="checkbox"
 								class="appleswitch"
-								on:input={markSettingsUnsavedNow}
+								oninput={markSettingsUnsavedNow}
 								bind:checked={settings.ble.items.flags.flag![0]}
 							/><mark></mark> Wireless</label
 						>
 					{:else}Wireless{/if}</legend
 				>
 
-				{#if !settings.ble.items.flags.flag![0] && isSavedNow && false}
+				{#if !settings.ble.items.flags.flag![0] && isSaved && false}
 					<p class="explain">
 						Enabling wireless requires a restart of Dobrynya.
 					</p>
@@ -129,7 +126,7 @@
 						><input
 							type="checkbox"
 							class="appleswitch"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={settings.ble.items.flags.flag![1]}
 						/><mark></mark> Advertise on start</label
 					>
@@ -140,15 +137,6 @@
 						to it. Otherwise, enter menu mode to enable advertising.
 					</p>
 				</h4>
-
-				<!-- <div class="ce-block">
-					<h4>Name</h4>
-					<input
-						type="text"
-						disabled
-						bind:value={settings.ble.items.name.text}
-					/>
-				</div> -->
 			</fieldset>
 		{/if}
 		<fieldset id="se-leds">
@@ -172,7 +160,7 @@
 						><input
 							type="checkbox"
 							class="appleswitch"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={settings.leds.items.flags.flag![0]}
 						/><mark></mark> Colourful encoder feedback</label
 					><br />
@@ -186,7 +174,7 @@
 						><input
 							type="checkbox"
 							class="appleswitch"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={settings.leds.items.flags.flag![1]}
 						/><mark></mark> Shake makes the eyes flash</label
 					><br />
@@ -196,7 +184,7 @@
 						><input
 							type="checkbox"
 							class="appleswitch"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={settings.leds.items.flags.flag![2]}
 						/><mark></mark> Eyes show device status</label
 					><br />
@@ -230,7 +218,7 @@
 				<div class="ce-block">
 					<h4>Blink mode</h4>
 					<select
-						on:input={markSettingsUnsavedNow}
+						oninput={markSettingsUnsavedNow}
 						bind:value={settings.leds.items.blinkmode.value}
 					>
 						<option value={0}>Off</option>
@@ -256,7 +244,7 @@
 					<label
 						><input
 							type="checkbox"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={
 								settings.leds.items.chillanimations.flag![0]
 							}
@@ -265,7 +253,7 @@
 					<label
 						><input
 							type="checkbox"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={
 								settings.leds.items.chillanimations.flag![1]
 							}
@@ -274,7 +262,7 @@
 					<label
 						><input
 							type="checkbox"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={
 								settings.leds.items.chillanimations.flag![2]
 							}
@@ -400,7 +388,7 @@
 							<td
 								><input
 									type="checkbox"
-									on:input={markSettingsUnsavedNow}
+									oninput={markSettingsUnsavedNow}
 									bind:checked={
 										settings.input.items.flags.flag![0]
 									}
@@ -433,7 +421,7 @@
 								<td
 									><input
 										type="checkbox"
-										on:input={markSettingsUnsavedNow}
+										oninput={markSettingsUnsavedNow}
 										disabled={$deviceDefinition.model
 											.hardware!.ble ==
 											BLEAvailable.External &&
@@ -447,7 +435,7 @@
 								<td
 									><input
 										type="checkbox"
-										on:input={markSettingsUnsavedNow}
+										oninput={markSettingsUnsavedNow}
 										bind:checked={
 											settings.input.items.flags.flag![1]
 										}
@@ -471,7 +459,7 @@
 						><input
 							type="checkbox"
 							class="appleswitch"
-							on:input={markSettingsUnsavedNow}
+							oninput={markSettingsUnsavedNow}
 							bind:checked={settings.input.items.flags.flag![2]}
 						/><mark></mark> Allow double keyboard connection</label
 					><br />
@@ -512,7 +500,7 @@
 				<label
 					><input
 						type="checkbox"
-						on:input={markSettingsUnsavedNow}
+						oninput={markSettingsUnsavedNow}
 						bind:checked={settings.midi.items.hwmidi.flag![1]}
 					/> Send active sensing over classic</label
 				>
@@ -556,7 +544,7 @@
 							device, we believe that it may be useful and
 							important for pro-level finger drummers and beat
 							makers who want to find their own sweet spot between
-							possible bounce artefacts and responsiveness.
+							possible bounce artifacts and responsiveness.
 						</p>
 						<p>
 							A common setting for debounce seems to be around 10
@@ -576,11 +564,6 @@
 					rangeToInline={valueToMs}
 				/>
 			</div>
-
-			<!-- <div class="ce-block">
-				<h4>Direction</h4>
-				<label><input type="checkbox" on:input={markSettingsUnsavedNow} bind:checked={settings.input.items.direction.flag![0]}> Reverse encoders</label><br />
-			</div> -->
 		</fieldset>
 
 		{#if $deviceDefinition.has.haptic}
@@ -593,7 +576,7 @@
 						<label
 							><input
 								type="checkbox"
-								on:input={markSettingsUnsavedNow}
+								oninput={markSettingsUnsavedNow}
 								bind:checked={
 									settings.haptic.items.events.flag![0]
 								}
@@ -602,7 +585,7 @@
 						<label
 							><input
 								type="checkbox"
-								on:input={markSettingsUnsavedNow}
+								oninput={markSettingsUnsavedNow}
 								bind:checked={
 									settings.haptic.items.events.flag![1]
 								}
@@ -611,7 +594,7 @@
 						<label
 							><input
 								type="checkbox"
-								on:input={markSettingsUnsavedNow}
+								oninput={markSettingsUnsavedNow}
 								bind:checked={
 									settings.haptic.items.events.flag![2]
 								}
@@ -620,7 +603,7 @@
 						<label
 							><input
 								type="checkbox"
-								on:input={markSettingsUnsavedNow}
+								oninput={markSettingsUnsavedNow}
 								bind:checked={
 									settings.haptic.items.events.flag![3]
 								}
@@ -632,7 +615,7 @@
 				<div class="ce-block">
 					<h4>Control haptic with MIDI input</h4>
 					<select
-						on:input={markSettingsUnsavedNow}
+						oninput={markSettingsUnsavedNow}
 						bind:value={settings.haptic.items.channel.value}
 						name="set-haptic-midichannel"
 					>

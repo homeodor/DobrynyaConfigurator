@@ -25,7 +25,7 @@
 		getSettingsFromDevice,
 		getPalettesFromDevice,
 		getFactorySettings,
-	} from "./ts/settings_utils";
+	} from "./ts/settings.svelte";
 	import { WaitingBlock } from "./ts/waitingblock";
 	import { extraContent, isAlt, isMacLike } from "./ts/stores";
 	import {

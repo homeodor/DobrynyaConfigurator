@@ -5,7 +5,7 @@
 		KeyboardAvailable,
 		type ControlDefinition,
 	} from "./ts/control_defs";
-	import { settings } from "./ts/settings_utils";
+	import { settings } from "./ts/settings.svelte";
 
 	let {
 		theControl,
