@@ -105,8 +105,9 @@ export function getNewPatchName(
 		patchesInfo === undefined ||
 		thePatchName === undefined ||
 		!patchesInfo.length
-	)
-		return; // come later
+	) {
+		throw new Error("Cannot get new patch name");
+	}
 
 	let i: number = 1;
 	let suggestedPatchName: string;

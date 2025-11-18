@@ -262,6 +262,5 @@
 			defValue={globalVelocity.value}
 			disabled={!velocityOverride}
 		/>
-		<!-- <input id="cbm-vel" name="vel" type="range" min="0" max="127" value="127" data-default="127"> <label></label> -->
 	</div>
 </fieldset>

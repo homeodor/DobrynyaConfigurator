@@ -10,7 +10,7 @@
 	} = $props();
 
 	let dialog = $state<HTMLDialogElement>();
-	let resolveFunction: Function;
+	let resolveFunction: (_: boolean) => void;
 
 	export function confirm() {
 		if (!dialog) {

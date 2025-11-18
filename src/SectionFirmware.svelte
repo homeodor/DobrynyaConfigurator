@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { StatusResult } from "./ts/types";
 	import {
 		getLatestVersion,
 		getFullModelCode,

@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from "svelte";
+	import { tick } from "svelte";
 
-	const dispatch = createEventDispatcher();
+	interface RenameDispatch {
+		value: string;
+		prevValue: string;
+		inline: HTMLSpanElement;
+		setValue: (v: string) => void;
+	}
 
 	export let value: string;
 	export let width: string = "auto";
@@ -12,11 +17,14 @@
 		return true;
 	};
 	export let showDot: boolean = false;
+	export let onclick: () => void;
+	export let oncancel: (v: RenameDispatch) => void = () => {};
+	export let oninput: (v: RenameDispatch) => void;
 
 	let prevValue: string;
 
-	let theInline: Element;
-	let inlineHolder: Element;
+	let theInline: HTMLSpanElement;
+	let inlineHolder: HTMLSpanElement;
 	let doNotSend: boolean = false;
 
 	let isValid = true;
@@ -49,18 +57,18 @@
 
 		if (doNotSend) {
 			doNotSend = false;
-			dispatch("cancel", {
+			oncancel({
 				value,
-				prevValue: prevValue,
+				prevValue,
 				inline: inlineHolder,
-				setValue: setValue,
+				setValue,
 			});
 		} else
-			dispatch("input", {
+			oninput({
 				value,
-				prevValue: prevValue,
+				prevValue,
 				inline: inlineHolder,
-				setValue: setValue,
+				setValue,
 			});
 	}
 
@@ -82,7 +90,9 @@
 	}
 
 	function doNotFocus() {
-		if (!inlineActive && !disabled) dispatch("click");
+		if (!inlineActive && !disabled) {
+			onclick();
+		}
 	}
 
 	let inlineActive = false;

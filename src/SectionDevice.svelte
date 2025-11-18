@@ -1,7 +1,20 @@
 <script lang="ts">
 	import { deviceDefinition, FirmwareState } from "./ts/device";
 
-	const realChips = {
+	let {
+		hasNewFirmware,
+		latestFw,
+	}: { hasNewFirmware: FirmwareState; latestFw: string | null } = $props();
+
+	interface ChipDefinition {
+		name: string;
+		mhz: number;
+	}
+
+	const realChips: Record<
+		string,
+		Record<string, ChipDefinition> | ChipDefinition
+	> = {
 		microv2: {
 			"17": { name: "ATSAMD21G17", mhz: 48 },
 			"18": { name: "ATSAMD21G18", mhz: 48 },
@@ -20,7 +33,6 @@
 	import imagePocket from "../i/devices/pocket.webp";
 	import imageMicroV2Dark from "../i/devices/microv2_dark.webp";
 	import imageMicroV2Light from "../i/devices/microv2_light.webp";
-	import type { StatusResult } from "./ts/types";
 	import Opensource from "./Opensource.svelte";
 	import { CaseColour } from "./ts/device";
 	import { sysExAndDo, sysExStorageMode } from "./ts/midi_core";
@@ -31,19 +43,13 @@
 	import { eightToSeven } from "./ts/midi_utils";
 	import { isAlt } from "./ts/stores";
 	import Confirm from "./widgets/Confirm.svelte";
+	import Alert from "./widgets/Alert.svelte";
 
-	let imageURL = imageMiniV2;
+	let showOpenSource = $state(false);
 
-	// export let isOnline: boolean;
-
-	export let hasNewFirmware: FirmwareState;
-	export let latestFw: string | null;
-
-	let chipName = "";
-
-	let showOpenSource = false;
-
-	let uploadConfirm: Confirm;
+	let uploadConfirm = $state<Confirm>();
+	let storageConfirm = $state<Confirm>();
+	let alertFirmwareDownloadFailed = $state<Alert>();
 
 	function optimizeBuildNumber(version: string) {
 		const cleanVersion = version.split("/");
@@ -56,11 +62,24 @@
 	}
 
 	async function updateFirmwareEsp32() {
+		if (!uploadConfirm) {
+			throw new Error("No storage Confirm in SectionDevice.svelte");
+		}
+
 		if (!(await uploadConfirm.confirm())) {
 			return;
 		}
 
-		const buffer = await (await getFirmwareBlob()).arrayBuffer();
+		const firmwareBlob = await getFirmwareBlob();
+
+		if (!firmwareBlob) {
+			if (alertFirmwareDownloadFailed) {
+				await alertFirmwareDownloadFailed.confirm();
+			}
+			return;
+		}
+
+		const buffer = await firmwareBlob.arrayBuffer();
 		const array = new Uint8Array(buffer);
 		const checksum = getChecksumCalculator(selectChecksum());
 		sysExAndDo(
@@ -72,15 +91,45 @@
 		);
 	}
 
-	$: {
-		if (realChips[$deviceDefinition.model.code]) {
-			let chipObj =
-				realChips[$deviceDefinition.model.code][
-					$deviceDefinition.model.chip.code
-				] ?? realChips[$deviceDefinition.model.code];
-			chipName = `${chipObj.name} @ ${chipObj.mhz} MHz`;
+	async function store() {
+		if (!storageConfirm) {
+			throw new Error("No storage Confirm in SectionDevice.svelte");
 		}
 
+		if (!(await storageConfirm.confirm())) {
+			return;
+		}
+
+		sysExStorageMode();
+	}
+
+	let chipName = $derived.by(() => {
+		if (
+			$deviceDefinition.model.code &&
+			realChips[$deviceDefinition.model.code]
+		) {
+			const modelCode = $deviceDefinition.model.code;
+			const chipCode = $deviceDefinition.model.chip?.code;
+			let chipObj: ChipDefinition | null = null;
+
+			if (
+				chipCode &&
+				(realChips[modelCode] as Record<string, ChipDefinition>)[
+					chipCode.toString()
+				]
+			) {
+				chipObj = (
+					realChips[modelCode] as Record<string, ChipDefinition>
+				)[chipCode.toString()];
+			} else if (realChips[modelCode]) {
+				chipObj = realChips[modelCode] as ChipDefinition;
+			}
+
+			return chipObj ? `${chipObj.name} @ ${chipObj.mhz} MHz` : "";
+		}
+	});
+
+	let imageURL = $derived.by(() => {
 		let isDark =
 			$importantFactorySettings.caseColour === CaseColour.Dark ||
 			$importantFactorySettings.caseColour === CaseColour.Gray;
@@ -88,17 +137,14 @@
 		if ($deviceDefinition) {
 			switch ($deviceDefinition?.model?.code) {
 				case "miniv2":
-					imageURL = imageMiniV2;
-					break;
+					return imageMiniV2;
 				case "microv2":
-					imageURL = isDark ? imageMicroV2Dark : imageMicroV2Light;
-					break;
+					return isDark ? imageMicroV2Dark : imageMicroV2Light;
 				case "pocket":
-					imageURL = imagePocket;
-					break;
+					return imagePocket;
 			}
 		}
-	}
+	});
 </script>
 
 <svelte:head>
@@ -136,9 +182,9 @@
 			<div>{optimizeBuildNumber(latestFw)}</div>
 		{/if}
 		{#if (hasNewFirmware == FirmwareState.Outdated || hasNewFirmware == FirmwareState.Obsolete || $isAlt) && !$deviceDefinition.model.canHid}
-			<h4>&nbsp;</h4>
+			<h4 style="color: transparent">Placeholder</h4>
 			<div>
-				<button on:click={updateFirmwareEsp32}>
+				<button onclick={updateFirmwareEsp32}>
 					{#if latestFw && latestFw != $deviceDefinition.version}
 						Update firmware
 					{:else}
@@ -164,15 +210,7 @@
 	{#if $importantFactorySettings.batteryCapacity}
 		<h3>Extra</h3>
 		<div>
-			<button on:click={sysExStorageMode}
-				>Storage mode <Halp
-					>This sets the device's charger into the storage mode. Once
-					you unplug USB, the device will power off and switch off its
-					battery to extend its life. The device can then only be
-					powered on by plugging USB again{#if $importantFactorySettings.boardRevision && $importantFactorySettings.boardRevision != "5.0"}
-						or pressing Reset{/if}.
-				</Halp></button
-			>
+			<button onclick={store}>Storage mode</button>
 		</div>
 	{/if}
 
@@ -183,7 +221,7 @@
 				class="unreal"
 				role="link"
 				tabindex="0"
-				on:click={() => (showOpenSource = true)}
+				onclick={() => (showOpenSource = true)}
 				>Open source code and assets used in Dobrynya’s codebase</span
 			>
 		</p>
@@ -194,7 +232,7 @@
 				role="button"
 				tabindex="0"
 				class="unreal"
-				on:click={() => (showOpenSource = false)}
+				onclick={() => (showOpenSource = false)}
 				>Close libraries list</span
 			>
 		</p>
@@ -204,10 +242,28 @@
 
 <Confirm bind:this={uploadConfirm} okText="Upload">
 	<p>
-		This will update Dobrynya to version {optimizeBuildNumber(latestFw)}.
+		This will update Dobrynya to version {optimizeBuildNumber(latestFw!)}.
 	</p>
 	<p>This will take a while. Do not unplug Dobrynya.</p>
 </Confirm>
+<Confirm bind:this={storageConfirm} okText="Storage mode">
+	<p>
+		This will set the charger chip into storage mode. It is designed to
+		extend its battery life when Dobrynya is stored away or shipped.
+	</p>
+	<p>
+		Once you unplug USB, Dobrynya will power off and switch off its battery
+		completely. It can then only be powered on by plugging USB again{#if $importantFactorySettings.boardRevision && $importantFactorySettings.boardRevision != "5.0"}
+			or pressing Reset{/if}.
+	</p>
+</Confirm>
+<Alert bind:this={alertFirmwareDownloadFailed}>
+	<p>Cannot download the firmware.</p>
+	<p>
+		Please check your connection. Some VPN services are known to block
+		firmware downloading.
+	</p>
+</Alert>
 
 <style>
 	#tab-info h1 {

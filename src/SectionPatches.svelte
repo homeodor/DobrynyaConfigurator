@@ -8,7 +8,6 @@
 	import { quickCustom } from "./ts/event_helpers";
 
 	import type { Patch } from "./ts/types_patch";
-	import type SectionEditor from "./SectionEditor.svelte";
 
 	import {
 		sysExEsp32Bootloader,
@@ -51,20 +50,29 @@
 
 	import { deviceDefinition } from "./ts/device";
 
-	export let patchesInfo: PatchInfoItem[];
-	export let getIsSaved: Function;
-	export let markSaved: Function;
-	export let selectPatch: Function;
-	export let closePatchList: Function;
-	export let isOnline: boolean;
+	let {
+		patchesInfo = $bindable<PatchInfoItem[]>(),
+		getIsSaved,
+		markSaved,
+		selectPatch,
+		closePatchList,
+		isOnline,
+	}: {
+		patchesInfo: PatchInfoItem[];
+		getIsSaved: () => boolean;
+		markSaved: () => void;
+		selectPatch: (name: string, quiet?: boolean) => void;
+		closePatchList: () => void;
+		isOnline: boolean;
+	} = $props();
 
 	function handleKeydown(ev: KeyboardEvent) {
 		if (ev.key == "Enter") {
-			const selectedPatches = document.querySelector(
+			const selectedPatches = document.querySelector<HTMLDivElement>(
 				".patchlist-item.current-patch"
 			);
 
-			selectPatch(selectedPatches?.data("patch-name"));
+			selectPatch(selectedPatches?.dataset.patchName!);
 			closePatchList();
 		}
 
@@ -90,16 +98,12 @@
 		}
 	}
 
-	let justUploadedName = "";
-
 	async function getPatchData(name: string): Promise<Patch> {
-		let result: Patch;
-		await sysExFilenameAndDo(
-			Command.READPATCH,
-			name,
-			(data: Patch) => (result = data)
+		return new Promise(resolve =>
+			sysExFilenameAndDo(Command.READPATCH, name, (data: Patch) =>
+				resolve(data)
+			)
 		);
-		return result;
 	}
 
 	let confirmDuplicateOfCurrent: Confirm;
@@ -113,22 +117,32 @@
 		return result === NameFailsBecause.Nothing; // || result === NameFailsBecause.Exists;
 	}
 
+	// remove and import from RenameInline once done
+	interface RenameDispatch {
+		value: string;
+		prevValue: string;
+		inline: HTMLSpanElement;
+		setValue: (v: string) => void;
+	}
+
 	async function rename(
 		name: string,
 		isThePatch: boolean,
-		event: CustomEvent
+		event: RenameDispatch
 	) {
-		let inlineElement = event.detail.inline;
+		let inlineElement = event.inline;
 
 		function ohJustFail() {
-			event.detail.setValue(event.detail.prevValue);
+			event.setValue(event.prevValue);
 		}
 
-		let result = checkIfPatchNameIsValid(event.detail.value, patchesInfo);
+		let result = checkIfPatchNameIsValid(event.value, patchesInfo);
 
-		if (result !== NameFailsBecause.Nothing) return ohJustFail();
+		if (result !== NameFailsBecause.Nothing) {
+			return ohJustFail();
+		}
 
-		let newValue = `${event.detail.value.replace(nbsp, " ").trim()}.dbrpatch`;
+		let newValue = `${event.value.replace(nbsp, " ").trim()}.dbrpatch`;
 
 		try {
 			await sysExTwoFilenamesAndDo(
@@ -146,23 +160,28 @@
 		inlineElement.classList.remove("inline-fails");
 		inlineElement.classList.add("inline-success");
 
-		patchesInfo.find(v => {
+		const foundPatch = patchesInfo.find(v => {
 			return v.name == name;
-		}).name = newValue;
+		});
+
+		if (!foundPatch) {
+			throw new Error(`Could not find patch ${name} to rename`);
+		}
+
+		foundPatch.name = newValue;
+
 		patchesInfo.sort(sortPatchList);
 
 		if (isThePatch) setCurrentPatchName(newValue);
 
 		await tick();
-
-		// inlineElement.scrollIntoView({block: "center", behavior: "smooth"});
 	}
 
 	async function getWithChangesOrNot(
 		name: string,
 		isThePatch: boolean,
 		confirmDialog: Confirm
-	): Promise<{ patchData: Patch; isCurrent: boolean }> {
+	): Promise<{ patchData: Patch | null; isCurrent: boolean }> {
 		if (isThePatch && (getIsSaved() || (await confirmDialog.confirm()))) {
 			return { patchData: null, isCurrent: true }; // patchData == null makes the newPatch function use currentPatch data
 		} else {
@@ -171,6 +190,10 @@
 	}
 
 	async function duplicate(name: string, isThePatch: boolean) {
+		if (!patchList) {
+			throw new Error("patchList not defined");
+		}
+
 		let { patchData } = await getWithChangesOrNot(
 			name,
 			isThePatch,
@@ -185,6 +208,10 @@
 			async (
 				patchInfo: PatchInfoItem // fix UI
 			) => {
+				if (!patchList) {
+					throw new Error("patchList not defined");
+				}
+
 				justUploadedName = patchInfo.name;
 				setTimeout(() => (justUploadedName = ""), 3500);
 				await tick();
@@ -210,9 +237,12 @@
 			confirmDownloadOfCurrent
 		);
 
-		if (patchData === null && isThePatch)
-		{
+		if (patchData === null && isThePatch) {
 			patchData = currentPatch.data!;
+		}
+
+		if (patchData === null) {
+			throw new Error(`Patch data is null`);
 		}
 
 		let downloadAction = async () => {
@@ -228,14 +258,25 @@
 		getPatch(patchData, $deviceDefinition.model, downloadAction);
 	}
 
-	let confirmDeletePatch: Confirm;
-	let fileToBeDeleted = "";
+	let confirmDeletePatch = $state<Confirm>();
+	let fileToBeDeleted = $state("");
+	let justUploadedName = $state("");
 
 	async function deletePatch(
 		name: string,
 		isThePatch: boolean,
-		element: EventTarget
+		element: EventTarget | null
 	) {
+		if (element === null) {
+			throw new Error(`Cannot delete the patch: element is null`);
+		}
+
+		if (!confirmDeletePatch) {
+			throw new Error(
+				`Cannot delete the patch: confirmDeletePatch is undefined`
+			);
+		}
+
 		fileToBeDeleted = name;
 		await tick();
 		if (!(await confirmDeletePatch.confirm())) {
@@ -248,6 +289,11 @@
 			let patchEl = (element as HTMLButtonElement).closest(
 				".patchlist-item"
 			);
+
+			if (!patchEl) {
+				throw new Error(`Could not find patch element`);
+			}
+
 			let patchH = patchEl.getBoundingClientRect().height;
 			(patchEl as HTMLElement).style.setProperty(
 				"--computed-height",
@@ -264,12 +310,20 @@
 
 			if (isThePatch) {
 				markSaved(); // the patch is gone, so whatever
-				selectPatch(
-					patchesInfo.find(v => {
-						return v.name != name;
-					}).name,
-					true
-				); // quietly load the patch if we deleted the current, making sure IT IS NOT THE CURRENT
+
+				const foundPatch = patchesInfo.find(v => {
+					return v.name != name;
+				});
+
+				if (!foundPatch) {
+					throw new Error(
+						`Could not find any other patch but ${name}`
+					);
+				}
+
+				selectPatch(foundPatch.name, true);
+				// quietly load the patch if we deleted the current,
+				// making sure IT IS NOT THE CURRENT
 			}
 		});
 
@@ -291,9 +345,8 @@
 	// 	changeSection("editor");
 	// }
 
-	let patchList: HTMLDivElement;
-	let needToScroll = false;
-	let currentPatchName = "";
+	let patchList = $state<HTMLDivElement>();
+	let needToScroll = $state(false);
 
 	function getThisDobrynyaModel(mID: number) {
 		let dbrIsLegacy = mID > 0xff;
@@ -314,16 +367,24 @@
 		return "This patch has been designed for another Dobrynya.";
 	}
 
-	$: {
+	let currentPatchName = $derived.by(() => {
 		if (patchesInfo) {
 			let foundOrNot = patchesInfo.find(v => {
 				return v.isThePatch;
 			});
-			if (foundOrNot) currentPatchName = foundOrNot.name;
-			else console.warn("Did not find isThePatch");
+			if (foundOrNot) {
+				return foundOrNot.name;
+			} else {
+				console.warn("Did not find isThePatch");
+			}
 		}
+		return "";
+	});
 
-		let uploadedPatchElement: HTMLDivElement =
+	$effect(() => {
+		// do we need this? seems like needToScroll is always false...
+
+		let uploadedPatchElement: HTMLDivElement | null | undefined =
 			patchList?.querySelector(".uploadedPatch");
 
 		if (uploadedPatchElement && needToScroll) {
@@ -333,7 +394,7 @@
 				behavior: "smooth",
 			});
 		}
-	}
+	});
 </script>
 
 <svelte:body on:keydown={handleKeydown} />
@@ -342,7 +403,7 @@
 	<div style="margin-bottom:2rem" id="patchlist-diskmode">
 		<button
 			style="height:3em; vertical-align: bottom"
-			on:click={rebootToDisk}
+			onclick={rebootToDisk}
 			>Disk mode <Halp
 				>You may also manipulate your patches from the {#if $isMacLike}<span
 						class="system-mac">Finder</span
@@ -373,7 +434,7 @@
 							role="button"
 							tabindex="0"
 							class="patchlist-pattern patternpreview"
-							on:click={() => tune(patch.name, patch.isThePatch)}
+							onclick={() => tune(patch.name, patch.isThePatch)}
 						>
 							{#if patch.info?.pattern}
 								{#each patch.info.pattern as colour}
@@ -391,10 +452,10 @@
 						<h3>
 							<RenameInline
 								disabled={!isOnline}
-								on:click={() =>
+								onclick={() =>
 									tune(patch.name, patch.isThePatch)}
 								validatorFunction={validatePatchNameSimple}
-								on:input={ev =>
+								oninput={ev =>
 									rename(patch.name, patch.isThePatch, ev)}
 								value={patch.name.replace(".dbrpatch", "")}
 								showDot={patch.isThePatch && !isSaved()}
@@ -413,21 +474,21 @@
 						<button
 							title="Tune"
 							disabled={!isOnline}
-							on:click={() =>
+							onclick={() =>
 								tune(patch.name, patch.isThePatch, true)}
 							><img alt="Tune" src={iconTune} /></button
 						>
 						<button
 							title="Duplicate"
 							disabled={!isOnline}
-							on:click={() =>
+							onclick={() =>
 								duplicate(patch.name, patch.isThePatch)}
 							><img alt="Duplicate" src={iconDuplicate} /></button
 						>
 						<button
 							title="Download"
 							disabled={!isOnline}
-							on:click={ev =>
+							onclick={ev =>
 								download(
 									patch.name,
 									patch.isThePatch,
@@ -439,7 +500,7 @@
 							title="Delete"
 							disabled={!isOnline ||
 								(!$isAlt && patchesInfo.length <= 1)}
-							on:click={ev =>
+							onclick={ev =>
 								deletePatch(
 									patch.name,
 									patch.isThePatch,

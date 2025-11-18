@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, createEventDispatcher } from "svelte";
+	import { onMount } from "svelte";
 
 	import * as keyboardUtils from "./ts/keyboard";
 	import { isMacLike } from "./ts/stores";
