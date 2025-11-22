@@ -51,14 +51,12 @@
 		uploadFWAnyway = false;
 		progress = 0;
 		maxProgress = 0;
-//		newerBLAvailable = versionCompareRaw(bootloader.blVersion.split("."), remoteResponse.bootloader.version.split("."));
 		newerFWAvailable = versionCompare(bootloader.fwVersion, remoteResponse);		
 	}
 	
 	async function updateHidList()
 	{
 		hidList = await hid.getDevices();
-		// console.log(hidList);
 	}
 	
 	async function getBootloaderData()

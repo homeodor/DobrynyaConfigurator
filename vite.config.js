@@ -15,19 +15,24 @@ export default defineConfig({
   base: "./",
   server: { https: true },
   output: {
-  //      sourcemap: true, // <-- remove
-          sourcemap: !production // ,
-          // format: 'iife',
-          // name: 'app',
-          // file: 'public/build/bundle.js'
-    },
+    //      sourcemap: true, // <-- remove
+    sourcemap: !production // ,
+    // format: 'iife',
+    // name: 'app',
+    // file: 'public/build/bundle.js'
+  },
+  define: {
+    __SHA__: JSON.stringify(
+      process.env.CF_PAGES_COMMIT_SHA ?? 'dev-local'
+    ),
+  },
   plugins: [
     mkcert(),
     svelte({
       preprocess: autoPreprocess(),
       compilerOptions: {
         dev: !production
-//        customElement: true
+        //        customElement: true
       }
     }),
     typescript({

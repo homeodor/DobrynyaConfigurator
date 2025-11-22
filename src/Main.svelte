@@ -126,6 +126,7 @@
 		getUpdates,
 		type UpdatesInfo,
 	} from "./ts/download";
+	import { buildIsLocal, SHA } from "./ts/build_info";
 
 	let versionInfo: UpdatesInfo;
 	let hasNewFirmware = FirmwareState.Unknown;
@@ -162,8 +163,7 @@
 
 		let previousSerial = $deviceDefinition.serial;
 
-		if ((ev as CustomEvent).detail)
-		{
+		if ((ev as CustomEvent).detail) {
 			setDevice((ev as CustomEvent).detail);
 		}
 		// there’s nothing bad in updating the details each time, because there might’ve been a firmware update or something
@@ -425,11 +425,17 @@
 		href="https://github.com/homeodor/DobrynyaConfigurator/"
 		>MIDI Dobrynya configurator</a
 	>
-	{pJson.version.split(".")[0]}.{pJson.version.split(".")[1]} build {pJson.version.split(
-		"."
-	)[2]}. © Alexander Golovanov, MMXXI—{romanize(
-		new Date().getFullYear()
-	)}.<br /><br />
+	{pJson.version.split(".")[0]}.{pJson.version.split(".")[1]}
+	{#if buildIsLocal}
+		local build.
+	{:else}
+		@ <a
+			style="color:inherit; border-color:rgba(69 86 106)"
+			href="https://github.com/homeodor/DobrynyaConfigurator/commit/{SHA}"
+			>{SHA}</a
+		>.
+	{/if} © Alexander Golovanov, MMXXI—{romanize(new Date().getFullYear())}.<br
+	/><br />
 	<a href="https://www.mididobrynya.com/">mididobrynya.com</a>
 </div>
 <Alert bind:this={alertJsonLoadFailed}>
