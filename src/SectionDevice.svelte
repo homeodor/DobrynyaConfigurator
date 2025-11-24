@@ -37,6 +37,7 @@
 	// export let isOnline: boolean;
 
 	export let hasNewFirmware: FirmwareState;
+	export let updateVersionInfo: () => void;
 	export let latestFw: string | null;
 
 	let chipName = "";
@@ -142,6 +143,20 @@
 		{#if latestFw && latestFw != $deviceDefinition.version}
 			<h4>Latest firmware</h4>
 			<div>{optimizeBuildNumber(latestFw)}</div>
+		{/if}
+		{#if hasNewFirmware == FirmwareState.Error && !$deviceDefinition.model.canHid}
+			<h4>Latest firmware</h4>
+			<div>
+				Error checking.<br />
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<span class="unreal" on:click={updateVersionInfo}
+					>Try again?</span
+				>
+			</div>
+		{/if}
+		{#if hasNewFirmware == FirmwareState.Checking && !$deviceDefinition.model.canHid}
+			<h4>Latest firmware</h4>
+			<div>Loading info...</div>
 		{/if}
 		{#if (hasNewFirmware == FirmwareState.Outdated || hasNewFirmware == FirmwareState.Obsolete || $isAlt) && !$deviceDefinition.model.canHid}
 			<h4>&nbsp;</h4>

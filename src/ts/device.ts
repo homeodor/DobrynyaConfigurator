@@ -11,6 +11,7 @@ export interface VersionDataShort {
 export enum FirmwareState {
 	Unknown,
 	Checking,
+	Error,
 	Obsolete,
 	Outdated,
 	UpToDate,

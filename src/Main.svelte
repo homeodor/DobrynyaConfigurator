@@ -122,6 +122,7 @@
 	import SectionSoundbanks from "./SectionSoundpacks.svelte";
 	import {
 		checkSigning,
+		ExtraContentState,
 		getContentList,
 		getUpdates,
 		type UpdatesInfo,
@@ -133,6 +134,20 @@
 	let latestFw: string | null = null;
 
 	let uaParserEngine = new UAParser().getEngine();
+
+	async function loadExtraContent() {
+		$extraContent = {
+			state: ExtraContentState.Unknown,
+			packs: [],
+			videos: [],
+		};
+
+		try {
+			$extraContent = await getContentList();
+		} catch (e) {
+			$extraContent = null;
+		}
+	}
 
 	async function updateVersionInfo() {
 		latestFw = null;
@@ -152,7 +167,7 @@
 				? FirmwareState.Outdated
 				: FirmwareState.UpToDate;
 		} catch (e) {
-			hasNewFirmware = FirmwareState.Unknown;
+			hasNewFirmware = FirmwareState.Error;
 		}
 	}
 
@@ -180,12 +195,12 @@
 		if (previousSerial === $deviceDefinition.serial && stuffHasBeenLoaded)
 			return; // same device, no need to reload everything, assume no changes happened
 
-		await updateVersionInfo();
+		updateVersionInfo();
 		await getFactorySettings(); // yup
 
 		if ($deviceDefinition.model.testSignResult) {
 			$deviceDefinition.supportsSigning = await checkSigning();
-			$extraContent = await getContentList();
+			loadExtraContent();
 		}
 		sysExLockPatchSwitching(false); // the device might have locked patch switching, so unlock it
 
@@ -394,10 +409,15 @@
 		/>
 	{/if}
 	{#if openSection == "device"}
-		<SectionDevice on:section={section} {hasNewFirmware} {latestFw} />
+		<SectionDevice
+			on:section={section}
+			{hasNewFirmware}
+			{latestFw}
+			{updateVersionInfo}
+		/>
 	{/if}
 	{#if openSection == "content" && $deviceDefinition.supportsSigning}
-		<SectionSoundbanks />
+		<SectionSoundbanks {loadExtraContent} />
 	{/if}
 	{#if openSection == "firmware"}
 		<SectionFirmware

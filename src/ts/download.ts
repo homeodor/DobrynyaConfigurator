@@ -56,8 +56,16 @@ export interface ExtraVideo {
 }
 
 export interface ExtraContent {
+	state: ExtraContentState;
 	packs: ExtraPack[];
 	videos: ExtraVideo[];
+}
+
+export enum ExtraContentState {
+	Unknown,
+	Available,
+	BackendError,
+	NetworkError,
 }
 
 export interface UpdatesInfo {
@@ -91,26 +99,38 @@ export async function getUpdates(): Promise<any> {
 }
 
 export async function getContentList(): Promise<ExtraContent> {
-	const downloadFetch = await fetch(`${baseUrl}/list`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			deviceData: {
-				model: getDevice().model.code,
-				serial: getDevice().serial,
+	try {
+		const downloadFetch = await fetch(`${baseUrl}/list`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		}),
-	});
+			body: JSON.stringify({
+				deviceData: {
+					model: getDevice().model.code,
+					serial: getDevice().serial,
+				},
+			}),
+		});
 
-	const list = await downloadFetch.json();
+		const list = await downloadFetch.json();
 
-	if (list.status !== "OK" || !list.payload) {
-		throw new Error(list.message);
+		if (list.status !== "OK" || !list.payload) {
+			console.error("Error fetching data from server", list);
+			return {
+				state: ExtraContentState.BackendError,
+				packs: [],
+				videos: [],
+			};
+		}
+
+		const result = list.payload as ExtraContent;
+		result.state = ExtraContentState.Available;
+		return result as ExtraContent;
+	} catch (e) {
+		console.error(e);
+		return { state: ExtraContentState.NetworkError, packs: [], videos: [] };
 	}
-
-	return list.payload as ExtraContent;
 }
 
 async function sign() {
@@ -166,7 +186,7 @@ export async function getDownloadLink(file: string) {
 	const download = await downloadFetch.json();
 
 	if (download.status !== "OK") {
-		throw new Error(challenge.message);
+		throw new Error(download.message);
 	}
 
 	console.log(download);
