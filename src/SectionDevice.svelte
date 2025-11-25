@@ -221,7 +221,10 @@
 	<p>
 		This will update Dobrynya to version {optimizeBuildNumber(latestFw)}.
 	</p>
-	<p>This will take a while. Do not unplug Dobrynya.</p>
+	<p>
+		This may take a long time, up to 15 minutes in some cases. Do not unplug
+		Dobrynya.
+	</p>
 </Confirm>
 
 <style>
