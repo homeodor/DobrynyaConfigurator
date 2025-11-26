@@ -340,6 +340,14 @@
 	{/each}
 </div>
 
+<GotIt cookieName="pocket"
+	>Do you own a MIDI Dobrynya Pocket?<br />
+	The stable version of configurator now supports it! Please visit: <br />
+	<a href="https://config.mididobrynya.com/"
+		>config.mididobrynya.com</a
+	></GotIt
+>
+
 <GotIt cookieName="consent"
 	>This app uses cookies to store its state. It doesn’t track you or do
 	anything otherwise shady. By using this app, you agree with that. And yes,
