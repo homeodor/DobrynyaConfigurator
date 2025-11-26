@@ -1,5 +1,3 @@
-import { deepClone } from 'basic';
-
 export function expandData(model: any, data: any)
 {
 	for (let property in model)
@@ -9,7 +7,7 @@ export function expandData(model: any, data: any)
 			if (property in data)
 				expandData(model[property], data[property]);
 			else
-				data[property] = deepClone(model[property]);
+				data[property] = structuredClone(model[property]);
 		} else {
 			if (!(property in data)) data[property] = model[property];
 		}
@@ -20,8 +18,8 @@ export function sanizeData(model: any, data: any, safe: any = false): boolean //
 {
 	if (Array.isArray(data))
 	{
-		if (data.length != model.length) { console.log(data,model);
-			throw "Sanize failed: model array has a different length from data array";
+		if (data.length > model.length) { console.log(data,model);
+			throw "Sanize failed: data array is longer than model array";
 		}
 
 		for (let i = data.length - 1; i >= 0; i--) // reverse walk the array...

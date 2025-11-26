@@ -124,7 +124,7 @@ async function getUF2Data(model: string, target: UF2StorageItem, isBootloader: b
 	let response: Response;
 	try
 	{
-		response = await fetch(`https://config.mididobrynya.com/firmware/${model}${maybeBootloader}/latest/`, {
+		response = await fetch(`https://dobrynyadev.kt8.ru/firmware/${model}${maybeBootloader}/latest/`, {
 			mode: 'cors'
 		});
 		

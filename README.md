@@ -74,10 +74,10 @@ Currently used device variants are:
 
 |Variant|Chip|
 |-|-|
+|01|ESP32-S3|
 |05|ATSAMD21x18|
 |06|ATSAMD21x17|
 |15|ATSAME51x20|
-|20|ESP32-S3|
 
 That is, if the serial number is `210601-0014`, this is a MIDI Dobrynya Micro V2, based on the ATSAMD21x17, and it is the fourteenth of its kind.
 
@@ -253,7 +253,7 @@ Also, if bit 7 is set, this means that the message will contain the checksum.
 |```0x20```|```INVOKECONTROL```      | Invoke a control (opens the editor in the Configurator) | TT NN, where TT is control type and NN is its number
 |```0x21```|```LOCKPATCHSWITCHING``` | Locks patch switching on Dobrynya if patch is unsaved in the configurator | 
 |```0x22```|```WAKE```               | Does nothing |
-|```0x23```|```LOADBANK```           | Switches banks on the device. | SH BB, where S is if it is a sub-bank, H is hand (commonly 0), BB is bunk number
+|```0x23```|```LOADBANK```           | Switches banks on the device. | SH BB, where S is if it is a sub-bank, H is hand (commonly 0), BB is bank number
 |```0x40```|```LIGHTUP```            | Makes the device light up with colours | Three reserved bytes (now all set to 0x0), then 1 or 16 encoded 16-bit HSV values (see before)
 |```0x41```|```BURST```              | Reserved |
 |```0x42```|```PALETTE```            | Reserved |

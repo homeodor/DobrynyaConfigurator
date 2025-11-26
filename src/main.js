@@ -9,7 +9,7 @@ function checkBrowser()
   if (
     (uaParserEngine.name != "Blink" && uaParserEngine.name != "Gecko") ||
     (uaParserEngine.name == "Gecko" && parseInt(uaParserEngine.version.split(".")[0]) < 99) ||
-    (uaParserEngine.name == "Blink" && parseInt(uaParserEngine.version.split(".")[0]) < 85)
+    (uaParserEngine.name == "Blink" && parseInt(uaParserEngine.version.split(".")[0]) < 98)
     )
     document.location.href = "incompatible.html";
 }
@@ -37,5 +37,5 @@ window.theApp = theApp;
 window.expandersSanizers = new Map();
 
 window.addEventListener("error", (event) => {
-  alert(`Sorry, the app crashed. Please reload the window.\n${log.textContent}${event.type}: ${event.message}\n`);
+//  alert(`Sorry, the app crashed. Please reload the window.\n${event.type}: ${event.message}\n`);
 });
